@@ -1,24 +1,22 @@
 <resources>
     <string name="app_name">SIGAA:Notas</string>
-    <string name="title_activity_login">Sign in</string>
-
+    <string name="title_activity_login">Entrar</string>
     <!-- Strings related to login -->
     <string name="prompt_email">CPF</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
-    <string name="loading">Carregando… O SIGAA é lento, tenha calma.</string>
+    <string name="prompt_password">Senha</string>
+    <string name="action_sign_in">Entrar</string>
+    <string name="action_sign_in_short">Entrar</string>
+    <string name="error_invalid_password">Senha muito curta</string>
+    <string name="error_incorrect_password">Senha incorreta</string>
+    <string name="error_field_required">Campo obrigatório</string>
+    <string name="loading">O SIGAA é lento, tenha calma.\nCaso ao carregar não apareçam notas, certifique-se de que:\n1) você está matriculado em disciplinas neste semestre,\n2) Não há notificaçõe no site do SIGAA.</string>
     <string name="test">Avaliação</string>
     <string name="maxScore">Nota Máxima</string>
     <string name="score">Nota</string>
     <string name="total">Total: </string>
     <string name="reload">Recarregar</string>
     <string name="logout">Sair</string>
+    <string name="title_activity_about">Sobre</string>
+    <string name="about_message">WebScrapper que baixa notas do SIGAA das matérias do semestre atual.\nNão é desenvolvido nem endossado pelo CEFET.\nNão faz upload de sua senha.\n<b>Não funciona se houver mensagem na página inicial.</b>\n\nCódigo fonte disponível em: https://github.com/acristoffers/SIGAAGrades</string>
+    <string name="about">Sobre</string>
 </resources>

@@ -1,6 +1,7 @@
 package sigaa.acristoffers.me.sigaagrades
 
 import android.net.Uri
+import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.*
@@ -32,9 +33,6 @@ class Session(url: String) {
             factory.createSocket(uri.host, 80)
         }
 
-        socket?.soTimeout = 10000
-        socket?.keepAlive = true
-
         input = socket?.getInputStream()?.reader()
         output = socket?.getOutputStream()?.writer()
     }
@@ -46,7 +44,8 @@ class Session(url: String) {
         output?.write(headers)
         output?.flush()
 
-        val result = input?.readText() ?: ""
+        val bufferedReader = BufferedReader(input)
+        val result = bufferedReader.readText()
 
         referer = uri.toString() + path
 
@@ -63,7 +62,8 @@ class Session(url: String) {
         output?.write(headers + body)
         output?.flush()
 
-        val result = input?.readText() ?: ""
+        val bufferedReader = BufferedReader(input)
+        val result = bufferedReader.readText()
 
         referer = uri.toString() + path
 
@@ -83,7 +83,7 @@ class Session(url: String) {
         val headers = hashMapOf(
                 "User-Agent" to "Mozilla/5.0",
                 "Host" to uri.host,
-                "Connection" to "keep-alive",
+                "Connection" to "Close",
                 "Accept-Encoding" to "identity",
                 "Accept" to "text/html"
         )

@@ -24,33 +24,18 @@ object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHold
     }
 
     override fun getItemCount(): Int {
-        return if (courses.isNotEmpty()) {
-            courses.size
-        } else {
-            1
-        }
+        return courses.size
     }
 
     override fun onBindViewHolder(holder: CourseViewHolder, pos: Int) {
-        if (courses.isNotEmpty()) {
-            holder.apply {
-                courseName.text = courses[pos].name
-                val gradeAdapter = gradesList.adapter as GradeViewAdapter
-                gradeAdapter.grades = courses[pos].grades
-                gradeAdapter.notifyDataSetChanged()
-                total.text = courses[pos].grades
-                        .map { it.score.replace(",", ".").trim().toFloat() }
-                        .reduce({ a, b -> a + b }).toString()
-                totalRow.visibility = View.VISIBLE
-            }
-        } else {
-            holder.apply {
-                courseName.text = courseName.context.getString(R.string.loading)
-                val gradeAdapter = gradesList.adapter as GradeViewAdapter
-                gradeAdapter.grades = listOf()
-                gradeAdapter.notifyDataSetChanged()
-                totalRow.visibility = View.GONE
-            }
+        holder.apply {
+            courseName.text = courses[pos].name
+            val gradeAdapter = gradesList.adapter as GradeViewAdapter
+            gradeAdapter.grades = courses[pos].grades
+            gradeAdapter.notifyDataSetChanged()
+            total.text = courses[pos].grades
+                    .map { it.score.replace(",", ".").trim().toFloat() }
+                    .reduce({ a, b -> a + b }).toString()
         }
     }
 

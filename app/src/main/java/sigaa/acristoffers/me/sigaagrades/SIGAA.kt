@@ -2,12 +2,13 @@ package sigaa.acristoffers.me.sigaagrades
 
 import android.os.Build
 import android.text.Html
-import org.htmlcleaner.CleanerProperties
-import org.htmlcleaner.DomSerializer
-import org.htmlcleaner.HtmlCleaner
+import io.reactivex.Observable
+import org.jsoup.Jsoup
+import org.jsoup.helper.W3CDom
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
@@ -27,25 +28,23 @@ class SIGAA(private val username: String, private val password: String) {
         login()
     }
 
-    fun listGrades(): List<Course> {
-        val courses: MutableList<Course> = mutableListOf()
-        val threads = listCourses().map {
-            thread(start = true) {
-                try {
-                    val sigaa = SIGAA(username, password)
-                    val courseId = it["Data"]!!["idTurma"]!!
-                    val courseGrades = sigaa.listGradesForCourse(courseId)
-                    synchronized(courses) {
-                        courses.add(Course.fromHashMap(it["CourseName"]!!["Value"]!!, courseGrades))
+    fun listGrades(): Observable<Course> {
+        return Observable.create { emitter ->
+            val courses = listCourses()
+            courses.map {
+                thread(start = true, priority = 1) {
+                    try {
+                        val sigaa = SIGAA(username, password)
+                        val courseId = it["Data"]!!["idTurma"]!!
+                        val courseGrades = sigaa.listGradesForCourse(courseId)
+                        val course = Course.fromHashMap(it["CourseName"]!!["Value"]!!, courseGrades)
+                        emitter.onNext(course)
+                    } catch (_: Throwable) {
                     }
-                } catch (_: Throwable) {
                 }
-            }
+            }.map { it.join() }
+            emitter.onComplete()
         }
-
-        threads.forEach { it.join() }
-
-        return courses
     }
 
     private fun listGradesForCourse(course_id: String): List<Map<String, String>> {
@@ -124,8 +123,9 @@ class SIGAA(private val username: String, private val password: String) {
     }
 
     private fun html2AST(html: String): Document {
-        val dom = DomSerializer(CleanerProperties()).createDOM(HtmlCleaner().clean(html))
-        return dom ?: DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        val dom = Jsoup.parse(html)
+        return W3CDom().fromJsoup(dom)
+                ?: DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
     }
 
     private fun xpath(node: Node, xPathExpression: String): List<Node> {

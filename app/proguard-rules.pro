@@ -20,10 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep public class org.htmlcleaner.** { *; }
--keep public class kotlin.** { *; }
--keep public class org.jdom2.** { *; }
--keep public class org.jaxen.** { *; }
--keep public class kotlinx.** { *; }
--keep public class kotlin.** { *; }
--keep public class javax.** { *; }
+-keep class sigaa.acristoffers.me.sigaagrades.GradesActivity

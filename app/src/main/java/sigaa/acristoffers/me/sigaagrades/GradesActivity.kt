@@ -7,11 +7,12 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity() {
+class GradesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
         this.recyclerView.apply {
             adapter = CourseViewAdapter
-            layoutManager = LinearLayoutManager(this@MainActivity)
+            layoutManager = LinearLayoutManager(this@GradesActivity)
         }
 
         update()
@@ -41,39 +42,40 @@ class MainActivity : AppCompatActivity() {
     private fun update() {
         this.swipe.isRefreshing = true
 
-        CourseViewAdapter.courses = listOf()
-        CourseViewAdapter.notifyDataSetChanged()
+        setGrades(listOf())
 
         val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
         val username = sharedPreferences.getString("username", "")!!
         val password = sharedPreferences.getString("password", "")!!
 
         thread(start = true) {
-            var tryAgain = true
-            var count = 3
-            var grades: List<SIGAA.Course> = listOf()
+            val grades: MutableList<SIGAA.Course> = mutableListOf()
+            try {
+                val sigaa = SIGAA(username, password)
+                sigaa.listGrades().doOnComplete {
+                    runOnUiThread {
+                        this.swipe.isRefreshing = false
+                    }
+                }.subscribe {
+                    grades.add(it)
 
-            while (tryAgain && count > 0) {
-                try {
-                    val sigaa = SIGAA(username, password)
-                    grades = sigaa.listGrades()
-                    tryAgain = false
-                } catch (_: Throwable) {
-                    count -= 1
+                    runOnUiThread {
+                        setGrades(grades)
+                    }
                 }
-            }
-
-            runOnUiThread {
-                if (tryAgain) {
+            } catch (_: Throwable) {
+                runOnUiThread {
+                    this.swipe.isRefreshing = false
                     Toast.makeText(this, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
                 }
-
-                CourseViewAdapter.courses = grades
-                CourseViewAdapter.notifyDataSetChanged()
-
-                this.swipe.isRefreshing = false
             }
         }
+    }
+
+    private fun setGrades(grades: List<SIGAA.Course>) {
+        CourseViewAdapter.courses = grades
+        CourseViewAdapter.notifyDataSetChanged()
+        emptyView.visibility = if (grades.isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -97,6 +99,13 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+
+                return true
+            }
+
+            R.id.about -> {
+                val intent = Intent(this, AboutActivity::class.java)
                 startActivity(intent)
 
                 return true
