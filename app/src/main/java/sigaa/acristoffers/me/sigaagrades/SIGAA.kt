@@ -161,7 +161,7 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
-    class Course(val name: String, val grades: List<Grade>) {
+    data class Course(val name: String, val grades: List<Grade>) {
         companion object {
             fun fromHashMap(course: String, grades: List<Map<String, String>>): Course {
                 val gradesList = grades.map { Grade.fromHashMap(it) }
@@ -170,7 +170,7 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
-    class Grade(val testName: String, val score: String, val worth: String) {
+    data class Grade(val testName: String, val score: String, val worth: String) {
         companion object {
             fun fromHashMap(grade: Map<String, String>): Grade {
                 val testName = grade["Avaliação"]?.trim() ?: ""

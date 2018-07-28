@@ -31,7 +31,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 import kotlin.concurrent.thread
 
 class GradesActivity : AppCompatActivity() {
@@ -44,8 +46,11 @@ class GradesActivity : AppCompatActivity() {
         }
 
         val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "")!!
-        val password = sharedPreferences.getString("password", "")!!
+        val username = sharedPreferences.getString("username", "") ?: ""
+        val password = sharedPreferences.getString("password", "") ?: ""
+        val coursesJson = sharedPreferences.getString("grades", "[]") ?: "[]"
+        val courses = GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
+        setGrades(courses.toList())
 
         if (username.isEmpty() || password.isEmpty()) {
             val intent = Intent(this, LoginActivity::class.java)
@@ -64,8 +69,6 @@ class GradesActivity : AppCompatActivity() {
     private fun update() {
         this.swipe.isRefreshing = true
 
-        setGrades(listOf())
-
         val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
         val username = sharedPreferences.getString("username", "")!!
         val password = sharedPreferences.getString("password", "")!!
@@ -73,10 +76,15 @@ class GradesActivity : AppCompatActivity() {
         thread(start = true) {
             val grades: MutableList<SIGAA.Course> = mutableListOf()
             try {
-                val sigaa = SIGAA(username, password)
-                sigaa.listGrades().doOnComplete {
+                SIGAA(username, password).listGrades().doOnComplete {
                     runOnUiThread {
                         this.swipe.isRefreshing = false
+
+                        val json = GsonBuilder().create().toJson(grades) ?: "[]"
+                        with(sharedPreferences.edit()) {
+                            putString("grades", json)
+                            apply()
+                        }
                     }
                 }.subscribe {
                     grades.add(it)

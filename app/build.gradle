@@ -30,8 +30,8 @@ android {
         applicationId "sigaa.acristoffers.me.sigaagrades"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 5
-        versionName "1.0.4"
+        versionCode 6
+        versionName "1.0.5"
         resConfigs 'en'
     }
     buildTypes {
@@ -53,6 +53,7 @@ dependencies {
 
     implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
     implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:28.0.0-beta01'
