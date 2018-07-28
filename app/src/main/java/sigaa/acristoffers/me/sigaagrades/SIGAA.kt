@@ -4,14 +4,10 @@ import android.os.Build
 import android.text.Html
 import io.reactivex.Observable
 import org.jsoup.Jsoup
-import org.jsoup.helper.W3CDom
-import org.w3c.dom.Document
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import java.util.*
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 import kotlin.concurrent.thread
 
 class SIGAA(private val username: String, private val password: String) {
@@ -48,54 +44,58 @@ class SIGAA(private val username: String, private val password: String) {
     }
 
     private fun listGradesForCourse(course_id: String): List<Map<String, String>> {
-        val courses = listCourses()
-        val course = courses.first { it["Data"]!!["idTurma"] == course_id }
-        val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
-        val root = html2AST(html)
-
-        val viewState = xpath(root, "//input[@name=\"javax.faces.ViewState\"]/@value").first().nodeValue.toString()
-        val data2 = hashMapOf("javax.faces.ViewState" to viewState)
-
         try {
-            val link = xpath(root, "//a[contains(.//div, \"Ver Notas\")]/@onclick").first().nodeValue.toString()
-            val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
-            val m = regex.find(link)?.groupValues?.get(1) ?: ""
-            val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
-            val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
-            data2["formMenu"] = "formMenu"
-            data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
-            data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
+            val courses = listCourses()
+            val course = courses.first { it["Data"]!!["idTurma"] == course_id }
+            val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
+            val root = html2AST(html)
+
+            val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
+            val data2 = hashMapOf("javax.faces.ViewState" to viewState)
+
+            try {
+                val link = find(root, "div:contains(Ver Notas)").last().parent().attr("onclick")
+                val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
+                val m = regex.find(link)?.groupValues?.get(1) ?: ""
+                val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
+                val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
+                data2["formMenu"] = "formMenu"
+                data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
+                data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
+            } catch (_: Throwable) {
+                data2["formMenuDrop"] = "formMenuDrop"
+                data2["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas"
+            }
+
+            val root2 = html2AST(session.post("/sigaa/ava/index.jsf", data2))
+            val table = find(root2, "table.tabelaRelatorio").first()
+            val tr2 = find(table, "tr.linhaPar").first()
+            val vn = find(tr2, "td").map { it.text().trim() }
+            val v = vn.subList(2, vn.size - 4)
+            val a = find(root2, "input#denAval").map { it.`val`() }
+            val n = find(root2, "input#notaAval").map { it.`val`() }
+
+            return a.zip(n).zip(v).map {
+                mapOf(
+                        "Avaliação" to unescapeHTML(it.first.first),
+                        "Nota Máxima" to unescapeHTML(it.first.second),
+                        "Nota" to unescapeHTML(it.second)
+                )
+            }
         } catch (_: Throwable) {
-            data2["formMenuDrop"] = "formMenuDrop"
-            data2["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas"
-        }
-
-        val root2 = html2AST(session.post("/sigaa/ava/index.jsf", data2))
-        val table = xpath(root2, "//table[@class=\"tabelaRelatorio\"]").first()
-        val tr2 = xpath(table, ".//tr[@class=\"linhaPar\"]").first()
-        val vn = xpath(tr2, ".//td/text()").map { it.nodeValue.toString().trim() }
-        val v = vn.subList(2, vn.size - 4)
-        val a = xpath(root2, "//input[contains(@id,\"denAval\")]/@value").map { it.nodeValue.toString() }
-        val n = xpath(root2, "//input[contains(@id,\"notaAval\")]/@value").map { it.nodeValue.toString() }
-
-        return a.zip(n).zip(v).map {
-            mapOf(
-                    "Avaliação" to unescapeHTML(it.first.first),
-                    "Nota Máxima" to unescapeHTML(it.first.second),
-                    "Nota" to unescapeHTML(it.second)
-            )
+            return listOf()
         }
     }
 
     private fun listCourses(): List<HashMap<String, HashMap<String, String>>> {
         val html = html2AST(goHome())
-        return xpath(html, "//td[@class=\"descricao\"]").map {
-            val name = xpath(it, ".//form/@name").first().nodeValue.toString()
+        return find(html, "td.descricao").map {
+            val name = find(it, "form").first().attr("name")
             hashMapOf(
-                    "CourseName" to hashMapOf("Value" to unescapeHTML(xpath(it, ".//a/text()").first().nodeValue.toString())),
+                    "CourseName" to hashMapOf("Value" to unescapeHTML(find(it, "a").first().text())),
                     "Data" to hashMapOf(
-                            "idTurma" to xpath(it, ".//input[@name=\"idTurma\"]/@value").first().nodeValue.toString(),
-                            "javax.faces.ViewState" to xpath(it, ".//input[@name=\"javax.faces.ViewState\"]/@value").first().nodeValue.toString(),
+                            "idTurma" to find(it, "input[name='idTurma']").first().`val`(),
+                            "javax.faces.ViewState" to find(it, "input[name='javax.faces.ViewState']").first().`val`(),
                             name to name,
                             "$name:turmaVirtual" to "$name:turmaVirtual"
                     )
@@ -123,18 +123,11 @@ class SIGAA(private val username: String, private val password: String) {
     }
 
     private fun html2AST(html: String): Document {
-        val dom = Jsoup.parse(html)
-        return W3CDom().fromJsoup(dom)
-                ?: DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        return Jsoup.parse(html)
     }
 
-    private fun xpath(node: Node, xPathExpression: String): List<Node> {
-        val xpath = XPathFactory.newInstance().newXPath().compile(xPathExpression)
-        val nodeList = xpath.evaluate(node, XPathConstants.NODESET) as NodeList?
-        return if (nodeList != null && nodeList.length > 0)
-            (0..(nodeList.length - 1)).mapNotNull { nodeList.item(it) }
-        else
-            listOf()
+    private fun find(node: Element, query: String): Elements {
+        return node.select(query)
     }
 
     private fun unescapeHTML(text: String): String {

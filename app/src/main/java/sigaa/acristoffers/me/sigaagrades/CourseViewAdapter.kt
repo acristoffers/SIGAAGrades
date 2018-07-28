@@ -29,13 +29,20 @@ object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHold
 
     override fun onBindViewHolder(holder: CourseViewHolder, pos: Int) {
         holder.apply {
-            courseName.text = courses[pos].name
+            val course = courses[pos]
+            courseName.text = course.name
             val gradeAdapter = gradesList.adapter as GradeViewAdapter
-            gradeAdapter.grades = courses[pos].grades
+            gradeAdapter.grades = course.grades
             gradeAdapter.notifyDataSetChanged()
-            total.text = courses[pos].grades
-                    .map { it.score.replace(",", ".").trim().toFloat() }
-                    .reduce({ a, b -> a + b }).toString()
+            if (course.grades.isEmpty()) {
+                total.text = "0"
+            } else {
+                total.text = course.grades
+                        .map { it.score.replace(",", ".").trim().toFloat() }
+                        .reduce { a, b -> a + b }
+                        .toString()
+
+            }
         }
     }
 
