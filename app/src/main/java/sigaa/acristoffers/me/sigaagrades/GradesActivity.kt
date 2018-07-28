@@ -33,7 +33,6 @@ import android.view.View
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 import kotlin.concurrent.thread
 
 class GradesActivity : AppCompatActivity() {
@@ -63,7 +62,9 @@ class GradesActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@GradesActivity)
         }
 
-        update()
+        if (courses.isEmpty()) {
+            update()
+        }
     }
 
     private fun update() {
@@ -103,7 +104,7 @@ class GradesActivity : AppCompatActivity() {
     }
 
     private fun setGrades(grades: List<SIGAA.Course>) {
-        CourseViewAdapter.courses = grades
+        CourseViewAdapter.courses = grades.sortedBy { it.name }
         CourseViewAdapter.notifyDataSetChanged()
         emptyView.visibility = if (grades.isEmpty()) View.VISIBLE else View.GONE
     }
@@ -125,6 +126,7 @@ class GradesActivity : AppCompatActivity() {
                 with(sharedPreferences.edit()) {
                     remove("username")
                     remove("password")
+                    remove("grades")
                     apply()
                 }
 
