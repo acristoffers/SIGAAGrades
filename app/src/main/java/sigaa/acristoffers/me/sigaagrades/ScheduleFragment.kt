@@ -23,34 +23,29 @@
 package sigaa.acristoffers.me.sigaagrades
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_login.*
+import android.support.v4.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_schedule.*
+import kotlin.concurrent.thread
 
-class LoginActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+class ScheduleFragment : Fragment() {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_schedule, container, false)
+    }
 
-        val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "")!!
-        val password = sharedPreferences.getString("password", "")!!
-
-        this.username.setText(username)
-        this.password.setText(password)
-        this.sign_in.setOnClickListener {
-            val newUsername = this.username.text.toString()
-            val newPassword = this.password.text.toString()
-
-            with(sharedPreferences.edit()) {
-                putString("username", newUsername)
-                putString("password", newPassword)
-                apply()
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+        val username = sharedPreferences?.getString("username", "") ?: ""
+        val password = sharedPreferences?.getString("password", "") ?: ""
+        thread(start = true) {
+            val schedules = SIGAA(username, password).listSchedules()
+            activity?.runOnUiThread {
+                textView.text = schedules.joinToString("\n") { "${it["course"]}: ${it["schedule"]}" }
             }
-
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
         }
     }
 }

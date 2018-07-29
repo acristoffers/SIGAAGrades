@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:id="@+id/reload"
-        android:title="@string/reload"
-        />
-    <item
-        android:id="@+id/logout"
-        android:title="@string/logout"
-        />
-    <item
-        android:id="@+id/about"
-        android:title="@string/about"/>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <item
+            android:id="@+id/grades"
+            android:title="@string/notas"/>
+        <item
+            android:id="@+id/schedule"
+            android:title="@string/horarios"/>
+    </group>
+    <group>
+        <item
+            android:id="@+id/about"
+            android:title="@string/about"/>
+        <item
+            android:id="@+id/logout"
+            android:title="@string/logout"
+            />
+    </group>
 </menu>

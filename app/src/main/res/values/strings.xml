@@ -19,4 +19,6 @@
     <string name="title_activity_about">Sobre</string>
     <string name="about_message">WebScrapper que baixa notas do SIGAA das matérias do semestre atual.\nNão é desenvolvido nem endossado pelo CEFET.\nNão faz upload de sua senha.\n<b>Não funciona se houver mensagem na página inicial.</b>\n\nCódigo fonte disponível em: https://github.com/acristoffers/SIGAAGrades</string>
     <string name="about">Sobre</string>
+    <string name="notas">Notas</string>
+    <string name="horarios">Horários</string>
 </resources>

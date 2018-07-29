@@ -65,6 +65,17 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
+    fun listSchedules(): List<Map<String, String>> {
+        val html = html2AST(goHome())
+        val trs = find(html, "td.descricao").map {
+            val tr = it.parent()
+            val course = find(tr, "td.descricao").last().text()
+            val schedules = find(tr, "td.info").last().text()
+            mapOf("course" to course, "schedule" to schedules)
+        }
+        return trs
+    }
+
     private fun listGradesForCourse(course_id: String): List<Map<String, String>> {
         try {
             val courses = listCourses()
@@ -179,5 +190,8 @@ class SIGAA(private val username: String, private val password: String) {
                 return Grade(testName, score, worth)
             }
         }
+    }
+
+    data class Schedule(val course: String) {
     }
 }
