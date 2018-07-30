@@ -148,7 +148,7 @@ class SIGAA(private val username: String, private val password: String) {
         return duration.split("até").map {
             val dp = it.trim().split("/").map { it.toInt() }
             val cal = Calendar.getInstance()
-            cal.set(dp[2], dp[1], dp[0], 0, 0, 0)
+            cal.set(dp[2], dp[1] - 1, dp[0], 0, 0, 0)
             cal
         }
     }

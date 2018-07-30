@@ -22,13 +22,22 @@
 
 package sigaa.acristoffers.me.sigaagrades
 
+import android.Manifest
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.CalendarContract
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.Toast
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import java.util.*
@@ -48,6 +57,7 @@ class ScheduleFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        setHasOptionsMenu(true)
 
         swipe.setOnRefreshListener {
             update()
@@ -88,6 +98,7 @@ class ScheduleFragment : Fragment() {
         val schedules = GsonBuilder()
                 .create()
                 .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
+
         setSchedules(schedules.toList())
 
         if (schedules.isEmpty()) {
@@ -133,5 +144,124 @@ class ScheduleFragment : Fragment() {
         wednesdayScheduleViewAdapter.notifyDataSetChanged()
         thursdayScheduleViewAdapter.notifyDataSetChanged()
         fridayScheduleViewAdapter.notifyDataSetChanged()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            addToCalendar()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.schedule, menu);
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.addToCalendar -> {
+                addToCalendar()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun addToCalendar() {
+        val wp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_CALENDAR)
+        val rp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_CALENDAR)
+        if (wp != PackageManager.PERMISSION_GRANTED || rp != PackageManager.PERMISSION_GRANTED) {
+            val permissions = arrayOf(
+                    Manifest.permission.WRITE_CALENDAR,
+                    Manifest.permission.READ_CALENDAR
+            )
+            ActivityCompat.requestPermissions(activity!!, permissions, 0)
+            return
+        }
+
+        val cr = activity?.contentResolver
+        val projection = arrayOf("_id", "calendar_displayName")
+        val calendars = Uri.parse("content://com.android.calendar/calendars")
+        val cs = mutableListOf<List<String>>()
+
+        with(cr?.query(calendars, projection, null, null, null)!!) {
+            if (moveToFirst()) {
+                while (moveToNext()) {
+                    val calID = getString(getColumnIndex(projection[0]))
+                    val calName = getString(getColumnIndex(projection[1]))
+                    cs.add(listOf(calID, calName))
+                }
+            }
+
+            close()
+        }
+
+        AlertDialog.Builder(activity!!)
+                .setTitle("Selecione um calendário: ")
+                .setNegativeButton(R.string.cancel) { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }
+                .setItems(cs.map { it.last() }.toTypedArray()) { dialog, i ->
+                    swipe.isRefreshing = true
+                    Toast.makeText(activity, "Adicionando eventos...", Toast.LENGTH_LONG).show()
+
+                    val calId = cs[i].first().toInt()
+
+                    val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                    val username = sharedPreferences?.getString("username", "") ?: ""
+                    val password = sharedPreferences?.getString("password", "") ?: ""
+                    val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
+                    val schedules = GsonBuilder()
+                            .create()
+                            .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
+
+                    thread(start = true) {
+                        val startAndEnd = SIGAA(username, password).startAndEndOfSemester()
+                        val startSemester = startAndEnd.first()
+                        val endSemester = startAndEnd.last()
+
+                        for (schedule in schedules) {
+                            val startTime = startSemester.clone() as Calendar
+                            val endTime = startSemester.clone() as Calendar
+
+                            startTime.set(Calendar.HOUR, schedule.start.split(":").first().toInt())
+                            startTime.set(Calendar.MINUTE, schedule.start.split(":").last().toInt())
+                            startTime.set(Calendar.AM_PM, 0)
+                            startTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
+
+                            endTime.set(Calendar.HOUR, schedule.end.split(":").first().toInt())
+                            endTime.set(Calendar.MINUTE, schedule.end.split(":").last().toInt())
+                            endTime.set(Calendar.AM_PM, 0)
+                            endTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
+
+                            val repetition = endSemester.get(Calendar.WEEK_OF_YEAR) - startSemester.get(Calendar.WEEK_OF_YEAR)
+
+                            val values = ContentValues()
+                            values.put(CalendarContract.Events.ALL_DAY, false)
+                            values.put(CalendarContract.Events.DTSTART, startTime.timeInMillis)
+                            values.put(CalendarContract.Events.DTEND, endTime.timeInMillis)
+                            values.put(CalendarContract.Events.TITLE, schedule.course)
+                            values.put(CalendarContract.Events.DESCRIPTION, "Aula")
+                            values.put(CalendarContract.Events.EVENT_LOCATION, schedule.local)
+                            values.put(CalendarContract.Events.CALENDAR_ID, calId)
+                            values.put(CalendarContract.Events.EVENT_TIMEZONE, startTime.timeZone.displayName)
+                            values.put(CalendarContract.Events.RRULE, "FREQ=WEEKLY;COUNT=$repetition")
+
+                            cr.insert(CalendarContract.Events.CONTENT_URI, values)
+                        }
+
+                        val builder = CalendarContract.CONTENT_URI.buildUpon()
+                        builder.appendPath("time")
+                        ContentUris.appendId(builder, Calendar.getInstance().timeInMillis)
+                        val intent = Intent(Intent.ACTION_VIEW).setData(builder.build())
+                        activity?.runOnUiThread {
+                            swipe.isRefreshing = false
+                            startActivity(intent)
+                        }
+                    }
+                }
+                .create()
+                .show()
     }
 }

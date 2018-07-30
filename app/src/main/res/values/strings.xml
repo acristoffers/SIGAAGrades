@@ -29,4 +29,7 @@
     <string name="quarta">Quarta</string>
     <string name="quinta">Quinta</string>
     <string name="sexta">Sexta</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="adicionar_ao_calendario">Adicionar ao calendário</string>
 </resources>

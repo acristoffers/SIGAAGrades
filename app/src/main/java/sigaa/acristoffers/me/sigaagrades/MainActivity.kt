@@ -111,4 +111,8 @@ class MainActivity : AppCompatActivity() {
         transaction.add(R.id.content_frame, fragment)
         transaction.commit()
     }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        supportFragmentManager.fragments.first().onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 }
