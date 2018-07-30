@@ -298,7 +298,7 @@ class SIGAA(private val username: String, private val password: String) {
                 val start = schedule["start"] as String
                 val end = schedule["end"] as String
 
-                val times = listOf(
+                val startTimes = listOf(
                         mapOf(
                                 "1" to "7:00",
                                 "2" to "7:50",
@@ -322,8 +322,32 @@ class SIGAA(private val username: String, private val password: String) {
                         )
                 )
 
-                val startTime = times[shift.toInt() - 1][start] ?: ""
-                val endTime = times[shift.toInt() - 1][end] ?: ""
+                val endTimes = listOf(
+                        mapOf(
+                                "1" to "7:50",
+                                "2" to "8:40",
+                                "3" to "9:45",
+                                "4" to "10:35",
+                                "5" to "11:40",
+                                "6" to "12:30"
+                        ),
+                        mapOf(
+                                "1" to "14:40",
+                                "2" to "15:30",
+                                "3" to "16:40",
+                                "4" to "17:30",
+                                "5" to "18:30"
+                        ),
+                        mapOf(
+                                "1" to "19:50",
+                                "2" to "20:40",
+                                "3" to "21:40",
+                                "4" to "22:30"
+                        )
+                )
+
+                val startTime = startTimes[shift.toInt() - 1][start] ?: ""
+                val endTime = endTimes[shift.toInt() - 1][end] ?: ""
 
                 return Schedule(course, local, day.toInt(), shift.toInt(), startTime, endTime)
             }
