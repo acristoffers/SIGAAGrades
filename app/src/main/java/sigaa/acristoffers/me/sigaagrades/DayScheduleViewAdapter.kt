@@ -47,7 +47,7 @@ class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleVie
 
         holder.apply {
             course.text = todaySchedules[pos].course
-            interval.text = "De ${todaySchedules[pos].start} até ${todaySchedules[pos].end}"
+            interval.text = "De ${todaySchedules[pos].start} até ${todaySchedules[pos].end}. Local: ${todaySchedules[pos].local}"
         }
     }
 

@@ -29,6 +29,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import java.util.*
 import kotlin.concurrent.thread
@@ -82,31 +83,55 @@ class ScheduleFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
         }
 
-        update()
+        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+        val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
+        val schedules = GsonBuilder()
+                .create()
+                .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
+        setSchedules(schedules.toList())
+
+        if (schedules.isEmpty()) {
+            update()
+        }
     }
 
     private fun update() {
         swipe.isRefreshing = true
+
         val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
         val username = sharedPreferences?.getString("username", "") ?: ""
         val password = sharedPreferences?.getString("password", "") ?: ""
+
         thread(start = true) {
             val schedules = SIGAA(username, password).listSchedules()
-            todayScheduleViewAdapter.schedules = schedules
-            mondayScheduleViewAdapter.schedules = schedules
-            tuesdayScheduleViewAdapter.schedules = schedules
-            wednesdayScheduleViewAdapter.schedules = schedules
-            thursdayScheduleViewAdapter.schedules = schedules
-            fridayScheduleViewAdapter.schedules = schedules
+            if (sharedPreferences != null && schedules.isNotEmpty()) {
+                val json = GsonBuilder().create().toJson(schedules) ?: "[]"
+                with(sharedPreferences.edit()) {
+                    putString("schedules", json)
+                    apply()
+                }
+            }
+
             activity?.runOnUiThread {
-                todayScheduleViewAdapter.notifyDataSetChanged()
-                mondayScheduleViewAdapter.notifyDataSetChanged()
-                tuesdayScheduleViewAdapter.notifyDataSetChanged()
-                wednesdayScheduleViewAdapter.notifyDataSetChanged()
-                thursdayScheduleViewAdapter.notifyDataSetChanged()
-                fridayScheduleViewAdapter.notifyDataSetChanged()
                 swipe.isRefreshing = false
+                setSchedules(schedules)
             }
         }
+    }
+
+    private fun setSchedules(schedules: List<SIGAA.Schedule>) {
+        todayScheduleViewAdapter.schedules = schedules
+        mondayScheduleViewAdapter.schedules = schedules
+        tuesdayScheduleViewAdapter.schedules = schedules
+        wednesdayScheduleViewAdapter.schedules = schedules
+        thursdayScheduleViewAdapter.schedules = schedules
+        fridayScheduleViewAdapter.schedules = schedules
+
+        todayScheduleViewAdapter.notifyDataSetChanged()
+        mondayScheduleViewAdapter.notifyDataSetChanged()
+        tuesdayScheduleViewAdapter.notifyDataSetChanged()
+        wednesdayScheduleViewAdapter.notifyDataSetChanged()
+        thursdayScheduleViewAdapter.notifyDataSetChanged()
+        fridayScheduleViewAdapter.notifyDataSetChanged()
     }
 }
