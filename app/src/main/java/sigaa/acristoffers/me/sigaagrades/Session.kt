@@ -34,7 +34,6 @@ class Session(url: String) {
     private var socket: Socket? = null
     private var input: InputStreamReader? = null
     private var output: OutputStreamWriter? = null
-
     private var cookies: CookieManager = CookieManager()
     private var headers: HashMap<String, String>? = null
     private var referer: String? = null
@@ -75,7 +74,7 @@ class Session(url: String) {
         return extractBody(result)
     }
 
-    fun post(path: String, data: HashMap<String, String>): String {
+    fun post(path: String, data: Map<String, String>): String {
         reconnect()
 
         val body = data.map { "${it.key}=${URLEncoder.encode(it.value, "UTF8")}" }.joinToString("&")
@@ -97,11 +96,11 @@ class Session(url: String) {
         return cookies.joinToString("; ") { "${it.name}=${it.value}" }
     }
 
-    private fun headersToString(headers: HashMap<String, String>): String {
+    private fun headersToString(headers: Map<String, String>): String {
         return headers.map { "${it.key}: ${it.value}" }.joinToString("\r\n")
     }
 
-    private fun defaultHeaders(): HashMap<String, String> {
+    private fun defaultHeaders(): Map<String, String> {
         val headers = hashMapOf(
                 "User-Agent" to "Mozilla/5.0",
                 "Host" to uri.host,
@@ -119,7 +118,7 @@ class Session(url: String) {
 
     private fun fullHeader(method: String, path: String, contentLength: Int = 0): String {
         val cookies = this.cookies.cookieStore.cookies
-        val headers = defaultHeaders()
+        val headers = HashMap(defaultHeaders())
         headers.putAll(this.headers ?: hashMapOf())
 
         if (cookies.isNotEmpty()) {

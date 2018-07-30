@@ -75,7 +75,7 @@ class GradesFragment : Fragment() {
                     activity?.runOnUiThread {
                         this.swipe.isRefreshing = false
 
-                        if (sharedPreferences != null) {
+                        if (sharedPreferences != null && grades.isNotEmpty()) {
                             val json = GsonBuilder().create().toJson(grades) ?: "[]"
                             with(sharedPreferences.edit()) {
                                 putString("grades", json)

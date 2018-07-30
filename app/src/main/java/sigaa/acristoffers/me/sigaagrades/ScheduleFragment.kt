@@ -25,26 +25,87 @@ package sigaa.acristoffers.me.sigaagrades
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_schedule.*
+import java.util.*
 import kotlin.concurrent.thread
 
 class ScheduleFragment : Fragment() {
+    private val todayScheduleViewAdapter = DayScheduleViewAdapter(Calendar.getInstance().get(Calendar.DAY_OF_WEEK))
+    private val mondayScheduleViewAdapter = DayScheduleViewAdapter(2)
+    private val tuesdayScheduleViewAdapter = DayScheduleViewAdapter(3)
+    private val wednesdayScheduleViewAdapter = DayScheduleViewAdapter(4)
+    private val thursdayScheduleViewAdapter = DayScheduleViewAdapter(5)
+    private val fridayScheduleViewAdapter = DayScheduleViewAdapter(6)
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_schedule, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        swipe.setOnRefreshListener {
+            update()
+        }
+
+        todayRecyclerView.apply {
+            adapter = todayScheduleViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        mondayRecyclerView.apply {
+            adapter = mondayScheduleViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        tuesdayRecyclerView.apply {
+            adapter = tuesdayScheduleViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        wednesdayRecyclerView.apply {
+            adapter = wednesdayScheduleViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        thursdayRecyclerView.apply {
+            adapter = thursdayScheduleViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        fridayRecyclerView.apply {
+            adapter = fridayScheduleViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        update()
+    }
+
+    private fun update() {
+        swipe.isRefreshing = true
         val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
         val username = sharedPreferences?.getString("username", "") ?: ""
         val password = sharedPreferences?.getString("password", "") ?: ""
         thread(start = true) {
             val schedules = SIGAA(username, password).listSchedules()
+            todayScheduleViewAdapter.schedules = schedules
+            mondayScheduleViewAdapter.schedules = schedules
+            tuesdayScheduleViewAdapter.schedules = schedules
+            wednesdayScheduleViewAdapter.schedules = schedules
+            thursdayScheduleViewAdapter.schedules = schedules
+            fridayScheduleViewAdapter.schedules = schedules
             activity?.runOnUiThread {
-                textView.text = schedules.joinToString("\n") { "${it["course"]}: ${it["schedule"]}" }
+                todayScheduleViewAdapter.notifyDataSetChanged()
+                mondayScheduleViewAdapter.notifyDataSetChanged()
+                tuesdayScheduleViewAdapter.notifyDataSetChanged()
+                wednesdayScheduleViewAdapter.notifyDataSetChanged()
+                thursdayScheduleViewAdapter.notifyDataSetChanged()
+                fridayScheduleViewAdapter.notifyDataSetChanged()
+                swipe.isRefreshing = false
             }
         }
     }

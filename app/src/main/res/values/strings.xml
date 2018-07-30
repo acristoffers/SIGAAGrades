@@ -21,4 +21,12 @@
     <string name="about">Sobre</string>
     <string name="notas">Notas</string>
     <string name="horarios">Horários</string>
+    <string name="hoje">Hoje</string>
+    <string name="todos">Todos</string>
+    <string name="placeholder">placeholder</string>
+    <string name="segunda">Segunda</string>
+    <string name="terca">Terça</string>
+    <string name="quarta">Quarta</string>
+    <string name="quinta">Quinta</string>
+    <string name="sexta">Sexta</string>
 </resources>

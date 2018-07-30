@@ -26,32 +26,33 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TableRow
 import android.widget.TextView
 
-class GradeViewAdapter : RecyclerView.Adapter<GradeViewAdapter.GradeViewHolder>() {
-    var grades: List<SIGAA.Grade> = listOf()
+class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleViewAdapter.TodayViewHolder>() {
+    var schedules: List<SIGAA.Schedule> = listOf()
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): GradeViewHolder {
-        val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.grade, viewGroup, false)
-        return GradeViewHolder(v)
+    override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): TodayViewHolder {
+        val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.schedule_day, viewGroup, false)
+        return TodayViewHolder(v)
     }
 
-    override fun getItemCount(): Int = grades.size
+    override fun getItemCount(): Int {
+        return schedules.filter { it.day == day }.size
+    }
 
-    override fun onBindViewHolder(holder: GradeViewHolder, pos: Int) {
+    override fun onBindViewHolder(holder: TodayViewHolder, pos: Int) {
+        val todaySchedules = schedules
+                .filter { it.day == day }
+                .sortedWith(compareBy(SIGAA.Schedule::shift, SIGAA.Schedule::start))
+
         holder.apply {
-            name.text = grades[pos].testName
-            total.text = grades[pos].worth
-            score.text = grades[pos].score
-            header.visibility = if (pos == 0) View.VISIBLE else View.GONE
+            course.text = todaySchedules[pos].course
+            interval.text = "De ${todaySchedules[pos].start} até ${todaySchedules[pos].end}"
         }
     }
 
-    class GradeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.name)
-        val total: TextView = itemView.findViewById(R.id.total)
-        val score: TextView = itemView.findViewById(R.id.score)
-        val header: TableRow = itemView.findViewById(R.id.header)
+    class TodayViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val course: TextView = itemView.findViewById(R.id.course)
+        val interval: TextView = itemView.findViewById(R.id.interval)
     }
 }
