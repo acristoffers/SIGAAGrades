@@ -26,6 +26,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
@@ -63,6 +64,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.schedule -> {
                     title = getString(R.string.horarios)
                     setFragment(ScheduleFragment())
+                }
+
+                R.id.settings -> {
+                    title = getString(R.string.settings)
+                    setFragment(SettingsFragment())
                 }
 
                 R.id.about -> {

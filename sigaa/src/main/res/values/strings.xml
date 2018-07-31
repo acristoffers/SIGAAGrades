@@ -32,4 +32,26 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="adicionar_ao_calendario">Adicionar ao calendário</string>
+    <string name="settings">Configurações</string>
+    <string name="sincronizacao">Sincronização</string>
+    <string name="sync_grades_summary">Sincroniza apenas as notas</string>
+    <string name="sync_grades_title">Sincronizar notas</string>
+    <string name="sync_schedules_title">Sincronizar horários</string>
+    <string name="sync_schedules_summary">Sincroniza apenas os horários</string>
+    <string name="sync_notify_title">Exibir notificações</string>
+    <string name="sync_notify_summary">Exibe notificações quando há novos items</string>
+    <string name="sync_interval_summary">Intervalo em minutos entre verificações</string>
+    <string name="sync_interval_title">Intervalo de verificação</string>
+    <string name="notification_schedules_title">Horários modificados!</string>
+    <string name="notification_schedules_text">Ocorreu modificação nos horários!</string>
+    <string name="notification_grades_title">Notas modificadas!</string>
+    <string name="notification_grades_text">Notas foram lançadas ou modificadas!</string>
+    <string-array name="sync_minutes">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
 </resources>

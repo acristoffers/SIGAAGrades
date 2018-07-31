@@ -45,15 +45,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val notify = preferences?.getBoolean("notify", false) ?: false
 
         if (intent.action == "android.intent.action.BOOT_COMPLETED") {
-            val alarmIntent = Intent(context, AlarmReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
-            val halfHour = (30 * 60 * 1000).toLong()
-            if (syncGrades || syncSchedules) {
-                alarmManager?.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, halfHour, halfHour, pendingIntent)
-            } else {
-                alarmManager?.cancel(pendingIntent)
-            }
+            setAlarm(context)
         }
 
         if (syncGrades) {
@@ -90,7 +82,9 @@ class AlarmReceiver : BroadcastReceiver() {
                     apply()
                 }
 
-                showNotification(context, "grades", "Notas modificadas!", "Notas foram lançadas ou modificadas!")
+                val title = context.getString(R.string.notification_grades_title)
+                val text = context.getString(R.string.notification_grades_text)
+                showNotification(context, "grades", title, text)
             }
         }
     }
@@ -115,7 +109,9 @@ class AlarmReceiver : BroadcastReceiver() {
                 apply()
             }
 
-            showNotification(context, "schedules", "Horários modificados!", "Ocorreu modificação nos horários!")
+            val title = context.getString(R.string.notification_schedules_title)
+            val text = context.getString(R.string.notification_schedules_text)
+            showNotification(context, "schedules", title, text)
         }
     }
 
@@ -139,5 +135,24 @@ class AlarmReceiver : BroadcastReceiver() {
                 .setAutoCancel(true)
                 .build()
         notificationManager?.notify(0, notification)
+    }
+
+    companion object {
+        fun setAlarm(context: Context) {
+            val preferences = context.getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+            val syncGrades = preferences?.getBoolean("grades", false) ?: false
+            val syncSchedules = preferences?.getBoolean("schedules", false) ?: false
+            val interval = (preferences?.getString("interval", "30")?.toLong() ?: 30) * 60 * 1000
+
+            val alarmIntent = Intent(context, AlarmReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
+
+            if (syncGrades || syncSchedules) {
+                alarmManager?.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent)
+            } else {
+                alarmManager?.cancel(pendingIntent)
+            }
+        }
     }
 }

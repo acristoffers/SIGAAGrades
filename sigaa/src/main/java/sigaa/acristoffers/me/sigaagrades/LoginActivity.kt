@@ -52,9 +52,9 @@ class LoginActivity : AppCompatActivity() {
 
             val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
             with(preferences.edit()) {
-                putBoolean("grades",true)
-                putBoolean("schedules",true)
-                putBoolean("notify",true)
+                putBoolean("grades", true)
+                putBoolean("schedules", true)
+                putBoolean("notify", true)
                 apply()
             }
 
