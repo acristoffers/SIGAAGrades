@@ -114,18 +114,25 @@ class ScheduleFragment : Fragment() {
         val password = sharedPreferences?.getString("password", "") ?: ""
 
         thread(start = true) {
-            val schedules = SIGAA(username, password).listSchedules()
-            if (sharedPreferences != null && schedules.isNotEmpty()) {
-                val json = GsonBuilder().create().toJson(schedules) ?: "[]"
-                with(sharedPreferences.edit()) {
-                    putString("schedules", json)
-                    apply()
+            try {
+                val schedules = SIGAA(username, password).listSchedules()
+                if (sharedPreferences != null && schedules.isNotEmpty()) {
+                    val json = GsonBuilder().create().toJson(schedules) ?: "[]"
+                    with(sharedPreferences.edit()) {
+                        putString("schedules", json)
+                        apply()
+                    }
                 }
-            }
 
-            activity?.runOnUiThread {
-                swipe.isRefreshing = false
-                setSchedules(schedules)
+                activity?.runOnUiThread {
+                    swipe.isRefreshing = false
+                    setSchedules(schedules)
+                }
+            } catch (_: Throwable) {
+                activity?.runOnUiThread {
+                    swipe.isRefreshing = false
+                    Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -153,7 +160,7 @@ class ScheduleFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.schedule, menu);
+        inflater?.inflate(R.menu.schedule, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -169,14 +176,19 @@ class ScheduleFragment : Fragment() {
     }
 
     private fun addToCalendar() {
-        val wp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_CALENDAR)
-        val rp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_CALENDAR)
-        if (wp != PackageManager.PERMISSION_GRANTED || rp != PackageManager.PERMISSION_GRANTED) {
-            val permissions = arrayOf(
-                    Manifest.permission.WRITE_CALENDAR,
-                    Manifest.permission.READ_CALENDAR
-            )
-            ActivityCompat.requestPermissions(activity!!, permissions, 0)
+        try {
+            val wp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_CALENDAR)
+            val rp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_CALENDAR)
+            if (wp != PackageManager.PERMISSION_GRANTED || rp != PackageManager.PERMISSION_GRANTED) {
+                val permissions = arrayOf(
+                        Manifest.permission.WRITE_CALENDAR,
+                        Manifest.permission.READ_CALENDAR
+                )
+                ActivityCompat.requestPermissions(activity!!, permissions, 0)
+                return
+            }
+        } catch (_: Throwable) {
+            Toast.makeText(activity, "Erro nas permissões", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -185,16 +197,21 @@ class ScheduleFragment : Fragment() {
         val calendars = Uri.parse("content://com.android.calendar/calendars")
         val cs = mutableListOf<List<String>>()
 
-        with(cr?.query(calendars, projection, null, null, null)!!) {
-            if (moveToFirst()) {
-                while (moveToNext()) {
-                    val calID = getString(getColumnIndex(projection[0]))
-                    val calName = getString(getColumnIndex(projection[1]))
-                    cs.add(listOf(calID, calName))
+        try {
+            with(cr?.query(calendars, projection, null, null, null)!!) {
+                if (moveToFirst()) {
+                    while (moveToNext()) {
+                        val calID = getString(getColumnIndex(projection[0]))
+                        val calName = getString(getColumnIndex(projection[1]))
+                        cs.add(listOf(calID, calName))
+                    }
                 }
-            }
 
-            close()
+                close()
+            }
+        } catch (_: Throwable) {
+            Toast.makeText(activity, "Ocorreu um erro ao listar os calendários", Toast.LENGTH_LONG).show()
+            return
         }
 
         AlertDialog.Builder(activity!!)
@@ -202,7 +219,7 @@ class ScheduleFragment : Fragment() {
                 .setNegativeButton(R.string.cancel) { dialogInterface, _ ->
                     dialogInterface.dismiss()
                 }
-                .setItems(cs.map { it.last() }.toTypedArray()) { dialog, i ->
+                .setItems(cs.map { it.last() }.toTypedArray()) { _, i ->
                     swipe.isRefreshing = true
                     Toast.makeText(activity, "Adicionando eventos...", Toast.LENGTH_LONG).show()
 
@@ -217,47 +234,54 @@ class ScheduleFragment : Fragment() {
                             .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
 
                     thread(start = true) {
-                        val startAndEnd = SIGAA(username, password).startAndEndOfSemester()
-                        val startSemester = startAndEnd.first()
-                        val endSemester = startAndEnd.last()
+                        try {
+                            val startAndEnd = SIGAA(username, password).startAndEndOfSemester()
+                            val startSemester = startAndEnd.first()
+                            val endSemester = startAndEnd.last()
 
-                        for (schedule in schedules) {
-                            val startTime = startSemester.clone() as Calendar
-                            val endTime = startSemester.clone() as Calendar
+                            for (schedule in schedules) {
+                                val startTime = startSemester.clone() as Calendar
+                                val endTime = startSemester.clone() as Calendar
 
-                            startTime.set(Calendar.HOUR, schedule.start.split(":").first().toInt())
-                            startTime.set(Calendar.MINUTE, schedule.start.split(":").last().toInt())
-                            startTime.set(Calendar.AM_PM, 0)
-                            startTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
+                                startTime.set(Calendar.HOUR, schedule.start.split(":").first().toInt())
+                                startTime.set(Calendar.MINUTE, schedule.start.split(":").last().toInt())
+                                startTime.set(Calendar.AM_PM, 0)
+                                startTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
 
-                            endTime.set(Calendar.HOUR, schedule.end.split(":").first().toInt())
-                            endTime.set(Calendar.MINUTE, schedule.end.split(":").last().toInt())
-                            endTime.set(Calendar.AM_PM, 0)
-                            endTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
+                                endTime.set(Calendar.HOUR, schedule.end.split(":").first().toInt())
+                                endTime.set(Calendar.MINUTE, schedule.end.split(":").last().toInt())
+                                endTime.set(Calendar.AM_PM, 0)
+                                endTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
 
-                            val repetition = endSemester.get(Calendar.WEEK_OF_YEAR) - startSemester.get(Calendar.WEEK_OF_YEAR)
+                                val repetition = endSemester.get(Calendar.WEEK_OF_YEAR) - startSemester.get(Calendar.WEEK_OF_YEAR)
 
-                            val values = ContentValues()
-                            values.put(CalendarContract.Events.ALL_DAY, false)
-                            values.put(CalendarContract.Events.DTSTART, startTime.timeInMillis)
-                            values.put(CalendarContract.Events.DTEND, endTime.timeInMillis)
-                            values.put(CalendarContract.Events.TITLE, schedule.course)
-                            values.put(CalendarContract.Events.DESCRIPTION, "Aula")
-                            values.put(CalendarContract.Events.EVENT_LOCATION, schedule.local)
-                            values.put(CalendarContract.Events.CALENDAR_ID, calId)
-                            values.put(CalendarContract.Events.EVENT_TIMEZONE, startTime.timeZone.displayName)
-                            values.put(CalendarContract.Events.RRULE, "FREQ=WEEKLY;COUNT=$repetition")
+                                val values = ContentValues()
+                                values.put(CalendarContract.Events.ALL_DAY, false)
+                                values.put(CalendarContract.Events.DTSTART, startTime.timeInMillis)
+                                values.put(CalendarContract.Events.DTEND, endTime.timeInMillis)
+                                values.put(CalendarContract.Events.TITLE, schedule.course)
+                                values.put(CalendarContract.Events.DESCRIPTION, "Aula")
+                                values.put(CalendarContract.Events.EVENT_LOCATION, schedule.local)
+                                values.put(CalendarContract.Events.CALENDAR_ID, calId)
+                                values.put(CalendarContract.Events.EVENT_TIMEZONE, startTime.timeZone.displayName)
+                                values.put(CalendarContract.Events.RRULE, "FREQ=WEEKLY;COUNT=$repetition")
 
-                            cr.insert(CalendarContract.Events.CONTENT_URI, values)
-                        }
+                                cr.insert(CalendarContract.Events.CONTENT_URI, values)
+                            }
 
-                        val builder = CalendarContract.CONTENT_URI.buildUpon()
-                        builder.appendPath("time")
-                        ContentUris.appendId(builder, Calendar.getInstance().timeInMillis)
-                        val intent = Intent(Intent.ACTION_VIEW).setData(builder.build())
-                        activity?.runOnUiThread {
-                            swipe.isRefreshing = false
-                            startActivity(intent)
+                            val builder = CalendarContract.CONTENT_URI.buildUpon()
+                            builder.appendPath("time")
+                            ContentUris.appendId(builder, Calendar.getInstance().timeInMillis)
+                            val intent = Intent(Intent.ACTION_VIEW).setData(builder.build())
+                            activity?.runOnUiThread {
+                                swipe.isRefreshing = false
+                                startActivity(intent)
+                            }
+                        } catch (_: Throwable) {
+                            activity?.runOnUiThread {
+                                swipe.isRefreshing = false
+                                Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }

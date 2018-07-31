@@ -39,6 +39,7 @@ class LoginActivity : AppCompatActivity() {
 
         this.username.setText(username)
         this.password.setText(password)
+
         this.sign_in.setOnClickListener {
             val newUsername = this.username.text.toString()
             val newPassword = this.password.text.toString()

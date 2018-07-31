@@ -45,17 +45,17 @@ object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHold
         return holder
     }
 
-    override fun getItemCount(): Int {
-        return courses.size
-    }
+    override fun getItemCount(): Int = courses.size
 
     override fun onBindViewHolder(holder: CourseViewHolder, pos: Int) {
         holder.apply {
             val course = courses[pos]
             courseName.text = course.name
+
             val gradeAdapter = gradesList.adapter as GradeViewAdapter
             gradeAdapter.grades = course.grades
             gradeAdapter.notifyDataSetChanged()
+
             if (course.grades.isEmpty()) {
                 total.text = "0"
             } else {

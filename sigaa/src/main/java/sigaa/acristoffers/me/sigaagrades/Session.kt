@@ -68,7 +68,7 @@ class Session(url: String) {
         val bufferedReader = BufferedReader(input)
         val result = bufferedReader.readText()
 
-        referer = uri.toString() + path
+        referer = "$uri$path"
 
         extractCookies(result)
         return extractBody(result)

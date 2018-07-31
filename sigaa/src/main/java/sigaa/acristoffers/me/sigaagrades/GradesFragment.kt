@@ -69,8 +69,8 @@ class GradesFragment : Fragment() {
         val password = sharedPreferences?.getString("password", "") ?: ""
 
         thread(start = true) {
-            val grades: MutableList<SIGAA.Course> = mutableListOf()
             try {
+                val grades: MutableList<SIGAA.Course> = mutableListOf()
                 SIGAA(username, password).listGrades().doOnComplete {
                     activity?.runOnUiThread {
                         this.swipe.isRefreshing = false

@@ -47,8 +47,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        setFragment(GradesFragment())
-
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp)
@@ -90,6 +88,8 @@ class MainActivity : AppCompatActivity() {
             drawer_layout.closeDrawer(Gravity.START)
             true
         }
+
+        setFragment(GradesFragment())
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -113,6 +113,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        supportFragmentManager.fragments.first().onRequestPermissionsResult(requestCode, permissions, grantResults)
+        supportFragmentManager.fragments.forEach {
+            it.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 }
