@@ -50,6 +50,14 @@ class LoginActivity : AppCompatActivity() {
                 apply()
             }
 
+            val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+            with(preferences.edit()) {
+                putBoolean("grades",true)
+                putBoolean("schedules",true)
+                putBoolean("notify",true)
+                apply()
+            }
+
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }

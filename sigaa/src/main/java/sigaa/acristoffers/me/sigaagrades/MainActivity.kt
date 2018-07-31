@@ -22,6 +22,7 @@
 
 package sigaa.acristoffers.me.sigaagrades
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -77,6 +78,14 @@ class MainActivity : AppCompatActivity() {
                         apply()
                     }
 
+                    val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+                    with(preferences.edit()) {
+                        remove("grades")
+                        remove("schedules")
+                        remove("notify")
+                        apply()
+                    }
+
                     val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
                 }
@@ -89,7 +98,13 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        setFragment(GradesFragment())
+        when (intent?.getStringExtra("fragment")) {
+            "schedules" -> setFragment(ScheduleFragment())
+            else -> setFragment(GradesFragment())
+        }
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+        notificationManager?.cancelAll()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
