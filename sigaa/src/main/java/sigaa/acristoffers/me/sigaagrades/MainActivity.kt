@@ -36,6 +36,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
         if (preferences.getBoolean("darkTheme", false)) {
             setTheme(R.style.AppThemeDark_NoActionBar)
@@ -43,7 +45,6 @@ class MainActivity : AppCompatActivity() {
             setTheme(R.style.AppTheme_NoActionBar)
         }
 
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 

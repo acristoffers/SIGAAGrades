@@ -31,6 +31,14 @@ import kotlinx.android.synthetic.main.activity_login.*
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+        if (preferences.getBoolean("darkTheme", false)) {
+            setTheme(R.style.AppThemeDark)
+        } else {
+            setTheme(R.style.AppTheme)
+        }
+
         setContentView(R.layout.activity_login)
 
         val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
