@@ -46,6 +46,8 @@
     <string name="notification_schedules_text">Ocorreu modificação nos horários!</string>
     <string name="notification_grades_title">Notas modificadas!</string>
     <string name="notification_grades_text">Notas foram lançadas ou modificadas!</string>
+    <string name="channel_name">SIGAA</string>
+    <string name="channel_description">Notificações de novas notas e horários</string>
     <string-array name="sync_minutes">
         <item>1</item>
         <item>5</item>

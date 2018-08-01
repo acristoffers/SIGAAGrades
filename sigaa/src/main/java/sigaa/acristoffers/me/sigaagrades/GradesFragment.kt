@@ -32,6 +32,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_grades.*
+import kotlinx.coroutines.experimental.runBlocking
 import kotlin.concurrent.thread
 
 class GradesFragment : Fragment() {
@@ -69,11 +70,13 @@ class GradesFragment : Fragment() {
         val password = sharedPreferences?.getString("password", "") ?: ""
 
         thread(start = true) {
-            try {
-                val grades: MutableList<SIGAA.Course> = mutableListOf()
-                SIGAA(username, password).listGrades().doOnComplete {
+            runBlocking {
+                try {
+                    val grades = SIGAA(username, password).listGrades()
                     activity?.runOnUiThread {
-                        this.swipe.isRefreshing = false
+                        swipe.isRefreshing = false
+
+                        setGrades(grades)
 
                         if (sharedPreferences != null && grades.isNotEmpty()) {
                             val json = GsonBuilder().create().toJson(grades) ?: "[]"
@@ -83,17 +86,11 @@ class GradesFragment : Fragment() {
                             }
                         }
                     }
-                }.subscribe {
-                    grades.add(it)
-
+                } catch (_: Throwable) {
                     activity?.runOnUiThread {
-                        setGrades(grades)
+                        swipe.isRefreshing = false
+                        Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
                     }
-                }
-            } catch (_: Throwable) {
-                activity?.runOnUiThread {
-                    this.swipe.isRefreshing = false
-                    Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
                 }
             }
         }

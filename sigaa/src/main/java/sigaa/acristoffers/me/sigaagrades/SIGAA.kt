@@ -24,13 +24,13 @@ package sigaa.acristoffers.me.sigaagrades
 
 import android.os.Build
 import android.text.Html
-import io.reactivex.Observable
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.util.*
 import kotlin.concurrent.thread
+import kotlin.coroutines.experimental.suspendCoroutine
 
 class SIGAA(private val username: String, private val password: String) {
     private val session = Session("https://sig.cefetmg.br")
@@ -46,22 +46,22 @@ class SIGAA(private val username: String, private val password: String) {
         login()
     }
 
-    fun listGrades(): Observable<Course> {
-        return Observable.create { emitter ->
-            val courses = listCourses()
-            courses.map {
+    suspend fun listGrades(): List<Course> {
+        val courses = listCourses()
+        return courses.mapNotNull {
+            suspendCoroutine<Course?> { cont ->
                 thread(start = true, priority = 1) {
                     try {
                         val sigaa = SIGAA(username, password)
                         val courseId = it["Data"]!!["idTurma"]!!
                         val courseGrades = sigaa.listGradesForCourse(courseId)
                         val course = Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
-                        emitter.onNext(course)
+                        cont.resume(course)
                     } catch (_: Throwable) {
+                        cont.resume(null)
                     }
                 }
-            }.map { it.join() }
-            emitter.onComplete()
+            }
         }
     }
 

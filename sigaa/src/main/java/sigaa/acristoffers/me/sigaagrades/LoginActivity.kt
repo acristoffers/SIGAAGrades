@@ -34,8 +34,8 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "")!!
-        val password = sharedPreferences.getString("password", "")!!
+        val username = sharedPreferences.getString("username", "") ?: ""
+        val password = sharedPreferences.getString("password", "") ?: ""
 
         this.username.setText(username)
         this.password.setText(password)

@@ -43,7 +43,7 @@ class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleVie
     override fun onBindViewHolder(holder: TodayViewHolder, pos: Int) {
         val todaySchedules = schedules
                 .filter { it.day == day }
-                .sortedWith(compareBy(SIGAA.Schedule::shift, SIGAA.Schedule::start))
+                .sortedWith(compareBy(SIGAA.Schedule::shift, { it.start.split(":").first().toInt() }))
 
         holder.apply {
             course.text = todaySchedules[pos].course

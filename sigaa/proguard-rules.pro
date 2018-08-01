@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class sigaa.acristoffers.me.sigaagrades.GradesFragment
+-keep class sigaa.acristoffers.me.sigaagrades.MainActivity

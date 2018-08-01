@@ -22,19 +22,22 @@
 
 package sigaa.acristoffers.me.sigaagrades
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme_NoActionBar)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
@@ -81,6 +84,7 @@ class MainActivity : AppCompatActivity() {
                         remove("username")
                         remove("password")
                         remove("grades")
+                        remove("schedules")
                         apply()
                     }
 
@@ -111,6 +115,17 @@ class MainActivity : AppCompatActivity() {
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
         notificationManager?.cancelAll()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val description = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("sigaa", name, importance)
+            channel.description = description
+            notificationManager?.createNotificationChannel(channel)
+        }
+
+        AlarmReceiver.setAlarm(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
