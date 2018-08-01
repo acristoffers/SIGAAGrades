@@ -48,6 +48,9 @@
     <string name="notification_grades_text">Notas foram lançadas ou modificadas!</string>
     <string name="channel_name">SIGAA</string>
     <string name="channel_description">Notificações de novas notas e horários</string>
+    <string name="theme">Tema</string>
+    <string name="theme_summary">Usar versão escura do tema</string>
+    <string name="theme_title">Tema escuro</string>
     <string-array name="sync_minutes">
         <item>15</item>
         <item>30</item>

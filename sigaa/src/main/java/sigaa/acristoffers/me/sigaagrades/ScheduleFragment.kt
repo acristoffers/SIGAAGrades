@@ -35,6 +35,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import android.widget.Toast
@@ -42,6 +43,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_schedule.*
 import java.util.*
 import kotlin.concurrent.thread
+
 
 class ScheduleFragment : Fragment() {
     private val todayScheduleViewAdapter = DayScheduleViewAdapter(Calendar.getInstance().get(Calendar.DAY_OF_WEEK))
@@ -59,6 +61,14 @@ class ScheduleFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
 
+        val context = activity ?: return
+
+        val drawable = ContextCompat.getDrawable(context, R.drawable.divider)
+        val itemDecor = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        if (drawable != null) {
+            itemDecor.setDrawable(drawable)
+        }
+
         swipe.setOnRefreshListener {
             update()
         }
@@ -66,31 +76,37 @@ class ScheduleFragment : Fragment() {
         todayRecyclerView.apply {
             adapter = todayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(itemDecor)
         }
 
         mondayRecyclerView.apply {
             adapter = mondayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(itemDecor)
         }
 
         tuesdayRecyclerView.apply {
             adapter = tuesdayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(itemDecor)
         }
 
         wednesdayRecyclerView.apply {
             adapter = wednesdayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(itemDecor)
         }
 
         thursdayRecyclerView.apply {
             adapter = thursdayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(itemDecor)
         }
 
         fridayRecyclerView.apply {
             adapter = fridayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(itemDecor)
         }
 
         val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)

@@ -34,10 +34,15 @@ import android.view.Gravity
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 
-
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme_NoActionBar)
+        val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+        if (preferences.getBoolean("darkTheme", false)) {
+            setTheme(R.style.AppThemeDark_NoActionBar)
+        } else {
+            setTheme(R.style.AppTheme_NoActionBar)
+        }
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
@@ -110,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         when (intent?.getStringExtra("fragment")) {
             "schedules" -> setFragment(ScheduleFragment())
+            "settings" -> setFragment(SettingsFragment())
             else -> setFragment(GradesFragment())
         }
 

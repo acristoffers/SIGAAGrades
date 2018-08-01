@@ -35,23 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/textToday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/hoje"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/todayRecyclerView"
+            <android.support.v7.widget.CardView
+                android:id="@+id/todayCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -61,99 +46,65 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textToday">
-            </android.support.v7.widget.RecyclerView>
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/textAll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/todos"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todayRecyclerView"/>
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/mondaySection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/segunda"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textAll"/>
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/todayFAB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@android:color/transparent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/mondayRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mondaySection">
-            </android.support.v7.widget.RecyclerView>
+                    <TextView
+                        android:id="@+id/todayFABText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:elevation="16dp"
+                        android:text="H"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintBottom_toBottomOf="@+id/todayFAB"
+                        app:layout_constraintEnd_toEndOf="@+id/todayFAB"
+                        app:layout_constraintStart_toStartOf="@+id/todayFAB"
+                        app:layout_constraintTop_toTopOf="@+id/todayFAB"/>
 
-            <TextView
-                android:id="@+id/tuesdaySection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/terca"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mondayRecyclerView"/>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/todayRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/todayFAB"
+                        app:layout_constraintTop_toTopOf="parent">
+                    </android.support.v7.widget.RecyclerView>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/tuesdayRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tuesdaySection">
-            </android.support.v7.widget.RecyclerView>
-
-            <TextView
-                android:id="@+id/wednesdaySection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/quarta"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tuesdaySection"/>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/wednesdayRecyclerView"
+            <android.support.v7.widget.CardView
+                android:id="@+id/mondayCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -163,11 +114,65 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wednesdaySection">
-            </android.support.v7.widget.RecyclerView>
+                app:layout_constraintTop_toBottomOf="@+id/todayCard">
 
-            <TextView
-                android:id="@+id/thursdaySection"
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/mondayFAB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@android:color/transparent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/mondayFABText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:elevation="16dp"
+                        android:text="SEG"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintBottom_toBottomOf="@+id/mondayFAB"
+                        app:layout_constraintEnd_toEndOf="@+id/mondayFAB"
+                        app:layout_constraintStart_toStartOf="@+id/mondayFAB"
+                        app:layout_constraintTop_toTopOf="@+id/mondayFAB"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/mondayRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/mondayFAB"
+                        app:layout_constraintTop_toTopOf="parent">
+                    </android.support.v7.widget.RecyclerView>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/tuesdayCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -175,14 +180,67 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/quinta"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wednesdayRecyclerView"/>
+                app:layout_constraintTop_toBottomOf="@+id/mondayCard">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/thursdayRecyclerView"
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/tuesdayFAB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@android:color/transparent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/tuesdayFABText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:elevation="16dp"
+                        android:text="TER"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintBottom_toBottomOf="@+id/tuesdayFAB"
+                        app:layout_constraintEnd_toEndOf="@+id/tuesdayFAB"
+                        app:layout_constraintStart_toStartOf="@+id/tuesdayFAB"
+                        app:layout_constraintTop_toTopOf="@+id/tuesdayFAB"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/tuesdayRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/tuesdayFAB"
+                        app:layout_constraintTop_toTopOf="parent">
+                    </android.support.v7.widget.RecyclerView>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/wednesdayCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -192,11 +250,65 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/thursdaySection">
-            </android.support.v7.widget.RecyclerView>
+                app:layout_constraintTop_toBottomOf="@+id/tuesdayCard">
 
-            <TextView
-                android:id="@+id/fridaySection"
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/wednesdayFAB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@android:color/transparent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/wednesdayFABText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:elevation="16dp"
+                        android:text="QUA"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintBottom_toBottomOf="@+id/wednesdayFAB"
+                        app:layout_constraintEnd_toEndOf="@+id/wednesdayFAB"
+                        app:layout_constraintStart_toStartOf="@+id/wednesdayFAB"
+                        app:layout_constraintTop_toTopOf="@+id/wednesdayFAB"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/wednesdayRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/wednesdayFAB"
+                        app:layout_constraintTop_toTopOf="parent">
+                    </android.support.v7.widget.RecyclerView>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/thursdayCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -204,14 +316,67 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/sexta"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/thursdayRecyclerView"/>
+                app:layout_constraintTop_toBottomOf="@+id/wednesdayCard">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/fridayRecyclerView"
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/thursdayFAB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@android:color/transparent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/thursdayFABText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:elevation="16dp"
+                        android:text="QUI"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintBottom_toBottomOf="@+id/thursdayFAB"
+                        app:layout_constraintEnd_toEndOf="@+id/thursdayFAB"
+                        app:layout_constraintStart_toStartOf="@+id/thursdayFAB"
+                        app:layout_constraintTop_toTopOf="@+id/thursdayFAB"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/thursdayRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/thursdayFAB"
+                        app:layout_constraintTop_toTopOf="parent">
+                    </android.support.v7.widget.RecyclerView>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/fridayCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -221,16 +386,71 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fridaySection">
-            </android.support.v7.widget.RecyclerView>
+                app:layout_constraintTop_toBottomOf="@+id/thursdayCard">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/fridayFAB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@android:color/transparent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/fridayFABText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:elevation="16dp"
+                        android:text="SEX"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintBottom_toBottomOf="@+id/fridayFAB"
+                        app:layout_constraintEnd_toEndOf="@+id/fridayFAB"
+                        app:layout_constraintStart_toStartOf="@+id/fridayFAB"
+                        app:layout_constraintTop_toTopOf="@+id/fridayFAB"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/fridayRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/fridayFAB"
+                        app:layout_constraintTop_toTopOf="parent">
+                    </android.support.v7.widget.RecyclerView>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
 
             <Space
                 android:layout_width="wrap_content"
-                android:layout_height="16dp"
+                android:layout_height="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fridayRecyclerView"/>
-
+                app:layout_constraintTop_toBottomOf="@+id/fridayCard"/>
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>

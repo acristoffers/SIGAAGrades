@@ -22,8 +22,10 @@
 
 package sigaa.acristoffers.me.sigaagrades
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.preference.PreferenceFragmentCompat
+
 
 class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(bundle: Bundle?, rootKey: String?) {
@@ -33,8 +35,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
-        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener { _, _ ->
-            AlarmReceiver.setAlarm(context!!)
+        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener { _, key ->
+            if (activity == null) {
+                return@registerOnSharedPreferenceChangeListener
+            }
+
+            if (key == "darkTheme") {
+                val intent = Intent(activity, MainActivity::class.java)
+                intent.putExtra("fragment", "settings")
+                startActivity(intent)
+                activity?.finish()
+            } else {
+                AlarmReceiver.setAlarm(context!!)
+            }
         }
     }
 }

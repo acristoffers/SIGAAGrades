@@ -1,4 +1,5 @@
 <resources>
+    <!--Light-->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -6,6 +7,7 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
         <item name="colorControlHighlight">@color/colorAccent</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -20,4 +22,22 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
         <item name="colorPrimaryDark">@android:color/white</item>
     </style>
+
+    <!--Dark-->
+    <style name="AppThemeDark" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+    </style>
+
+    <style name="AppThemeDark.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeDark.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppThemeDark.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 </resources>
