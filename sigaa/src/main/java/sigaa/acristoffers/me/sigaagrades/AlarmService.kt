@@ -65,7 +65,7 @@ class AlarmService : JobIntentService() {
                 val orderedOldGrades = oldGrades.sortedBy { it.name }
                 val orderedNewGrade = grades.sortedBy { it.name }
 
-                if (orderedNewGrade != orderedOldGrades) {
+                if (orderedNewGrade != orderedOldGrades && orderedNewGrade.size >= orderedOldGrades.size) {
                     val json = GsonBuilder().create().toJson(grades) ?: "[]"
                     with(preferences.edit()) {
                         putString("grades", json)
@@ -98,7 +98,7 @@ class AlarmService : JobIntentService() {
             val orderedOldSchedules = oldSchedules.sortedWith(compareBy(SIGAA.Schedule::day, { it.start.split(":").first().toInt() }))
             val orderedNewSchedules = schedules.sortedWith(compareBy(SIGAA.Schedule::day, { it.start.split(":").first().toInt() }))
 
-            if (orderedNewSchedules != orderedOldSchedules) {
+            if (orderedNewSchedules != orderedOldSchedules && orderedNewSchedules.size >= orderedOldSchedules.size) {
                 val json = GsonBuilder().create().toJson(schedules) ?: "[]"
                 with(preferences.edit()) {
                     putString("schedules", json)
