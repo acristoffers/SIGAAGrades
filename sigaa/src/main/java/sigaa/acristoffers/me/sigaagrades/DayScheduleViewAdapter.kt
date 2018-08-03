@@ -27,9 +27,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import java.util.*
 
 class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleViewAdapter.TodayViewHolder>() {
     var schedules: List<SIGAA.Schedule> = listOf()
+    var today = false
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): TodayViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.schedule_day, viewGroup, false)
@@ -37,17 +39,32 @@ class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleVie
     }
 
     override fun getItemCount(): Int {
-        return schedules.filter { it.day == day }.size
+        return filteredSchedules().size
     }
 
     override fun onBindViewHolder(holder: TodayViewHolder, pos: Int) {
-        val todaySchedules = schedules
-                .filter { it.day == day }
+        val todaySchedules = filteredSchedules()
                 .sortedWith(compareBy(SIGAA.Schedule::shift, { it.start.split(":").first().toInt() }))
 
         holder.apply {
             course.text = todaySchedules[pos].course
             interval.text = "De ${todaySchedules[pos].start} até ${todaySchedules[pos].end}. Local: ${todaySchedules[pos].local}"
+        }
+    }
+
+    private fun filteredSchedules(): List<SIGAA.Schedule> {
+        return if (today) {
+            val now = Calendar.getInstance()
+            val l = { it: SIGAA.Schedule, i: Int -> it.end.split(":")[i].toInt() }
+            schedules.filter {
+                val cal = Calendar.getInstance()
+                cal.set(Calendar.AM_PM, 0)
+                cal.set(Calendar.HOUR_OF_DAY, l(it, 0))
+                cal.set(Calendar.MINUTE, l(it, 1))
+                it.day == day && now <= cal
+            }
+        } else {
+            schedules.filter { it.day == day }
         }
     }
 
