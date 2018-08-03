@@ -47,36 +47,38 @@ class GradesFragment : Fragment() {
             update()
         }
 
-        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
-        val courses = GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
-        setGrades(courses.toList())
+        thread(start = true) {
+            val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+            val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
+            val courses = GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
 
-        recyclerView.apply {
-            adapter = CourseViewAdapter
-            layoutManager = LinearLayoutManager(activity)
-        }
+            activity?.runOnUiThread {
+                setGrades(courses.toList())
 
-        if (courses.isEmpty()) {
-            update()
+                recyclerView.apply {
+                    adapter = CourseViewAdapter
+                    layoutManager = LinearLayoutManager(activity)
+                }
+            }
+
+            if (courses.isEmpty()) {
+                update()
+            }
         }
     }
 
     private fun update() {
         swipe.isRefreshing = true
 
-        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences?.getString("username", "") ?: ""
-        val password = sharedPreferences?.getString("password", "") ?: ""
-
         thread(start = true) {
             runBlocking {
                 try {
+                    val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                    val username = sharedPreferences?.getString("username", "") ?: ""
+                    val password = sharedPreferences?.getString("password", "") ?: ""
                     val grades = SIGAA(username, password).listGrades()
                     activity?.runOnUiThread {
                         swipe.isRefreshing = false
-
-                        setGrades(grades)
 
                         if (sharedPreferences != null && grades.isNotEmpty()) {
                             val json = GsonBuilder().create().toJson(grades) ?: "[]"
@@ -84,6 +86,8 @@ class GradesFragment : Fragment() {
                                 putString("grades", json)
                                 apply()
                             }
+
+                            setGrades(grades)
                         }
                     }
                 } catch (_: Throwable) {

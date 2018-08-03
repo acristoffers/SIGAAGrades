@@ -73,6 +73,8 @@ class ScheduleFragment : Fragment() {
             update()
         }
 
+        todayScheduleViewAdapter.today = true
+
         todayRecyclerView.apply {
             adapter = todayScheduleViewAdapter
             layoutManager = LinearLayoutManager(activity)
@@ -109,40 +111,44 @@ class ScheduleFragment : Fragment() {
             addItemDecoration(itemDecor)
         }
 
-        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
-        val schedules = GsonBuilder()
-                .create()
-                .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
+        thread(start = true) {
+            val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+            val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
+            val schedules = GsonBuilder()
+                    .create()
+                    .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
 
-        setSchedules(schedules.toList())
+            activity?.runOnUiThread {
+                setSchedules(schedules.toList())
+            }
 
-        if (schedules.isEmpty()) {
-            update()
+            if (schedules.isEmpty()) {
+                update()
+            }
         }
     }
 
     private fun update() {
         swipe.isRefreshing = true
 
-        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences?.getString("username", "") ?: ""
-        val password = sharedPreferences?.getString("password", "") ?: ""
-
         thread(start = true) {
             try {
+                val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                val username = sharedPreferences?.getString("username", "") ?: ""
+                val password = sharedPreferences?.getString("password", "") ?: ""
                 val schedules = SIGAA(username, password).listSchedules()
-                if (sharedPreferences != null && schedules.isNotEmpty()) {
-                    val json = GsonBuilder().create().toJson(schedules) ?: "[]"
-                    with(sharedPreferences.edit()) {
-                        putString("schedules", json)
-                        apply()
-                    }
-                }
-
                 activity?.runOnUiThread {
                     swipe.isRefreshing = false
-                    setSchedules(schedules)
+
+                    if (sharedPreferences != null && schedules.isNotEmpty()) {
+                        val json = GsonBuilder().create().toJson(schedules) ?: "[]"
+                        with(sharedPreferences.edit()) {
+                            putString("schedules", json)
+                            apply()
+                        }
+
+                        setSchedules(schedules)
+                    }
                 }
             } catch (_: Throwable) {
                 activity?.runOnUiThread {
