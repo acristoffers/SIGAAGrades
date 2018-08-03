@@ -9,4 +9,5 @@
     <color name="colorIcons">#FFFFFF</color>
     <color name="colorDivider">#BDBDBD</color>
     <color name="windowBackground">#EEEEEE</color>
+    <color name="splashBackground">#2f6a92</color>
 </resources>
