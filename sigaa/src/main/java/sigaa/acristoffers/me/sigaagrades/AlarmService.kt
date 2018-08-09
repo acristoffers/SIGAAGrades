@@ -62,10 +62,9 @@ class AlarmService : JobIntentService() {
 
                 val grades = SIGAA(username, password).listGrades()
 
-                val orderedOldGrades = oldGrades.sortedBy { it.name }
-                val orderedNewGrade = grades.sortedBy { it.name }
+                val equals = oldGrades.map { a -> grades.map { b -> coursesAreEqual(a, b) }.any { it } }.all { it }
 
-                if (orderedNewGrade != orderedOldGrades && orderedNewGrade.size >= orderedOldGrades.size) {
+                if (grades.size > oldGrades.size || (grades.size == oldGrades.size && !equals)) {
                     val json = GsonBuilder().create().toJson(grades) ?: "[]"
                     with(preferences.edit()) {
                         putString("grades", json)
@@ -95,10 +94,9 @@ class AlarmService : JobIntentService() {
 
             val schedules = SIGAA(username, password).listSchedules()
 
-            val orderedOldSchedules = oldSchedules.sortedWith(compareBy(SIGAA.Schedule::day, { it.start.split(":").first().toInt() }))
-            val orderedNewSchedules = schedules.sortedWith(compareBy(SIGAA.Schedule::day, { it.start.split(":").first().toInt() }))
+            val equals = oldSchedules.map { a -> schedules.map { b -> schedulesAreEqual(a, b) }.any { it } }.all { it }
 
-            if (orderedNewSchedules != orderedOldSchedules && orderedNewSchedules.size >= orderedOldSchedules.size) {
+            if (schedules.size > oldSchedules.size || (schedules.size != oldSchedules.size && !equals)) {
                 val json = GsonBuilder().create().toJson(schedules) ?: "[]"
                 with(preferences.edit()) {
                     putString("schedules", json)
@@ -136,6 +134,25 @@ class AlarmService : JobIntentService() {
                 .setAutoCancel(true)
                 .build()
         notificationManager?.notify(0, notification)
+    }
+
+    private fun coursesAreEqual(courseA: SIGAA.Course, courseB: SIGAA.Course): Boolean {
+        return courseA.name == courseB.name &&
+                courseA.grades.size == courseB.grades.size &&
+                courseA.grades.map { a ->
+                    courseB.grades.map { b ->
+                        a.testName == b.testName && a.score == b.score && a.worth == b.worth
+                    }.any { it }
+                }.all { it }
+    }
+
+    private fun schedulesAreEqual(scheduleA: SIGAA.Schedule, scheduleB: SIGAA.Schedule): Boolean {
+        return scheduleA.course == scheduleB.course &&
+                scheduleA.local == scheduleB.local &&
+                scheduleA.shift == scheduleB.shift &&
+                scheduleA.day == scheduleB.day &&
+                scheduleA.start == scheduleB.start &&
+                scheduleA.end == scheduleB.end
     }
 
     companion object {

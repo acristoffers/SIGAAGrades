@@ -44,7 +44,6 @@ import kotlinx.android.synthetic.main.fragment_schedule.*
 import java.util.*
 import kotlin.concurrent.thread
 
-
 class ScheduleFragment : Fragment() {
     private val todayScheduleViewAdapter = DayScheduleViewAdapter(Calendar.getInstance().get(Calendar.DAY_OF_WEEK))
     private val mondayScheduleViewAdapter = DayScheduleViewAdapter(2)
