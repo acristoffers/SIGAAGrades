@@ -32,8 +32,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
-        if (preferences.getBoolean("darkTheme", false)) {
+        val syncPreferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+        if (syncPreferences.getBoolean("darkTheme", false)) {
             setTheme(R.style.AppThemeDark)
         } else {
             setTheme(R.style.AppTheme)
@@ -41,9 +41,9 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
 
-        val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "") ?: ""
-        val password = sharedPreferences.getString("password", "") ?: ""
+        val loginPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+        val username = loginPreferences.getString("username", "") ?: ""
+        val password = loginPreferences.getString("password", "") ?: ""
 
         this.username.setText(username)
         this.password.setText(password)
@@ -52,14 +52,13 @@ class LoginActivity : AppCompatActivity() {
             val newUsername = this.username.text.toString()
             val newPassword = this.password.text.toString()
 
-            with(sharedPreferences.edit()) {
+            with(loginPreferences.edit()) {
                 putString("username", newUsername)
                 putString("password", newPassword)
                 apply()
             }
 
-            val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
-            with(preferences.edit()) {
+            with(syncPreferences.edit()) {
                 putBoolean("grades", true)
                 putBoolean("schedules", true)
                 putBoolean("notify", true)

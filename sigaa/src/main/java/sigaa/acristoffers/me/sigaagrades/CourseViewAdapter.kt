@@ -60,10 +60,9 @@ object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHold
                 total.text = "0"
             } else {
                 total.text = course.grades
-                        .map { it.score.replace(",", ".").trim().toFloat() }
+                        .map { tryOrDefault(0f) { it.score.replace(",", ".").trim().toFloat() } }
                         .reduce { a, b -> a + b }
                         .toString()
-
             }
         }
     }

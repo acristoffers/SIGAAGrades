@@ -36,17 +36,19 @@ import kotlinx.coroutines.experimental.runBlocking
 class AlarmService : JobIntentService() {
     override fun onHandleWork(intent: Intent) {
         val context = applicationContext
-        val preferences = context.getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
-        val syncGrades = preferences?.getBoolean("grades", true) ?: true
-        val syncSchedules = preferences?.getBoolean("schedules", true) ?: true
-        val notify = preferences?.getBoolean("notify", true) ?: true
+        if (context != null) {
+            val preferences = context.getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+            val syncGrades = preferences?.getBoolean("grades", true) ?: true
+            val syncSchedules = preferences?.getBoolean("schedules", true) ?: true
+            val notify = preferences?.getBoolean("notify", true) ?: true
 
-        if (syncGrades) {
-            syncGrades(context, notify)
-        }
+            if (syncGrades) {
+                syncGrades(context, notify)
+            }
 
-        if (syncSchedules) {
-            syncSchedules(context, notify)
+            if (syncSchedules) {
+                syncSchedules(context, notify)
+            }
         }
     }
 
@@ -58,17 +60,13 @@ class AlarmService : JobIntentService() {
                 val password = preferences.getString("password", "") ?: ""
 
                 val oldJson = preferences.getString("grades", "[]") ?: "[]"
-                val oldGrades = try {
+                val oldGrades = tryOrDefault(arrayOf()) {
                     GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Course>::class.java)
-                } catch (_: Throwable) {
-                    arrayOf<SIGAA.Course>()
-                } ?: arrayOf()
+                }?.toList() ?: listOf()
 
                 val grades = SIGAA(username, password).listGrades()
 
-                val equals = oldGrades.map { a -> grades.map { b -> coursesAreEqual(a, b) }.any { it } }.all { it }
-
-                if (grades.size > oldGrades.size || (grades.size == oldGrades.size && !equals)) {
+                if (areListsDifferent(grades, oldGrades, ::areCoursesEqual)) {
                     val json = GsonBuilder().create().toJson(grades) ?: "[]"
                     with(preferences.edit()) {
                         putString("grades", json)
@@ -82,8 +80,7 @@ class AlarmService : JobIntentService() {
                     }
                 }
             }
-        } catch (t: Throwable) {
-            t.printStackTrace()
+        } catch (_: Throwable) {
         }
     }
 
@@ -94,17 +91,13 @@ class AlarmService : JobIntentService() {
             val password = preferences.getString("password", "") ?: ""
 
             val oldJson = preferences.getString("schedules", "[]") ?: "[]"
-            val oldSchedules = try {
+            val oldSchedules = tryOrDefault(arrayOf()) {
                 GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Schedule>::class.java)
-            } catch (_: Throwable) {
-                arrayOf<SIGAA.Schedule>()
-            } ?: arrayOf()
+            }?.toList() ?: listOf()
 
             val schedules = SIGAA(username, password).listSchedules()
 
-            val equals = oldSchedules.map { a -> schedules.map { b -> schedulesAreEqual(a, b) }.any { it } }.all { it }
-
-            if (schedules.size > oldSchedules.size || (schedules.size != oldSchedules.size && !equals)) {
+            if (areListsDifferent(schedules, oldSchedules, ::areSchedulesEqual)) {
                 val json = GsonBuilder().create().toJson(schedules) ?: "[]"
                 with(preferences.edit()) {
                     putString("schedules", json)
@@ -117,8 +110,7 @@ class AlarmService : JobIntentService() {
                     showNotification(context, "schedules", title, text)
                 }
             }
-        } catch (t: Throwable) {
-            t.printStackTrace()
+        } catch (_: Throwable) {
         }
     }
 
@@ -144,7 +136,7 @@ class AlarmService : JobIntentService() {
         notificationManager?.notify(0, notification)
     }
 
-    private fun coursesAreEqual(courseA: SIGAA.Course, courseB: SIGAA.Course): Boolean {
+    private fun areCoursesEqual(courseA: SIGAA.Course, courseB: SIGAA.Course): Boolean {
         return courseA.name == courseB.name &&
                 courseA.grades.size == courseB.grades.size &&
                 courseA.grades.map { a ->
@@ -154,7 +146,7 @@ class AlarmService : JobIntentService() {
                 }.all { it }
     }
 
-    private fun schedulesAreEqual(scheduleA: SIGAA.Schedule, scheduleB: SIGAA.Schedule): Boolean {
+    private fun areSchedulesEqual(scheduleA: SIGAA.Schedule, scheduleB: SIGAA.Schedule): Boolean {
         return scheduleA.course == scheduleB.course &&
                 scheduleA.local == scheduleB.local &&
                 scheduleA.shift == scheduleB.shift &&

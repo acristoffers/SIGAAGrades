@@ -38,8 +38,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
-        if (preferences.getBoolean("darkTheme", false)) {
+        val syncPreferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
+        if (syncPreferences.getBoolean("darkTheme", false)) {
             setTheme(R.style.AppThemeDark_NoActionBar)
         } else {
             setTheme(R.style.AppTheme_NoActionBar)
@@ -48,9 +48,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val sharedPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "") ?: ""
-        val password = sharedPreferences.getString("password", "") ?: ""
+        val loginPreferences = getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+        val username = loginPreferences.getString("username", "") ?: ""
+        val password = loginPreferences.getString("password", "") ?: ""
 
         if (username.isEmpty() || password.isEmpty()) {
             val intent = Intent(this, LoginActivity::class.java)
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.logout -> {
-                    with(sharedPreferences.edit()) {
+                    with(loginPreferences.edit()) {
                         remove("username")
                         remove("password")
                         remove("grades")
@@ -94,8 +94,7 @@ class MainActivity : AppCompatActivity() {
                         apply()
                     }
 
-                    val preferences = getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
-                    with(preferences.edit()) {
+                    with(syncPreferences.edit()) {
                         remove("grades")
                         remove("schedules")
                         remove("notify")
@@ -148,11 +147,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
-        supportFragmentManager.fragments.forEach {
-            transaction.remove(it)
-        }
+        supportFragmentManager.fragments.forEach { transaction.remove(it) }
         transaction.add(R.id.content_frame, fragment)
         transaction.commit()
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

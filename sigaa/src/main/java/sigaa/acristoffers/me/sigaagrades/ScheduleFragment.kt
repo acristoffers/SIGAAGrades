@@ -111,15 +111,13 @@ class ScheduleFragment : Fragment() {
         }
 
         thread(start = true) {
-            val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-            val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
-            val schedules = try {
+            val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+            val schedulesJson = loginPreferences?.getString("schedules", "[]") ?: "[]"
+            val schedules = tryOrDefault(arrayOf()) {
                 GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
-            } catch (_: Throwable) {
-                arrayOf<SIGAA.Schedule>()
-            } ?: arrayOf()
+            }?.toList() ?: listOf()
 
-            setSchedules(schedules.toList())
+            setSchedules(schedules)
 
             if (schedules.isEmpty()) {
                 update()
@@ -134,22 +132,23 @@ class ScheduleFragment : Fragment() {
 
         thread(start = true) {
             try {
-                val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-                val username = sharedPreferences?.getString("username", "") ?: ""
-                val password = sharedPreferences?.getString("password", "") ?: ""
+                val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                val username = loginPreferences?.getString("username", "") ?: ""
+                val password = loginPreferences?.getString("password", "") ?: ""
                 val schedules = SIGAA(username, password).listSchedules()
+
                 activity?.runOnUiThread {
                     swipe.isRefreshing = false
+                }
 
-                    if (sharedPreferences != null && schedules.isNotEmpty()) {
-                        val json = GsonBuilder().create().toJson(schedules) ?: "[]"
-                        with(sharedPreferences.edit()) {
-                            putString("schedules", json)
-                            apply()
-                        }
-
-                        setSchedules(schedules)
+                if (loginPreferences != null && schedules.isNotEmpty()) {
+                    val json = GsonBuilder().create().toJson(schedules) ?: "[]"
+                    with(loginPreferences.edit()) {
+                        putString("schedules", json)
+                        apply()
                     }
+
+                    setSchedules(schedules)
                 }
             } catch (_: Throwable) {
                 activity?.runOnUiThread {
@@ -201,62 +200,60 @@ class ScheduleFragment : Fragment() {
     }
 
     private fun addToCalendar() {
+        val context = activity ?: return
+
         try {
-            val wp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.WRITE_CALENDAR)
-            val rp = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_CALENDAR)
+            val wp = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR)
+            val rp = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR)
             if (wp != PackageManager.PERMISSION_GRANTED || rp != PackageManager.PERMISSION_GRANTED) {
                 val permissions = arrayOf(
                         Manifest.permission.WRITE_CALENDAR,
                         Manifest.permission.READ_CALENDAR
                 )
-                ActivityCompat.requestPermissions(activity!!, permissions, 0)
+                ActivityCompat.requestPermissions(context, permissions, 0)
                 return
             }
         } catch (_: Throwable) {
-            Toast.makeText(activity, "Erro nas permissões", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Não possui permissão de acesso ao calendário", Toast.LENGTH_LONG).show()
             return
         }
 
-        val cr = activity?.contentResolver
+        val cr = context.contentResolver
         val projection = arrayOf("_id", "calendar_displayName")
         val calendars = Uri.parse("content://com.android.calendar/calendars")
         val cs = mutableListOf<List<String>>()
 
         try {
-            with(cr?.query(calendars, projection, null, null, null)!!) {
-                if (moveToFirst()) {
-                    while (moveToNext()) {
-                        val calID = getString(getColumnIndex(projection[0]))
-                        val calName = getString(getColumnIndex(projection[1]))
+            cr?.query(calendars, projection, null, null, null)?.use {
+                if (it.moveToFirst()) {
+                    while (it.moveToNext()) {
+                        val calID = it.getString(it.getColumnIndex(projection[0]))
+                        val calName = it.getString(it.getColumnIndex(projection[1]))
                         cs.add(listOf(calID, calName))
                     }
                 }
-
-                close()
             }
         } catch (_: Throwable) {
-            Toast.makeText(activity, "Ocorreu um erro ao listar os calendários", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Ocorreu um erro ao listar os calendários", Toast.LENGTH_LONG).show()
             return
         }
 
-        AlertDialog.Builder(activity!!)
+        AlertDialog.Builder(context)
                 .setTitle("Selecione um calendário: ")
-                .setNegativeButton(R.string.cancel) { dialogInterface, _ ->
-                    dialogInterface.dismiss()
-                }
+                .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
                 .setItems(cs.map { it.last() }.toTypedArray()) { _, i ->
                     swipe.isRefreshing = true
-                    Toast.makeText(activity, "Adicionando eventos...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Adicionando eventos...", Toast.LENGTH_LONG).show()
 
                     val calId = cs[i].first().toInt()
 
-                    val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-                    val username = sharedPreferences?.getString("username", "") ?: ""
-                    val password = sharedPreferences?.getString("password", "") ?: ""
-                    val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
-                    val schedules = GsonBuilder()
-                            .create()
-                            .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
+                    val loginPreferences = context.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                    val username = loginPreferences?.getString("username", "") ?: ""
+                    val password = loginPreferences?.getString("password", "") ?: ""
+                    val schedulesJson = loginPreferences?.getString("schedules", "[]") ?: "[]"
+                    val schedules = tryOrDefault(arrayOf()) {
+                        GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
+                    }?.toList() ?: listOf()
 
                     thread(start = true) {
                         try {
@@ -298,14 +295,15 @@ class ScheduleFragment : Fragment() {
                             builder.appendPath("time")
                             ContentUris.appendId(builder, Calendar.getInstance().timeInMillis)
                             val intent = Intent(Intent.ACTION_VIEW).setData(builder.build())
-                            activity?.runOnUiThread {
+
+                            context.runOnUiThread {
                                 swipe.isRefreshing = false
                                 startActivity(intent)
                             }
                         } catch (_: Throwable) {
-                            activity?.runOnUiThread {
+                            context.runOnUiThread {
                                 swipe.isRefreshing = false
-                                Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
                             }
                         }
                     }

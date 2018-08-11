@@ -50,13 +50,11 @@ class GradesFragment : Fragment() {
         thread(start = true) {
             val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
             val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
-            val courses = try {
+            val courses = tryOrDefault(arrayOf()) {
                 GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
-            } catch (_: Throwable) {
-                arrayOf<SIGAA.Course>()
-            } ?: arrayOf()
+            }?.toList() ?: listOf()
 
-            setGrades(courses.toList())
+            setGrades(courses)
 
             activity?.runOnUiThread {
                 recyclerView.apply {
@@ -83,18 +81,19 @@ class GradesFragment : Fragment() {
                     val username = sharedPreferences?.getString("username", "") ?: ""
                     val password = sharedPreferences?.getString("password", "") ?: ""
                     val grades = SIGAA(username, password).listGrades()
+
                     activity?.runOnUiThread {
                         swipe.isRefreshing = false
+                    }
 
-                        if (sharedPreferences != null && grades.isNotEmpty()) {
-                            val json = GsonBuilder().create().toJson(grades) ?: "[]"
-                            with(sharedPreferences.edit()) {
-                                putString("grades", json)
-                                apply()
-                            }
-
-                            setGrades(grades)
+                    if (sharedPreferences != null && grades.isNotEmpty()) {
+                        val json = GsonBuilder().create().toJson(grades) ?: "[]"
+                        with(sharedPreferences.edit()) {
+                            putString("grades", json)
+                            apply()
                         }
+
+                        setGrades(grades)
                     }
                 } catch (_: Throwable) {
                     activity?.runOnUiThread {
@@ -102,6 +101,8 @@ class GradesFragment : Fragment() {
                         Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
                     }
                 }
+
+                Unit
             }
         }
     }

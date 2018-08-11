@@ -110,7 +110,7 @@ class Session(url: String) {
         )
 
         if (referer != null) {
-            headers["Referer"] = referer!!
+            headers["Referer"] = referer
         }
 
         return headers

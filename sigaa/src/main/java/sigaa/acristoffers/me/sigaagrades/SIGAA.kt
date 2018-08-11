@@ -50,7 +50,6 @@ class SIGAA(private val username: String, private val password: String) {
 
     suspend fun listGrades(): List<Course> {
         val courses = listCourses()
-        return courses.mapNotNull {
         return runBlocking {
             courses.map {
                 async {
@@ -74,74 +73,80 @@ class SIGAA(private val username: String, private val password: String) {
 
     fun listSchedules(): List<Schedule> {
         val html = html2AST(goHome())
-        return find(html, "td.descricao").map {
-            val tr = it.parent()
-            val course = find(tr, "td.descricao").last().text() ?: ""
-            val local = find(tr, "td.info").first().text() ?: ""
-            find(tr, "td.info").last().text().split(" ").map {
-                val d = "([0-9]+)[A-Z]".toRegex().find(it)?.groupValues?.get(1) ?: ""
-                val m = ".*M([0-9]+)[^A-Z]?".toRegex().find(it)?.groupValues?.get(1) ?: ""
-                val t = ".*T([0-9]+)[^A-Z]?".toRegex().find(it)?.groupValues?.get(1) ?: ""
-                val n = ".*N([0-9]+)[^A-Z]?".toRegex().find(it)?.groupValues?.get(1) ?: ""
-                d.map {
-                    val day = it.toString()
+        return find(html, "td.descricao").map { description ->
+            val tr = description.parent()
+            val course = find(tr, "td.descricao").last()?.text() ?: ""
+            val local = find(tr, "td.info").first()?.text() ?: ""
+            find(tr, "td.info").last()?.text()?.split(" ")?.map { info ->
+                val d = "([0-9]+)[A-Z]".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                val m = ".*M([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                val t = ".*T([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                val n = ".*N([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                d.map { dayChar ->
+                    try {
+                        val day = dayChar.toString()
 
-                    val ms = stringToRanges(m).map {
-                        mapOf(
-                                "course" to course,
-                                "local" to local,
-                                "day" to day,
-                                "shift" to "1",
-                                "start" to it[0].toString(),
-                                "end" to it[1].toString()
-                        )
+                        val ms = stringToRanges(m).map {
+                            mapOf(
+                                    "course" to course,
+                                    "local" to local,
+                                    "day" to day,
+                                    "shift" to "1",
+                                    "start" to it[0].toString(),
+                                    "end" to it[1].toString()
+                            )
+                        }
+
+                        val ts = stringToRanges(t).map {
+                            mapOf(
+                                    "course" to course,
+                                    "local" to local,
+                                    "day" to day,
+                                    "shift" to "2",
+                                    "start" to it[0].toString(),
+                                    "end" to it[1].toString()
+                            )
+                        }
+
+                        val ns = stringToRanges(n).map {
+                            mapOf(
+                                    "course" to course,
+                                    "local" to local,
+                                    "day" to day,
+                                    "shift" to "3",
+                                    "start" to it[0].toString(),
+                                    "end" to it[1].toString()
+                            )
+                        }
+
+                        ms + ts + ns
+                    } catch (_: Throwable) {
+                        listOf<Map<String, String>>()
                     }
-
-                    val ts = stringToRanges(t).map {
-                        mapOf(
-                                "course" to course,
-                                "local" to local,
-                                "day" to day,
-                                "shift" to "2",
-                                "start" to it[0].toString(),
-                                "end" to it[1].toString()
-                        )
-                    }
-
-                    val ns = stringToRanges(n).map {
-                        mapOf(
-                                "course" to course,
-                                "local" to local,
-                                "day" to day,
-                                "shift" to "3",
-                                "start" to it[0].toString(),
-                                "end" to it[1].toString()
-                        )
-                    }
-
-                    ms + ts + ns
                 }.flatten()
-            }.flatten()
+            }?.flatten() ?: listOf()
         }.flatten().map { Schedule.fromMap(it) }
     }
 
     fun startAndEndOfSemester(): List<Calendar> {
         val html = goHome()
         val root = html2AST(html)
-        val jID = find(root, "input[name='javax.faces.ViewState']").first().`val`()
-        val id = find(root, "input[name='id']").first().`val`()
+        val jID = find(root, "input[name='javax.faces.ViewState']").first()?.`val`() ?: ""
+        val id = find(root, "input[name='id']").first()?.`val`() ?: ""
         val menu = "menu_form_menu_discente_j_id_jsp_[0-9_]+_menu".toRegex().find(html)?.groupValues?.get(0)
         val data = mapOf(
-                "id" to (id ?: ""),
-                "javax.faces.ViewState" to (jID ?: ""),
+                "id" to id,
+                "javax.faces.ViewState" to jID,
                 "jscook_action" to "$menu:A]#{calendario.iniciarBusca}",
                 "menu:form_menu_discente" to "menu:form_menu_discente"
         )
         val html2 = session.post("/sigaa/portais/discente/discente.jsf", data)
         val root2 = html2AST(html2)
-        val a = find(root2, "a[id='form:visualizar']").first().attr("onclick") ?: ""
+        val semester = find(root2, ".periodo-atual strong").first()?.text() ?: ""
+        val index = find(root2, "thead").indexOfFirst { it.text().contains(semester) }
+        val a = find(root2, ".listagem tbody a")[index]?.attr("onclick") ?: ""
         val id2 = "'id':'([0-9]+)'".toRegex().find(a)?.groupValues?.get(1) ?: ""
-        val jID2 = find(root2, "input[name='javax.faces.ViewState']").first().`val`() ?: ""
+        val jID2 = find(root2, "input[name='javax.faces.ViewState']").first()?.`val`() ?: ""
         val data2 = mapOf(
                 "form" to "form",
                 "form:visualizar" to "form:visualizar",
@@ -150,19 +155,24 @@ class SIGAA(private val username: String, private val password: String) {
         )
         val html3 = session.post("/sigaa/administracao/calendario_academico/consulta.jsf", data2)
         val root3 = html2AST(html3)
-        val tr = find(root3, "th:contains(Período Letivo:)").first().parent()
-        val duration = tr.children().last().text().removePrefix("De ")
-        return duration.split("até").map {
-            val dp = it.trim().split("/").map { it.toInt() }
-            val cal = Calendar.getInstance()
-            cal.set(dp[2], dp[1] - 1, dp[0], 0, 0, 0)
-            cal
+        val tr = find(root3, "th:contains(Período Letivo:)").first()?.parent()
+        val duration = tr?.children()?.last()?.text()?.removePrefix("De ") ?: ""
+        return duration.split("até").mapNotNull {
+            try {
+                val dp = it.trim().split("/").map { i -> i.trim().toInt() }
+                val cal = Calendar.getInstance()
+                cal.set(dp[2], dp[1] - 1, dp[0], 0, 0, 0)
+                cal
+            } catch (_: Throwable) {
+                null
+            }
         }
     }
 
     private fun stringToRanges(str: String): List<List<Int>> {
-        val ns = str.map { it.toString().toInt() }.sorted()
+        val ns = str.map { it.toString().trim().toInt() }.sorted()
         val rs = mutableListOf<List<Int>>()
+
         for (i in ns) {
             val x = rs.lastOrNull()?.get(1) ?: i
             if ((i - 1) == x) {
@@ -171,6 +181,7 @@ class SIGAA(private val username: String, private val password: String) {
                 rs.add(listOf(i, i))
             }
         }
+
         return rs
     }
 

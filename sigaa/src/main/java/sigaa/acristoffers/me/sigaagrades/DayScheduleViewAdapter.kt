@@ -44,18 +44,21 @@ class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleVie
 
     override fun onBindViewHolder(holder: TodayViewHolder, pos: Int) {
         val todaySchedules = filteredSchedules()
-                .sortedWith(compareBy(SIGAA.Schedule::shift, { it.start.split(":").first().toInt() }))
+                .sortedWith(compareBy(SIGAA.Schedule::shift, { tryOrDefault(0) { it.start.split(":").first().toInt() } }))
 
         holder.apply {
             course.text = todaySchedules[pos].course
-            interval.text = "De ${todaySchedules[pos].start} até ${todaySchedules[pos].end}. Local: ${todaySchedules[pos].local}"
+            interval.text = holder.itemView.context.getString(R.string.day_schedule_date_local,
+                    todaySchedules[pos].start,
+                    todaySchedules[pos].end,
+                    todaySchedules[pos].local)
         }
     }
 
     private fun filteredSchedules(): List<SIGAA.Schedule> {
         return if (today) {
             val now = Calendar.getInstance()
-            val l = { it: SIGAA.Schedule, i: Int -> it.end.split(":")[i].toInt() }
+            val l = { it: SIGAA.Schedule, i: Int -> tryOrDefault(0) { it.end.split(":")[i].toInt() } }
             schedules.filter {
                 val cal = Calendar.getInstance()
                 cal.set(Calendar.AM_PM, 0)

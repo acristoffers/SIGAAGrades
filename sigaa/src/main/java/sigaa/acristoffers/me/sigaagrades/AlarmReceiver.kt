@@ -44,7 +44,9 @@ class AlarmReceiver : BroadcastReceiver() {
             val preferences = context.getSharedPreferences("sigaa.sync", Context.MODE_PRIVATE)
             val syncGrades = preferences?.getBoolean("grades", false) ?: false
             val syncSchedules = preferences?.getBoolean("schedules", false) ?: false
-            val interval = (preferences?.getString("interval", "30")?.toLong() ?: 30) * 60 * 1000
+            val interval = tryOrDefault(60L) {
+                preferences?.getString("interval", "60")?.toLong() ?: 60L
+            } * 60 * 1000
 
             val alarmIntent = Intent(context, AlarmReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
