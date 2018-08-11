@@ -24,6 +24,8 @@ package sigaa.acristoffers.me.sigaagrades
 
 import android.os.Build
 import android.text.Html
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.runBlocking
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -49,19 +51,24 @@ class SIGAA(private val username: String, private val password: String) {
     suspend fun listGrades(): List<Course> {
         val courses = listCourses()
         return courses.mapNotNull {
-            suspendCoroutine<Course?> { cont ->
-                thread(start = true, priority = 1) {
-                    try {
-                        val sigaa = SIGAA(username, password)
-                        val courseId = it["Data"]!!["idTurma"]!!
-                        val courseGrades = sigaa.listGradesForCourse(courseId)
-                        val course = Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
-                        cont.resume(course)
-                    } catch (_: Throwable) {
-                        cont.resume(null)
+        return runBlocking {
+            courses.map {
+                async {
+                    suspendCoroutine<Course?> { cont ->
+                        thread(start = true, priority = 1) {
+                            try {
+                                val sigaa = SIGAA(username, password)
+                                val courseId = it["Data"]!!["idTurma"]!!
+                                val courseGrades = sigaa.listGradesForCourse(courseId)
+                                val course = Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
+                                cont.resume(course)
+                            } catch (_: Throwable) {
+                                cont.resume(null)
+                            }
+                        }
                     }
                 }
-            }
+            }.mapNotNull { it.await() }
         }
     }
 
