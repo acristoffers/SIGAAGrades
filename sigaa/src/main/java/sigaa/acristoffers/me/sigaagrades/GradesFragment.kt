@@ -50,11 +50,15 @@ class GradesFragment : Fragment() {
         thread(start = true) {
             val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
             val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
-            val courses = GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
+            val courses = try {
+                GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
+            } catch (_: Throwable) {
+                arrayOf<SIGAA.Course>()
+            } ?: arrayOf()
+
+            setGrades(courses.toList())
 
             activity?.runOnUiThread {
-                setGrades(courses.toList())
-
                 recyclerView.apply {
                     adapter = CourseViewAdapter
                     layoutManager = LinearLayoutManager(activity)
@@ -68,7 +72,9 @@ class GradesFragment : Fragment() {
     }
 
     private fun update() {
-        swipe.isRefreshing = true
+        activity?.runOnUiThread {
+            swipe.isRefreshing = true
+        }
 
         thread(start = true) {
             runBlocking {
@@ -101,8 +107,10 @@ class GradesFragment : Fragment() {
     }
 
     private fun setGrades(grades: List<SIGAA.Course>) {
-        CourseViewAdapter.courses = grades.sortedBy { it.name }
-        CourseViewAdapter.notifyDataSetChanged()
-        emptyView.visibility = if (grades.isEmpty()) View.VISIBLE else View.GONE
+        activity?.runOnUiThread {
+            CourseViewAdapter.courses = grades.sortedBy { it.name }
+            CourseViewAdapter.notifyDataSetChanged()
+            emptyView.visibility = if (grades.isEmpty()) View.VISIBLE else View.GONE
+        }
     }
 }

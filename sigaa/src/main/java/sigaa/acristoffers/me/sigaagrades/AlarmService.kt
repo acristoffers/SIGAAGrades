@@ -58,7 +58,11 @@ class AlarmService : JobIntentService() {
                 val password = preferences.getString("password", "") ?: ""
 
                 val oldJson = preferences.getString("grades", "[]") ?: "[]"
-                val oldGrades = GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Course>::class.java)
+                val oldGrades = try {
+                    GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Course>::class.java)
+                } catch (_: Throwable) {
+                    arrayOf<SIGAA.Course>()
+                } ?: arrayOf()
 
                 val grades = SIGAA(username, password).listGrades()
 
@@ -90,7 +94,11 @@ class AlarmService : JobIntentService() {
             val password = preferences.getString("password", "") ?: ""
 
             val oldJson = preferences.getString("schedules", "[]") ?: "[]"
-            val oldSchedules = GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Schedule>::class.java)
+            val oldSchedules = try {
+                GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Schedule>::class.java)
+            } catch (_: Throwable) {
+                arrayOf<SIGAA.Schedule>()
+            } ?: arrayOf()
 
             val schedules = SIGAA(username, password).listSchedules()
 

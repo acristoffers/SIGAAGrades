@@ -113,13 +113,13 @@ class ScheduleFragment : Fragment() {
         thread(start = true) {
             val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
             val schedulesJson = sharedPreferences?.getString("schedules", "[]") ?: "[]"
-            val schedules = GsonBuilder()
-                    .create()
-                    .fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java) ?: arrayOf()
+            val schedules = try {
+                GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
+            } catch (_: Throwable) {
+                arrayOf<SIGAA.Schedule>()
+            } ?: arrayOf()
 
-            activity?.runOnUiThread {
-                setSchedules(schedules.toList())
-            }
+            setSchedules(schedules.toList())
 
             if (schedules.isEmpty()) {
                 update()
@@ -128,7 +128,9 @@ class ScheduleFragment : Fragment() {
     }
 
     private fun update() {
-        swipe.isRefreshing = true
+        activity?.runOnUiThread {
+            swipe.isRefreshing = true
+        }
 
         thread(start = true) {
             try {
@@ -159,19 +161,21 @@ class ScheduleFragment : Fragment() {
     }
 
     private fun setSchedules(schedules: List<SIGAA.Schedule>) {
-        todayScheduleViewAdapter.schedules = schedules
-        mondayScheduleViewAdapter.schedules = schedules
-        tuesdayScheduleViewAdapter.schedules = schedules
-        wednesdayScheduleViewAdapter.schedules = schedules
-        thursdayScheduleViewAdapter.schedules = schedules
-        fridayScheduleViewAdapter.schedules = schedules
+        activity?.runOnUiThread {
+            todayScheduleViewAdapter.schedules = schedules
+            mondayScheduleViewAdapter.schedules = schedules
+            tuesdayScheduleViewAdapter.schedules = schedules
+            wednesdayScheduleViewAdapter.schedules = schedules
+            thursdayScheduleViewAdapter.schedules = schedules
+            fridayScheduleViewAdapter.schedules = schedules
 
-        todayScheduleViewAdapter.notifyDataSetChanged()
-        mondayScheduleViewAdapter.notifyDataSetChanged()
-        tuesdayScheduleViewAdapter.notifyDataSetChanged()
-        wednesdayScheduleViewAdapter.notifyDataSetChanged()
-        thursdayScheduleViewAdapter.notifyDataSetChanged()
-        fridayScheduleViewAdapter.notifyDataSetChanged()
+            todayScheduleViewAdapter.notifyDataSetChanged()
+            mondayScheduleViewAdapter.notifyDataSetChanged()
+            tuesdayScheduleViewAdapter.notifyDataSetChanged()
+            wednesdayScheduleViewAdapter.notifyDataSetChanged()
+            thursdayScheduleViewAdapter.notifyDataSetChanged()
+            fridayScheduleViewAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
