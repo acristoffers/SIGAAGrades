@@ -40,4 +40,9 @@
 
     <style name="AppThemeDark.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="AppThemeDark.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <!--Drawer Header-->
+    <style name="AppTheme.DrawerHeader" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:background">?attr/colorPrimaryDark</item>
+    </style>
 </resources>

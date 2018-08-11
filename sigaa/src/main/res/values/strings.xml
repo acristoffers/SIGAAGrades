@@ -51,6 +51,13 @@
     <string name="theme">Tema</string>
     <string name="theme_summary">Usar versão escura do tema</string>
     <string name="theme_title">Tema escuro</string>
+    <string name="day_schedule_date_local">De %s até %s. Local: %s</string>
+    <string name="seg">SEG</string>
+    <string name="ter">TER</string>
+    <string name="qua">QUA</string>
+    <string name="qui">QUI</string>
+    <string name="sex">SEX</string>
+    <string name="h">H</string>
     <string-array name="sync_minutes">
         <item>15</item>
         <item>30</item>
