@@ -75,6 +75,11 @@ class MainActivity : AppCompatActivity() {
                     setFragment(ScheduleFragment())
                 }
 
+                R.id.frequency -> {
+                    title = getString(R.string.frequencia)
+                    setFragment(FrequencyFragment())
+                }
+
                 R.id.settings -> {
                     title = getString(R.string.settings)
                     setFragment(SettingsFragment())

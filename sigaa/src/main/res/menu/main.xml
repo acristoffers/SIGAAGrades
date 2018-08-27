@@ -8,6 +8,9 @@
         <item
             android:id="@+id/schedule"
             android:title="@string/horarios"/>
+        <item
+            android:id="@+id/frequency"
+            android:title="@string/frequencia"/>
     </group>
     <group>
         <item

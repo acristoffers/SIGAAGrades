@@ -71,6 +71,30 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
+    suspend fun listFrequency(): List<Frequency> {
+        val courses = listCourses()
+        return runBlocking {
+            courses.map {
+                async {
+                    suspendCoroutine<Frequency?> { cont ->
+                        thread(start = true, priority = 1) {
+                            try {
+                                val sigaa = SIGAA(username, password)
+                                val courseId = it["Data"]!!["idTurma"]!!
+                                val course = it["CourseName"]!!["Value"]!!
+                                val frequency = sigaa.listFrequencyForCourse(courseId)
+                                frequency?.course = course
+                                cont.resume(frequency)
+                            } catch (_: Throwable) {
+                                cont.resume(null)
+                            }
+                        }
+                    }
+                }
+            }.mapNotNull { it.await() }
+        }
+    }
+
     fun listSchedules(): List<Schedule> {
         val html = html2AST(goHome())
         return find(html, "td.descricao").map { description ->
@@ -229,6 +253,53 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
+    private fun listFrequencyForCourse(course_id: String): Frequency? {
+        return try {
+            val courses = listCourses()
+            val course = courses.first { it["Data"]!!["idTurma"] == course_id }
+            val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
+            val root = html2AST(html)
+
+            val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
+            val data2 = hashMapOf("javax.faces.ViewState" to viewState)
+
+            try {
+                val link = find(root, "div:contains(Frequência)").last().parent().attr("onclick")
+                val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
+                val m = regex.find(link)?.groupValues?.get(1) ?: ""
+                val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
+                val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
+                data2["formMenu"] = "formMenu"
+                data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
+                data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
+            } catch (_: Throwable) {
+                data2["formMenuDrop"] = "formMenuDrop"
+                data2["formMenuDrop:menuFrequencia:hidden"] = "formMenuDrop:menuFrequencia"
+            }
+
+            val root2 = html2AST(session.post("/sigaa/ava/index.jsf", data2))
+            val div = find(root2, "#scroll-wrapper").first()
+            val text = div.text() ?: ""
+
+            if (text.contains("A frequência ainda não foi lançada.")) {
+                throw Error()
+            }
+
+            val match = "Frequência:[ ]+([0-9]+)".toRegex().find(text)
+            val frequency = match?.groupValues?.get(1) ?: ""
+
+            val div2 = find(root2, "#barraDireita").first()
+            val text2 = div2.text() ?: ""
+            val match2 = "Aulas[ ]+\\(Ministradas/Total\\):[ ]+([0-9]+)[ ]+/[ ]+([0-9]+)".toRegex().find(text2)
+            val givenClasses = match2?.groupValues?.get(1) ?: ""
+            val totalClasses = match2?.groupValues?.get(2) ?: ""
+
+            Frequency("", frequency.toInt(), givenClasses.toInt(), totalClasses.toInt())
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     private fun listCourses(): List<HashMap<String, HashMap<String, String>>> {
         val html = html2AST(goHome())
         return find(html, "td.descricao").map {
@@ -280,6 +351,8 @@ class SIGAA(private val username: String, private val password: String) {
             Html.fromHtml(text)?.toString() ?: ""
         }
     }
+
+    data class Frequency(var course: String, val frequency: Int, val givenClasses: Int, val totalClasses: Int)
 
     data class Course(val name: String, val grades: List<Grade>) {
         companion object {

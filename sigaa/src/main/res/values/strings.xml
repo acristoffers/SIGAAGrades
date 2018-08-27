@@ -10,6 +10,7 @@
     <string name="error_incorrect_password">Senha incorreta</string>
     <string name="error_field_required">Campo obrigatório</string>
     <string name="loading">O SIGAA é lento, tenha calma.\nCaso ao carregar não apareçam notas, certifique-se de que:\n1) você está matriculado em disciplinas neste semestre,\n2) Não há notificaçõe no site do SIGAA.</string>
+    <string name="loadingFrequency">O SIGAA é lento, tenha calma.\nCaso ao carregar não apareçam frequências, certifique-se de que:\n1) você está matriculado em disciplinas neste semestre,\n2) Não há notificaçõe no site do SIGAA,\n3) O professor lança frequências</string>
     <string name="test">Avaliação</string>
     <string name="maxScore">Nota Máxima</string>
     <string name="score">Nota</string>
@@ -58,6 +59,7 @@
     <string name="qui">QUI</string>
     <string name="sex">SEX</string>
     <string name="h">H</string>
+    <string name="frequencia">Frequência</string>
     <string-array name="sync_minutes">
         <item>15</item>
         <item>30</item>
