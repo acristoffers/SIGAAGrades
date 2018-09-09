@@ -145,10 +145,6 @@ class Session(url: String) {
     }
 
     private fun extractBody(response: String): String {
-        val r = "[A-Fa-f0-9]+".toRegex()
-        val ls = response.split("\r\n\r\n")
-        return ls.subList(1, ls.size).map { it.trim() }.filter { it.isNotEmpty() }.filter {
-            r.matchEntire(it) == null
-        }.joinToString("")
+        return parseChunk(response).replace("[\r\n\t]+".toRegex(), "")
     }
 }

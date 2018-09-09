@@ -34,3 +34,36 @@ fun <T> areListsDifferent(A: Collection<T>, B: Collection<T>, itemComparator: (A
     // Will consider them equal if A.size < B.size. This is by design.
     return A.size > B.size || (A.size == B.size && !A.map { a -> B.map { b -> itemComparator(a, b) }.any { it } }.all { it })
 }
+
+fun parseChunk(request: String): String {
+    var i = request.indexOf("\r\n\r\n")
+    while (i < request.length && (request[i] == '\r' || request[i] == '\n')) {
+        i++
+    }
+
+    val r = "[0-9a-fA-F]".toRegex()
+    if (i == request.length) {
+        return ""
+    } else if (!r.matches(request[i].toString())) {
+        return request.substring(i)
+    }
+
+    var body = ""
+    while (i < request.length) {
+        var j = ""
+        while (r.matches(request[i].toString())) {
+            j += request[i]
+            i++
+        }
+
+        if (j.isEmpty()) {
+            break
+        }
+
+        val bytes = j.toInt(16)
+        body += request.substring(i + 2, i + 2 + bytes)
+        i += 4 + bytes
+    }
+
+    return body
+}
