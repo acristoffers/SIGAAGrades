@@ -39,13 +39,16 @@ object FrequencyViewAdapter : RecyclerView.Adapter<FrequencyViewAdapter.Frequenc
     override fun getItemCount(): Int = frequencies.size
 
     override fun onBindViewHolder(holder: FrequencyViewHolder, pos: Int) {
+        val f = frequencies[pos]
+        val absences = 100 * (f.givenClasses - f.frequency).toDouble()
+
         holder.apply {
-            val f = frequencies[pos]
             courseName.text = f.course
             frequency.text = f.frequency.toString()
             given.text = f.givenClasses.toString()
             total.text = f.totalClasses.toString()
-            frequencyPC.text = (100 * (f.givenClasses - f.frequency) / f.totalClasses).toString() + "%"
+            frequencyPC.text = "%.0f%%".format(Math.ceil(absences / f.givenClasses))
+            frequencyPCTotal.text = "%.0f%%".format(Math.ceil(absences / f.totalClasses))
         }
     }
 
@@ -55,5 +58,6 @@ object FrequencyViewAdapter : RecyclerView.Adapter<FrequencyViewAdapter.Frequenc
         val given: TextView = itemView.findViewById(R.id.givenClasses)
         val total: TextView = itemView.findViewById(R.id.totalClasses)
         val frequencyPC: TextView = itemView.findViewById(R.id.frequencyPC)
+        val frequencyPCTotal: TextView = itemView.findViewById(R.id.frequencyPCTotal)
     }
 }

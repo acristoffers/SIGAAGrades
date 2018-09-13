@@ -153,6 +153,6 @@ class Session(url: String) {
                 .filter { it.isNotEmpty() }
                 .filter { r.matchEntire(it) == null }
                 .joinToString("")
-                .replace("\r", "")
+                .replace("[\r\n\t]+".toRegex(), "")
     }
 }

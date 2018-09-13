@@ -64,7 +64,8 @@
     <string name="presencas">Presenças</string>
     <string name="aulas_ministradas">Aulas Ministradas</string>
     <string name="total_aulas">Total de Aulas</string>
-    <string name="porcentagem_faltas">Porcentagem de faltas</string>
+    <string name="porcentagem_faltas">Porcentagem de faltas (ministradas)</string>
+    <string name="porcentagem_faltas_total">Porcentagem de faltas (total)</string>
     <string-array name="sync_minutes">
         <item>15</item>
         <item>30</item>

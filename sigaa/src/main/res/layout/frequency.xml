@@ -64,7 +64,6 @@
             android:gravity="start"
             android:text="@string/presencas"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/course"/>
 
@@ -78,7 +77,6 @@
             android:gravity="end"
             android:text="0"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/course"/>
 
@@ -92,7 +90,6 @@
             android:gravity="start"
             android:text="@string/aulas_ministradas"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frequencyText"/>
 
@@ -106,7 +103,6 @@
             android:gravity="end"
             android:text="0"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frequency"/>
 
@@ -120,7 +116,6 @@
             android:gravity="start"
             android:text="@string/total_aulas"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/givenClassesText"/>
 
@@ -134,7 +129,6 @@
             android:gravity="end"
             android:text="0"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/givenClasses"/>
 
@@ -149,7 +143,7 @@
             android:gravity="start"
             android:text="@string/porcentagem_faltas"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/frequencyPCTotalText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/totalClassesText"/>
 
@@ -164,8 +158,38 @@
             android:gravity="start"
             android:text="0"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/frequencyPCTotal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/totalClasses"/>
+
+        <TextView
+            android:id="@+id/frequencyPCTotalText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="start"
+            android:text="@string/porcentagem_faltas_total"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frequencyPCText"/>
+
+        <TextView
+            android:id="@+id/frequencyPCTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="start"
+            android:text="0"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frequencyPC"/>
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>
