@@ -238,15 +238,28 @@ class SIGAA(private val username: String, private val password: String) {
             val tr2 = find(table, "tr.linhaPar").first()
             val vn = find(tr2, "td").map { it.text().trim() }
             val v = vn.subList(2, vn.size - 4)
+            val tr3 = find(table, "thead").first()
+            val hn = find(tr3, "th").map { it.text().trim() }
+            val h = hn.subList(2, hn.size - 4)
             val a = find(root2, "input#denAval").map { it.`val`() }
             val n = find(root2, "input#notaAval").map { it.`val`() }
 
-            return a.zip(n).zip(v).map {
-                mapOf(
-                        "Avaliação" to unescapeHTML(it.first.first),
-                        "Nota Máxima" to unescapeHTML(it.first.second),
-                        "Nota" to unescapeHTML(it.second)
-                )
+            return if (v.size == a.size && a.size == n.size) {
+                a.zip(n).zip(v).map {
+                    mapOf(
+                            "Avaliação" to unescapeHTML(it.first.first),
+                            "Nota Máxima" to unescapeHTML(it.first.second),
+                            "Nota" to unescapeHTML(it.second)
+                    )
+                }
+            } else {
+                h.zip(v).map {
+                    mapOf(
+                            "Avaliação" to unescapeHTML(it.first),
+                            "Nota Máxima" to unescapeHTML("N/A"),
+                            "Nota" to unescapeHTML(it.second)
+                    )
+                }
             }
         } catch (_: Throwable) {
             return listOf()
