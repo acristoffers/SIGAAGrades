@@ -30,8 +30,8 @@ android {
         applicationId "sigaa.acristoffers.me.sigaagrades"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 19
-        versionName "1.1.9"
+        versionCode 20
+        versionName "1.1.10"
         resConfigs 'en'
     }
     buildTypes {
