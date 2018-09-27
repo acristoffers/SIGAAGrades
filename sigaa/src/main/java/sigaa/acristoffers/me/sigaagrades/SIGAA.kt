@@ -235,14 +235,27 @@ class SIGAA(private val username: String, private val password: String) {
 
             val root2 = html2AST(session.post("/sigaa/ava/index.jsf", data2))
             val table = find(root2, "table.tabelaRelatorio").first()
-            val tr2 = find(table, "tr.linhaPar").first()
-            val vn = find(tr2, "td").map { it.text().trim() }
-            val v = vn.subList(2, vn.size - 4)
-            val tr3 = find(table, "thead").first()
-            val hn = find(tr3, "th").map { it.text().trim() }
-            val h = hn.subList(2, hn.size - 4)
-            val a = find(root2, "input#denAval").map { it.`val`() }
-            val n = find(root2, "input#notaAval").map { it.`val`() }
+
+            val tr = find(table, "tr.linhaPar").first()
+            val vn = find(tr, "td").map { it.text().trim() }
+            val v = vn.subList(2, vn.size - 5)
+
+            val tr2 = find(table, "tr#trAval").first()
+            val ids = find(tr2, "th[id]")
+                    .map { it.attr("id") }
+                    .filter { it.startsWith("aval_") }
+                    .map { it.removePrefix("aval_") }
+
+            val a = ids.mapNotNull { find(tr2, "input#denAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
+            val n = ids.mapNotNull { find(tr2, "input#notaAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
+
+            /*
+             * If the teacher did not fill the values of each test, a and n won't be of the same
+             * size as v. So, to have names to display, we get the generic header, which might not
+             * be as informative, but is better than having nothing.
+             */
+            val hn = find(tr2, "th").map { it.text().trim() }
+            val h = hn.subList(2, hn.size - 5)
 
             return if (v.size == a.size && a.size == n.size) {
                 a.zip(n).zip(v).map {
