@@ -53,7 +53,7 @@ class AlarmReceiver : BroadcastReceiver() {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
 
             if (syncGrades || syncSchedules) {
-                alarmManager?.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent)
+                alarmManager?.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, interval, pendingIntent)
             } else {
                 alarmManager?.cancel(pendingIntent)
             }

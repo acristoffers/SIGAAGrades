@@ -97,7 +97,7 @@ class Session(url: String) {
     }
 
     private fun headersToString(headers: Map<String, String>): String {
-        return headers.map { "${it.key}: ${it.value}" }.joinToString("\r\n")
+        return headers.map { "${it.key}: ${it.value}" }.joinToString("\r\n") // no Map.joinToString
     }
 
     private fun defaultHeaders(): Map<String, String> {
@@ -149,6 +149,7 @@ class Session(url: String) {
         return response
                 .substring(response.indexOf("\r\n\r\n"))
                 .split("\r\n")
+                .asSequence()
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
                 .filter { r.matchEntire(it) == null }

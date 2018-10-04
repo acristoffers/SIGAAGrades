@@ -66,7 +66,12 @@ class AlarmService : JobIntentService() {
 
                 val grades = SIGAA(username, password).listGrades()
 
-                if (areListsDifferent(grades, oldGrades, ::areCoursesEqual)) {
+                val shouldNotify = grades.size == oldGrades.size && grades
+                        .zipBy(oldGrades) { it.name }
+                        .comparePairWith(::shouldNotifyCourseUpdate)
+                        .any { it }
+
+                if (grades.size > oldGrades.size || shouldNotify) {
                     val json = GsonBuilder().create().toJson(grades) ?: "[]"
                     with(preferences.edit()) {
                         putString("grades", json)
@@ -97,7 +102,12 @@ class AlarmService : JobIntentService() {
 
             val schedules = SIGAA(username, password).listSchedules()
 
-            if (areListsDifferent(schedules, oldSchedules, ::areSchedulesEqual)) {
+            val shouldNotify = schedules.size == oldSchedules.size && schedules
+                    .zipBy(oldSchedules) { it.course }
+                    .comparePairWith(::shouldNotifyScheduleUpdate)
+                    .any { it }
+
+            if (schedules.size > oldSchedules.size || shouldNotify) {
                 val json = GsonBuilder().create().toJson(schedules) ?: "[]"
                 with(preferences.edit()) {
                     putString("schedules", json)
@@ -136,23 +146,21 @@ class AlarmService : JobIntentService() {
         notificationManager?.notify(0, notification)
     }
 
-    private fun areCoursesEqual(courseA: SIGAA.Course, courseB: SIGAA.Course): Boolean {
-        return courseA.name == courseB.name &&
+    private fun shouldNotifyCourseUpdate(courseA: SIGAA.Course, courseB: SIGAA.Course): Boolean {
+        return courseB.grades.size > courseA.grades.size ||
                 courseA.grades.size == courseB.grades.size &&
-                courseA.grades.map { a ->
-                    courseB.grades.map { b ->
-                        a.testName == b.testName && a.score == b.score && a.worth == b.worth
-                    }.any { it }
-                }.all { it }
+                courseA.grades
+                        .zipBy(courseB.grades) { it.testName }
+                        .comparePairWith { a, b -> a.score != b.score || a.worth != b.worth }
+                        .any { it }
     }
 
-    private fun areSchedulesEqual(scheduleA: SIGAA.Schedule, scheduleB: SIGAA.Schedule): Boolean {
-        return scheduleA.course == scheduleB.course &&
-                scheduleA.local == scheduleB.local &&
-                scheduleA.shift == scheduleB.shift &&
-                scheduleA.day == scheduleB.day &&
-                scheduleA.start == scheduleB.start &&
-                scheduleA.end == scheduleB.end
+    private fun shouldNotifyScheduleUpdate(scheduleA: SIGAA.Schedule, scheduleB: SIGAA.Schedule): Boolean {
+        return scheduleA.local != scheduleB.local ||
+                scheduleA.shift != scheduleB.shift ||
+                scheduleA.day != scheduleB.day ||
+                scheduleA.start != scheduleB.start ||
+                scheduleA.end != scheduleB.end
     }
 
     companion object {

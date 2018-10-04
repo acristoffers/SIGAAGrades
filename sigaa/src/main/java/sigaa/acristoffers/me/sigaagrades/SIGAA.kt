@@ -249,30 +249,12 @@ class SIGAA(private val username: String, private val password: String) {
             val a = ids.mapNotNull { find(tr2, "input#denAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
             val n = ids.mapNotNull { find(tr2, "input#notaAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
 
-            /*
-             * If the teacher did not fill the values of each test, a and n won't be of the same
-             * size as v. So, to have names to display, we get the generic header, which might not
-             * be as informative, but is better than having nothing.
-             */
-            val hn = find(tr2, "th").map { it.text().trim() }
-            val h = hn.subList(2, hn.size - 5)
-
-            return if (v.size == a.size && a.size == n.size) {
-                a.zip(n).zip(v).map {
-                    mapOf(
-                            "Avaliação" to unescapeHTML(it.first.first),
-                            "Nota Máxima" to unescapeHTML(it.first.second),
-                            "Nota" to unescapeHTML(it.second)
-                    )
-                }
-            } else {
-                h.zip(v).map {
-                    mapOf(
-                            "Avaliação" to unescapeHTML(it.first),
-                            "Nota Máxima" to unescapeHTML("N/A"),
-                            "Nota" to unescapeHTML(it.second)
-                    )
-                }
+            return a.zip(n).zip(v).map {
+                mapOf(
+                        "Avaliação" to unescapeHTML(it.first.first),
+                        "Nota Máxima" to unescapeHTML(it.first.second),
+                        "Nota" to unescapeHTML(it.second)
+                )
             }
         } catch (_: Throwable) {
             return listOf()

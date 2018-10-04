@@ -30,7 +30,17 @@ fun <T> tryOrDefault(defaultValue: T, f: () -> T): T {
     }
 }
 
-fun <T> areListsDifferent(A: Collection<T>, B: Collection<T>, itemComparator: (A: T, B: T) -> Boolean): Boolean {
-    // Will consider them equal if A.size < B.size. This is by design.
-    return A.size > B.size || (A.size == B.size && !A.map { a -> B.map { b -> itemComparator(a, b) }.any { it } }.all { it })
+fun <T, U> Collection<T>.zipBy(B: Collection<T>, filter: (E: T) -> U): Collection<Pair<T, T>> {
+    return this.mapNotNull { a ->
+        val second = B.firstOrNull { b -> filter(b) == filter(a) }
+        if (second != null) {
+            Pair(a, second)
+        } else {
+            null
+        }
+    }
+}
+
+fun <T, R> Collection<Pair<T, T>>.comparePairWith(comparator: (a: T, b: T) -> R): Collection<R> {
+    return this.map { comparator(it.first, it.second) }
 }
