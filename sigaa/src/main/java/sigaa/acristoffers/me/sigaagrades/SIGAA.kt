@@ -390,12 +390,12 @@ class SIGAA(private val username: String, private val password: String) {
                         val end: String) {
         companion object {
             fun fromMap(schedule: Map<String, String>): Schedule {
-                val course = schedule["course"] as String
-                val local = schedule["local"] as String
-                val day = schedule["day"] as String
-                val shift = schedule["shift"] as String
-                val start = schedule["start"] as String
-                val end = schedule["end"] as String
+                val course = schedule["course"]?.trim() ?: ""
+                val local = schedule["local"]?.trim() ?: ""
+                val day = schedule["day"]?.trim() ?: ""
+                val shift = schedule["shift"]?.trim() ?: ""
+                val start = schedule["start"]?.trim() ?: ""
+                val end = schedule["end"]?.trim() ?: ""
 
                 val startTimes = listOf(
                         mapOf(
