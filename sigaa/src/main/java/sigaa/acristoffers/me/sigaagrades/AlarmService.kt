@@ -104,7 +104,7 @@ class AlarmService : JobIntentService() {
 
             val shouldNotify = schedules.size == oldSchedules.size && schedules
                     .zipBy(oldSchedules) { it.course }
-                    .comparePairWith(::shouldNotifyScheduleUpdate)
+                    .comparePairWith { a, b -> a != b }
                     .any { it }
 
             if (schedules.size > oldSchedules.size || shouldNotify) {
@@ -151,16 +151,8 @@ class AlarmService : JobIntentService() {
                 courseA.grades.size == courseB.grades.size &&
                 courseA.grades
                         .zipBy(courseB.grades) { it.testName }
-                        .comparePairWith { a, b -> a.score != b.score || a.worth != b.worth }
+                        .comparePairWith { a, b -> a != b }
                         .any { it }
-    }
-
-    private fun shouldNotifyScheduleUpdate(scheduleA: SIGAA.Schedule, scheduleB: SIGAA.Schedule): Boolean {
-        return scheduleA.local != scheduleB.local ||
-                scheduleA.shift != scheduleB.shift ||
-                scheduleA.day != scheduleB.day ||
-                scheduleA.start != scheduleB.start ||
-                scheduleA.end != scheduleB.end
     }
 
     companion object {
