@@ -32,7 +32,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_grades.*
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.thread
 
 class GradesFragment : Fragment() {

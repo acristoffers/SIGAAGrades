@@ -31,7 +31,7 @@ import android.graphics.BitmapFactory
 import android.support.v4.app.JobIntentService
 import android.support.v4.app.NotificationCompat
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 
 class AlarmService : JobIntentService() {
     override fun onHandleWork(intent: Intent) {
