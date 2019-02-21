@@ -33,6 +33,7 @@ android {
         versionCode 23
         versionName "1.1.13"
         resConfigs 'en'
+		vectorDrawables.useSupportLibrary true
     }
     buildTypes {
         release {

@@ -119,9 +119,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         when (intent?.getStringExtra("fragment")) {
-            "schedules" -> setFragment(ScheduleFragment())
-            "settings" -> setFragment(SettingsFragment())
-            else -> setFragment(GradesFragment())
+            "schedules" -> {
+                title = getString(R.string.horarios)
+                setFragment(ScheduleFragment())
+            }
+
+            "settings" -> {
+                title = getString(R.string.settings)
+                setFragment(SettingsFragment())
+            }
+
+            "frequency" -> {
+                title = getString(R.string.frequencia)
+                setFragment(FrequencyFragment())
+            }
+
+            else -> {
+                title = getString(R.string.notas)
+                setFragment(GradesFragment())
+            }
         }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
