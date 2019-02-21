@@ -67,9 +67,3 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support:preference-v7:28.0.0'
 }
-
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
