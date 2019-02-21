@@ -30,8 +30,8 @@ android {
         applicationId "sigaa.acristoffers.me.sigaagrades"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 23
-        versionName "1.1.13"
+        versionCode 24
+        versionName "1.1.14"
         resConfigs 'en'
 		vectorDrawables.useSupportLibrary true
     }
