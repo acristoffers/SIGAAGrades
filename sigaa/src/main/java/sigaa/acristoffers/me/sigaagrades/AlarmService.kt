@@ -103,11 +103,12 @@ class AlarmService : JobIntentService() {
             val schedules = SIGAA(username, password).listSchedules()
 
             val shouldNotify = if (schedules.size == oldSchedules.size) {
-                val z = schedules.zipBy(oldSchedules) { it.toString() }
-                if (z.size != schedules.size) {
-                    true
-                } else {
-                    z.comparePairWith { a, b -> a != b }.any { it }
+                with(schedules.zipBy(oldSchedules) { it.toString() }) {
+                    if (size != schedules.size) {
+                        true
+                    } else {
+                        comparePairWith { a, b -> a != b }.any { it }
+                    }
                 }
             } else {
                 false
