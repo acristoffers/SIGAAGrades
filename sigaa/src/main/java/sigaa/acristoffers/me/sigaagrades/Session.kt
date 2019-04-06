@@ -27,6 +27,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.*
+import java.text.Normalizer
 import javax.net.SocketFactory
 import javax.net.ssl.SSLSocketFactory
 
@@ -146,8 +147,9 @@ class Session(url: String) {
 
     private fun extractBody(response: String): String {
         val r = "[0-9a-fA-F]+".toRegex()
-        return response
-                .substring(response.indexOf("\r\n\r\n"))
+        val body = java.text.Normalizer.normalize(response, Normalizer.Form.NFKC)
+        return body
+                .substring(body.indexOf("\r\n\r\n"))
                 .split("\r\n")
                 .asSequence()
                 .map { it.trim() }

@@ -102,10 +102,16 @@ class AlarmService : JobIntentService() {
 
             val schedules = SIGAA(username, password).listSchedules()
 
-            val shouldNotify = schedules.size == oldSchedules.size && schedules
-                    .zipBy(oldSchedules) { it.course }
-                    .comparePairWith { a, b -> a != b }
-                    .any { it }
+            val shouldNotify = if (schedules.size == oldSchedules.size) {
+                val z = schedules.zipBy(oldSchedules) { it.toString() }
+                if (z.size != schedules.size) {
+                    true
+                } else {
+                    z.comparePairWith { a, b -> a != b }.any { it }
+                }
+            } else {
+                false
+            }
 
             if (schedules.size > oldSchedules.size || shouldNotify) {
                 val json = GsonBuilder().create().toJson(schedules) ?: "[]"
