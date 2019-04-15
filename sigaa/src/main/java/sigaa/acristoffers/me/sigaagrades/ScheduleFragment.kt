@@ -41,6 +41,7 @@ import android.view.*
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_schedule.*
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -110,18 +111,16 @@ class ScheduleFragment : Fragment() {
             addItemDecoration(itemDecor)
         }
 
-        thread(start = true) {
-            val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-            val schedulesJson = loginPreferences?.getString("schedules", "[]") ?: "[]"
-            val schedules = tryOrDefault(arrayOf()) {
-                GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
-            }?.toList() ?: listOf()
+        val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+        val schedulesJson = loginPreferences?.getString("schedules", "[]") ?: "[]"
+        val schedules = tryOrDefault(arrayOf()) {
+            GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
+        }?.toList() ?: listOf()
 
-            setSchedules(schedules)
+        setSchedules(schedules)
 
-            if (schedules.isEmpty()) {
-                update()
-            }
+        if (schedules.isEmpty()) {
+            update()
         }
     }
 
@@ -132,23 +131,25 @@ class ScheduleFragment : Fragment() {
 
         thread(start = true) {
             try {
-                val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-                val username = loginPreferences?.getString("username", "") ?: ""
-                val password = loginPreferences?.getString("password", "") ?: ""
-                val schedules = SIGAA(username, password).listSchedules()
+                runBlocking {
+                    val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                    val username = loginPreferences?.getString("username", "") ?: ""
+                    val password = loginPreferences?.getString("password", "") ?: ""
+                    val schedules = SIGAA(username, password).listSchedules()
 
-                activity?.runOnUiThread {
-                    swipe.isRefreshing = false
-                }
-
-                if (loginPreferences != null && schedules.isNotEmpty()) {
-                    val json = GsonBuilder().create().toJson(schedules) ?: "[]"
-                    with(loginPreferences.edit()) {
-                        putString("schedules", json)
-                        apply()
+                    activity?.runOnUiThread {
+                        swipe.isRefreshing = false
                     }
 
-                    setSchedules(schedules)
+                    if (loginPreferences != null && schedules.isNotEmpty()) {
+                        val json = GsonBuilder().create().toJson(schedules) ?: "[]"
+                        with(loginPreferences.edit()) {
+                            putString("schedules", json)
+                            apply()
+                        }
+
+                        setSchedules(schedules)
+                    }
                 }
             } catch (_: Throwable) {
                 activity?.runOnUiThread {
@@ -257,48 +258,50 @@ class ScheduleFragment : Fragment() {
 
                     thread(start = true) {
                         try {
-                            val startAndEnd = SIGAA(username, password).startAndEndOfSemester()
-                            val startSemester = startAndEnd.first()
-                            val endSemester = startAndEnd.last()
+                            runBlocking {
+                                val startAndEnd = SIGAA(username, password).startAndEndOfSemester()
+                                val startSemester = startAndEnd.first()
+                                val endSemester = startAndEnd.last()
 
-                            for (schedule in schedules) {
-                                val startTime = startSemester.clone() as Calendar
-                                val endTime = startSemester.clone() as Calendar
+                                for (schedule in schedules) {
+                                    val startTime = startSemester.clone() as Calendar
+                                    val endTime = startSemester.clone() as Calendar
 
-                                startTime.set(Calendar.HOUR, schedule.start.split(":").first().toInt())
-                                startTime.set(Calendar.MINUTE, schedule.start.split(":").last().toInt())
-                                startTime.set(Calendar.AM_PM, 0)
-                                startTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
+                                    startTime.set(Calendar.HOUR, schedule.start.split(":").first().toInt())
+                                    startTime.set(Calendar.MINUTE, schedule.start.split(":").last().toInt())
+                                    startTime.set(Calendar.AM_PM, 0)
+                                    startTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
 
-                                endTime.set(Calendar.HOUR, schedule.end.split(":").first().toInt())
-                                endTime.set(Calendar.MINUTE, schedule.end.split(":").last().toInt())
-                                endTime.set(Calendar.AM_PM, 0)
-                                endTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
+                                    endTime.set(Calendar.HOUR, schedule.end.split(":").first().toInt())
+                                    endTime.set(Calendar.MINUTE, schedule.end.split(":").last().toInt())
+                                    endTime.set(Calendar.AM_PM, 0)
+                                    endTime.add(Calendar.DAY_OF_MONTH, (7 + schedule.day - startSemester.get(Calendar.DAY_OF_WEEK)) % 7)
 
-                                val repetition = endSemester.get(Calendar.WEEK_OF_YEAR) - startSemester.get(Calendar.WEEK_OF_YEAR)
+                                    val repetition = endSemester.get(Calendar.WEEK_OF_YEAR) - startSemester.get(Calendar.WEEK_OF_YEAR)
 
-                                val values = ContentValues()
-                                values.put(CalendarContract.Events.ALL_DAY, false)
-                                values.put(CalendarContract.Events.DTSTART, startTime.timeInMillis)
-                                values.put(CalendarContract.Events.DTEND, endTime.timeInMillis)
-                                values.put(CalendarContract.Events.TITLE, schedule.course)
-                                values.put(CalendarContract.Events.DESCRIPTION, "Aula")
-                                values.put(CalendarContract.Events.EVENT_LOCATION, schedule.local)
-                                values.put(CalendarContract.Events.CALENDAR_ID, calId)
-                                values.put(CalendarContract.Events.EVENT_TIMEZONE, startTime.timeZone.displayName)
-                                values.put(CalendarContract.Events.RRULE, "FREQ=WEEKLY;COUNT=$repetition")
+                                    val values = ContentValues()
+                                    values.put(CalendarContract.Events.ALL_DAY, false)
+                                    values.put(CalendarContract.Events.DTSTART, startTime.timeInMillis)
+                                    values.put(CalendarContract.Events.DTEND, endTime.timeInMillis)
+                                    values.put(CalendarContract.Events.TITLE, schedule.course)
+                                    values.put(CalendarContract.Events.DESCRIPTION, "Aula")
+                                    values.put(CalendarContract.Events.EVENT_LOCATION, schedule.local)
+                                    values.put(CalendarContract.Events.CALENDAR_ID, calId)
+                                    values.put(CalendarContract.Events.EVENT_TIMEZONE, startTime.timeZone.displayName)
+                                    values.put(CalendarContract.Events.RRULE, "FREQ=WEEKLY;COUNT=$repetition")
 
-                                cr.insert(CalendarContract.Events.CONTENT_URI, values)
-                            }
+                                    cr.insert(CalendarContract.Events.CONTENT_URI, values)
+                                }
 
-                            val builder = CalendarContract.CONTENT_URI.buildUpon()
-                            builder.appendPath("time")
-                            ContentUris.appendId(builder, Calendar.getInstance().timeInMillis)
-                            val intent = Intent(Intent.ACTION_VIEW).setData(builder.build())
+                                val builder = CalendarContract.CONTENT_URI.buildUpon()
+                                builder.appendPath("time")
+                                ContentUris.appendId(builder, Calendar.getInstance().timeInMillis)
+                                val intent = Intent(Intent.ACTION_VIEW).setData(builder.build())
 
-                            context.runOnUiThread {
-                                swipe.isRefreshing = false
-                                startActivity(intent)
+                                context.runOnUiThread {
+                                    swipe.isRefreshing = false
+                                    startActivity(intent)
+                                }
                             }
                         } catch (_: Throwable) {
                             context.runOnUiThread {

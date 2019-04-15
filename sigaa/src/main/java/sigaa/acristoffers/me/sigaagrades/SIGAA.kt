@@ -4,7 +4,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -24,79 +24,60 @@ package sigaa.acristoffers.me.sigaagrades
 
 import android.os.Build
 import android.text.Html
+import android.util.Log
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.coroutineScope
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.util.*
-import kotlin.concurrent.thread
-import kotlin.coroutines.suspendCoroutine
-import kotlin.coroutines.resume
 
 class SIGAA(private val username: String, private val password: String) {
-    private val session = Session("https://sig.cefetmg.br")
-    private val jsessionid: String
-    private val inst: String
+    private var session = Session("https://sig.cefetmg.br")
+    private var jsessionid: String = ""
+    private var inst: String = ""
 
-    init {
-        val response = session.get("/sigaa/verTelaLogin.do")
+    private suspend fun setup() {
+        session = Session("https://sig.cefetmg.br")
+        val response = session.get("/sigaa/verTelaLogin.do") ?: throw Exception("Server Error")
         val regex = "/sigaa/logar\\.do;jsessionid=([0-9A-Z]+)\\.inst([0-9]+)\\?dispatch=logOn".toRegex()
         val match = regex.find(response)
         jsessionid = match?.groupValues?.get(1) ?: ""
         inst = match?.groupValues?.get(2) ?: ""
-        login()
     }
 
     suspend fun listGrades(): List<Course> {
         val courses = listCourses()
-        return runBlocking {
+        return coroutineScope {
             courses.map {
                 async {
-                    suspendCoroutine<Course?> { cont ->
-                        thread(start = true, priority = 1) {
-                            try {
-                                val sigaa = SIGAA(username, password)
-                                val courseId = it["Data"]!!["idTurma"]!!
-                                val courseGrades = sigaa.listGradesForCourse(courseId)
-                                val course = Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
-                                cont.resume(course)
-                            } catch (_: Throwable) {
-                                cont.resume(null)
-                            }
-                        }
-                    }
+                    val sigaa = SIGAA(username, password)
+                    val courseId = it["Data"]!!["idTurma"]!!
+                    val courseGrades = sigaa.listGradesForCourse(courseId)
+                    Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
                 }
-            }.mapNotNull { it.await() }
-        }
+            }
+        }.map { it.await() }
     }
 
     suspend fun listFrequency(): List<Frequency> {
         val courses = listCourses()
-        return runBlocking {
+        return coroutineScope {
             courses.map {
-                async {
-                    suspendCoroutine<Frequency?> { cont ->
-                        thread(start = true, priority = 1) {
-                            try {
-                                val sigaa = SIGAA(username, password)
-                                val courseId = it["Data"]!!["idTurma"]!!
-                                val course = it["CourseName"]!!["Value"]!!
-                                val frequency = sigaa.listFrequencyForCourse(courseId)
-                                frequency?.course = course
-                                cont.resume(frequency)
-                            } catch (_: Throwable) {
-                                cont.resume(null)
-                            }
-                        }
-                    }
-                }
-            }.mapNotNull { it.await() }
+//                async {
+                    val sigaa = SIGAA(username, password)
+                    val courseId = it["Data"]!!["idTurma"]!!
+                    val course = it["CourseName"]!!["Value"]!!
+                    val frequency = sigaa.listFrequencyForCourse(courseId)
+                    frequency?.course = course
+                    frequency
+//                }
+            }.mapNotNull { it}//.await() }
         }
     }
 
-    fun listSchedules(): List<Schedule> {
+    suspend fun listSchedules(): List<Schedule> {
         val html = html2AST(goHome())
         return find(html, "td.descricao").map { description ->
             val tr = description.parent()
@@ -153,7 +134,7 @@ class SIGAA(private val username: String, private val password: String) {
         }.flatten().map { Schedule.fromMap(it) }
     }
 
-    fun startAndEndOfSemester(): List<Calendar> {
+    suspend fun startAndEndOfSemester(): List<Calendar> {
         val html = goHome()
         val root = html2AST(html)
         val jID = find(root, "input[name='javax.faces.ViewState']").first()?.`val`() ?: ""
@@ -166,6 +147,7 @@ class SIGAA(private val username: String, private val password: String) {
                 "menu:form_menu_discente" to "menu:form_menu_discente"
         )
         val html2 = session.post("/sigaa/portais/discente/discente.jsf", data)
+                ?: throw Exception("Server Error")
         val root2 = html2AST(html2)
         val semester = find(root2, ".periodo-atual strong").first()?.text() ?: ""
         val index = find(root2, "thead").indexOfFirst { it.text().contains(semester) }
@@ -178,7 +160,8 @@ class SIGAA(private val username: String, private val password: String) {
                 "id" to id2,
                 "javax.faces.ViewState" to jID2
         )
-        val html3 = session.post("/sigaa/administracao/calendario_academico/consulta.jsf", data2)
+        val url3 = "/sigaa/administracao/calendario_academico/consulta.jsf"
+        val html3 = session.post(url3, data2) ?: throw Exception("Server Error")
         val root3 = html2AST(html3)
         val tr = find(root3, "th:contains(Período Letivo:)").first()?.parent()
         val duration = tr?.children()?.last()?.text()?.removePrefix("De ") ?: ""
@@ -210,106 +193,104 @@ class SIGAA(private val username: String, private val password: String) {
         return rs
     }
 
-    private fun listGradesForCourse(course_id: String): List<Map<String, String>> {
+    private suspend fun listGradesForCourse(course_id: String): List<Map<String, String>> {
+        val courses = listCourses()
+        val course = courses.first { it["Data"]!!["idTurma"] == course_id }
+        val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
+                ?: throw Exception("Server Error")
+        val root = html2AST(html)
+
+        val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
+        val data2 = hashMapOf("javax.faces.ViewState" to viewState)
+
         try {
-            val courses = listCourses()
-            val course = courses.first { it["Data"]!!["idTurma"] == course_id }
-            val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
-            val root = html2AST(html)
-
-            val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
-            val data2 = hashMapOf("javax.faces.ViewState" to viewState)
-
-            try {
-                val link = find(root, "div:contains(Ver Notas)").last().parent().attr("onclick")
-                val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
-                val m = regex.find(link)?.groupValues?.get(1) ?: ""
-                val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
-                val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
-                data2["formMenu"] = "formMenu"
-                data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
-                data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
-            } catch (_: Throwable) {
-                data2["formMenuDrop"] = "formMenuDrop"
-                data2["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas"
-            }
-
-            val root2 = html2AST(session.post("/sigaa/ava/index.jsf", data2))
-            val table = find(root2, "table.tabelaRelatorio").first()
-
-            val tr = find(table, "tr.linhaPar").first()
-            val vn = find(tr, "td").map { it.text().trim() }
-            val v = vn.subList(2, vn.size - 5)
-
-            val tr2 = find(table, "tr#trAval").first()
-            val ids = find(tr2, "th[id]")
-                    .map { it.attr("id") }
-                    .filter { it.startsWith("aval_") }
-                    .map { it.removePrefix("aval_") }
-
-            val a = ids.mapNotNull { find(tr2, "input#denAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
-            val n = ids.mapNotNull { find(tr2, "input#notaAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
-
-            return a.zip(n).zip(v).map {
-                mapOf(
-                        "Avaliação" to unescapeHTML(it.first.first),
-                        "Nota Máxima" to unescapeHTML(it.first.second),
-                        "Nota" to unescapeHTML(it.second)
-                )
-            }
+            val link = find(root, "div:contains(Ver Notas)").last().parent().attr("onclick")
+            val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
+            val m = regex.find(link)?.groupValues?.get(1) ?: ""
+            val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
+            val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
+            data2["formMenu"] = "formMenu"
+            data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
+            data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
         } catch (_: Throwable) {
-            return listOf()
+            data2["formMenuDrop"] = "formMenuDrop"
+            data2["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas"
+        }
+
+        val response = session.post("/sigaa/ava/index.jsf", data2)
+                ?: throw Exception("Server Error")
+        val root2 = html2AST(response)
+        val table = find(root2, "table.tabelaRelatorio").first() ?: return listOf()
+
+        val tr = find(table, "tr.linhaPar").first()
+        val vn = find(tr, "td").map { it.text().trim() }
+        val v = vn.subList(2, vn.size - 5)
+
+        val tr2 = find(table, "tr#trAval").first()
+        val ids = find(tr2, "th[id]")
+                .map { it.attr("id") }
+                .filter { it.startsWith("aval_") }
+                .map { it.removePrefix("aval_") }
+
+        val a = ids.mapNotNull { find(tr2, "input#denAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
+        val n = ids.mapNotNull { find(tr2, "input#notaAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
+
+        return a.zip(n).zip(v).map {
+            mapOf(
+                    "Avaliação" to unescapeHTML(it.first.first),
+                    "Nota Máxima" to unescapeHTML(it.first.second),
+                    "Nota" to unescapeHTML(it.second)
+            )
         }
     }
 
-    private fun listFrequencyForCourse(course_id: String): Frequency? {
-        return try {
-            val courses = listCourses()
-            val course = courses.first { it["Data"]!!["idTurma"] == course_id }
-            val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
-            val root = html2AST(html)
+    private suspend fun listFrequencyForCourse(course_id: String): Frequency? {
+        val courses = listCourses()
+        val course = courses.first { it["Data"]!!["idTurma"] == course_id }
+        val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
+                ?: throw Exception("Server Error")
+        val root = html2AST(html)
 
-            val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
-            val data2 = hashMapOf("javax.faces.ViewState" to viewState)
+        val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
+        val data2 = hashMapOf("javax.faces.ViewState" to viewState)
 
-            try {
-                val link = find(root, "div:contains(Frequência)").last().parent().attr("onclick")
-                val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
-                val m = regex.find(link)?.groupValues?.get(1) ?: ""
-                val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
-                val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
-                data2["formMenu"] = "formMenu"
-                data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
-                data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
-            } catch (_: Throwable) {
-                data2["formMenuDrop"] = "formMenuDrop"
-                data2["formMenuDrop:menuFrequencia:hidden"] = "formMenuDrop:menuFrequencia"
-            }
-
-            val root2 = html2AST(session.post("/sigaa/ava/index.jsf", data2))
-            val div = find(root2, "#scroll-wrapper").first()
-            val text = div.text() ?: ""
-
-            if (text.contains("A frequência ainda não foi lançada.")) {
-                throw Error()
-            }
-
-            val match = "Frequência:[ ]+([0-9]+)".toRegex().find(text)
-            val frequency = match?.groupValues?.get(1) ?: ""
-
-            val div2 = find(root2, "#barraDireita").first()
-            val text2 = div2.text() ?: ""
-            val match2 = "Aulas[ ]+\\(Ministradas/Total\\):[ ]+([0-9]+)[ ]+/[ ]+([0-9]+)".toRegex().find(text2)
-            val givenClasses = match2?.groupValues?.get(1) ?: ""
-            val totalClasses = match2?.groupValues?.get(2) ?: ""
-
-            Frequency("", frequency.toInt(), givenClasses.toInt(), totalClasses.toInt())
+        try {
+            val link = find(root, "div:contains(Frequência)").last().parent().attr("onclick")
+            val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
+            val m = regex.find(link)?.groupValues?.get(1) ?: ""
+            val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
+            val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
+            data2["formMenu"] = "formMenu"
+            data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
+            data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
         } catch (_: Throwable) {
-            null
+            data2["formMenuDrop"] = "formMenuDrop"
+            data2["formMenuDrop:menuFrequencia:hidden"] = "formMenuDrop:menuFrequencia"
         }
+
+        val response = session.post("/sigaa/ava/index.jsf", data2)
+                ?: throw Exception("Server Error")
+        val root2 = html2AST(response)
+        val div = find(root2, "#scroll-wrapper").first()
+        val text = div.text() ?: ""
+
+        if (text.contains("A frequência ainda não foi lançada.")) {
+            return null
+        }
+
+        val match = "Frequência:[ ]+([0-9]+)".toRegex().find(text)
+        val frequency = match?.groupValues?.get(1) ?: ""
+
+        val div2 = find(root2, "#barraDireita").first()
+        val text2 = div2.text() ?: ""
+        val match2 = "Aulas[ ]+\\(Ministradas/Total\\):[ ]+([0-9]+)[ ]+/[ ]+([0-9]+)".toRegex().find(text2)
+        val givenClasses = match2?.groupValues?.get(1) ?: ""
+        val totalClasses = match2?.groupValues?.get(2) ?: ""
+
+        return Frequency("", frequency.toInt(), givenClasses.toInt(), totalClasses.toInt())
     }
 
-    private fun listCourses(): List<HashMap<String, HashMap<String, String>>> {
+    private suspend fun listCourses(): List<HashMap<String, HashMap<String, String>>> {
         val html = html2AST(goHome())
         return find(html, "td.descricao").map {
             val name = find(it, "form").first().attr("name")
@@ -325,7 +306,9 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
-    private fun login() {
+    private suspend fun login() {
+        setup()
+
         val data = hashMapOf(
                 "width" to "800",
                 "height" to "600",
@@ -339,9 +322,16 @@ class SIGAA(private val username: String, private val password: String) {
         session.post("/sigaa/logar.do;jsessionid=$jsessionid.inst$inst?dispatch=logOn", data)
     }
 
-    private fun goHome(): String {
-        session.get("/sigaa/verPortalDiscente.do")
-        return session.get("/sigaa/portais/discente/discente.jsf")
+    private suspend fun goHome(): String {
+        session.get("/sigaa/verPortalDiscente.do") ?: throw Exception("Server Error")
+        val url = "/sigaa/portais/discente/discente.jsf"
+        val html = session.get(url) ?: throw Exception("Server Error")
+        return if (html.startsWith("<script>")) {
+            login()
+            goHome()
+        } else {
+            html
+        }
     }
 
     private fun html2AST(html: String): Document {

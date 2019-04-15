@@ -42,54 +42,54 @@ class AlarmService : JobIntentService() {
             val syncSchedules = preferences?.getBoolean("schedules", true) ?: true
             val notify = preferences?.getBoolean("notify", true) ?: true
 
-            if (syncGrades) {
-                syncGrades(context, notify)
-            }
+            runBlocking {
+                if (syncGrades) {
+                    syncGrades(context, notify)
+                }
 
-            if (syncSchedules) {
-                syncSchedules(context, notify)
+                if (syncSchedules) {
+                    syncSchedules(context, notify)
+                }
             }
         }
     }
 
-    private fun syncGrades(context: Context, notify: Boolean) {
+    private suspend fun syncGrades(context: Context, notify: Boolean) {
         try {
-            runBlocking {
-                val preferences = context.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-                val username = preferences.getString("username", "") ?: ""
-                val password = preferences.getString("password", "") ?: ""
+            val preferences = context.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+            val username = preferences.getString("username", "") ?: ""
+            val password = preferences.getString("password", "") ?: ""
 
-                val oldJson = preferences.getString("grades", "[]") ?: "[]"
-                val oldGrades = tryOrDefault(arrayOf()) {
-                    GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Course>::class.java)
-                }?.toList() ?: listOf()
+            val oldJson = preferences.getString("grades", "[]") ?: "[]"
+            val oldGrades = tryOrDefault(arrayOf()) {
+                GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Course>::class.java)
+            }?.toList() ?: listOf()
 
-                val grades = SIGAA(username, password).listGrades()
+            val grades = SIGAA(username, password).listGrades()
 
-                val shouldNotify = grades.size == oldGrades.size && grades
-                        .zipBy(oldGrades) { it.name }
-                        .comparePairWith(::shouldNotifyCourseUpdate)
-                        .any { it }
+            val shouldNotify = grades.size == oldGrades.size && grades
+                    .zipBy(oldGrades) { it.name }
+                    .comparePairWith(::shouldNotifyCourseUpdate)
+                    .any { it }
 
-                if (grades.size > oldGrades.size || shouldNotify) {
-                    val json = GsonBuilder().create().toJson(grades) ?: "[]"
-                    with(preferences.edit()) {
-                        putString("grades", json)
-                        apply()
-                    }
+            if (grades.size > oldGrades.size || shouldNotify) {
+                val json = GsonBuilder().create().toJson(grades) ?: "[]"
+                with(preferences.edit()) {
+                    putString("grades", json)
+                    apply()
+                }
 
-                    if (notify) {
-                        val title = context.getString(R.string.notification_grades_title)
-                        val text = context.getString(R.string.notification_grades_text)
-                        showNotification(context, "grades", title, text)
-                    }
+                if (notify) {
+                    val title = context.getString(R.string.notification_grades_title)
+                    val text = context.getString(R.string.notification_grades_text)
+                    showNotification(context, "grades", title, text)
                 }
             }
         } catch (_: Throwable) {
         }
     }
 
-    private fun syncSchedules(context: Context, notify: Boolean) {
+    private suspend fun syncSchedules(context: Context, notify: Boolean) {
         try {
             val preferences = context.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
             val username = preferences.getString("username", "") ?: ""

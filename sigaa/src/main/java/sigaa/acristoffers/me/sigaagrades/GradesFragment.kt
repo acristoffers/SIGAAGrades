@@ -47,25 +47,21 @@ class GradesFragment : Fragment() {
             update()
         }
 
-        thread(start = true) {
-            val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-            val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
-            val courses = tryOrDefault(arrayOf()) {
-                GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
-            }?.toList() ?: listOf()
+        val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+        val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
+        val courses = tryOrDefault(arrayOf()) {
+            GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
+        }?.toList() ?: listOf()
 
-            setGrades(courses)
+        setGrades(courses)
 
-            activity?.runOnUiThread {
-                recyclerView.apply {
-                    adapter = CourseViewAdapter
-                    layoutManager = LinearLayoutManager(activity)
-                }
-            }
+        recyclerView.apply {
+            adapter = CourseViewAdapter
+            layoutManager = LinearLayoutManager(activity)
+        }
 
-            if (courses.isEmpty()) {
-                update()
-            }
+        if (courses.isEmpty()) {
+            update()
         }
     }
 

@@ -23,6 +23,9 @@
 package sigaa.acristoffers.me.sigaagrades
 
 import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -59,23 +62,39 @@ class Session(url: String) {
         output = socket?.getOutputStream()?.writer()
     }
 
-    fun get(path: String): String {
+    suspend fun get(path: String): String? {
         reconnect()
 
         val headers = fullHeader("GET", path)
         output?.write(headers)
         output?.flush()
 
-        val bufferedReader = BufferedReader(input)
-        val result = bufferedReader.readText()
+        val result = withContext(Dispatchers.IO) {
+            val bufferedReader = BufferedReader(input)
+            Normalizer.normalize(bufferedReader.readText(), Normalizer.Form.NFKC)
+        }
 
         referer = "$uri$path"
+
+        when (extractStatus(result)) {
+            200 -> {
+            }
+            301 -> return get(extractLocation(result))
+            302 -> return get(extractLocation(result))
+            303 -> return get(extractLocation(result))
+            307 -> return get(extractLocation(result))
+            else -> return null
+        }
+
+        if (result.indexOf("Comportamento Inesperado!") != -1) {
+            return null
+        }
 
         extractCookies(result)
         return extractBody(result)
     }
 
-    fun post(path: String, data: Map<String, String>): String {
+    suspend fun post(path: String, data: Map<String, String>): String? {
         reconnect()
 
         val body = data.map { "${it.key}=${URLEncoder.encode(it.value, "UTF8")}" }.joinToString("&")
@@ -84,10 +103,26 @@ class Session(url: String) {
         output?.write(headers + body)
         output?.flush()
 
-        val bufferedReader = BufferedReader(input)
-        val result = bufferedReader.readText()
+        val result = withContext(Dispatchers.IO) {
+            val bufferedReader = BufferedReader(input)
+            Normalizer.normalize(bufferedReader.readText(), Normalizer.Form.NFKC)
+        }
 
         referer = uri.toString() + path
+
+        when (extractStatus(result)) {
+            200 -> {
+            }
+            301 -> return post(extractLocation(result), data)
+            302 -> return post(extractLocation(result), data)
+            303 -> return post(extractLocation(result), data)
+            307 -> return post(extractLocation(result), data)
+            else -> return null
+        }
+
+        if (result.indexOf("Comportamento Inesperado!") != -1) {
+            return null
+        }
 
         extractCookies(result)
         return extractBody(result)
@@ -147,9 +182,8 @@ class Session(url: String) {
 
     private fun extractBody(response: String): String {
         val r = "[0-9a-fA-F]+".toRegex()
-        val body = java.text.Normalizer.normalize(response, Normalizer.Form.NFKC)
-        return body
-                .substring(body.indexOf("\r\n\r\n"))
+        return response
+                .substring(response.indexOf("\r\n\r\n"))
                 .split("\r\n")
                 .asSequence()
                 .map { it.trim() }
@@ -157,5 +191,19 @@ class Session(url: String) {
                 .filter { r.matchEntire(it) == null }
                 .joinToString("")
                 .replace("[\r\n\t]+".toRegex(), "")
+    }
+
+    private fun extractStatus(response: String): Int {
+        val i = response.indexOf("\n")
+        val s = response.substring(0, i)
+        val r = "([0-9]{3})".toRegex()
+        val m = r.find(s)
+        return m?.groupValues?.get(1)?.toInt() ?: 501
+    }
+
+    private fun extractLocation(response: String): String {
+        val r = "Location: ([^\n]+)\r\n".toRegex()
+        val m = r.find(response)
+        return m?.groupValues?.get(1) ?: ""
     }
 }
