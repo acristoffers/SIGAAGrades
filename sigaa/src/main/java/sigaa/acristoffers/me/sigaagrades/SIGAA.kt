@@ -24,7 +24,6 @@ package sigaa.acristoffers.me.sigaagrades
 
 import android.os.Build
 import android.text.Html
-import android.util.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jsoup.Jsoup
@@ -65,15 +64,15 @@ class SIGAA(private val username: String, private val password: String) {
         val courses = listCourses()
         return coroutineScope {
             courses.map {
-//                async {
+                async {
                     val sigaa = SIGAA(username, password)
                     val courseId = it["Data"]!!["idTurma"]!!
                     val course = it["CourseName"]!!["Value"]!!
                     val frequency = sigaa.listFrequencyForCourse(courseId)
                     frequency?.course = course
                     frequency
-//                }
-            }.mapNotNull { it}//.await() }
+                }
+            }.mapNotNull { it.await() }
         }
     }
 
