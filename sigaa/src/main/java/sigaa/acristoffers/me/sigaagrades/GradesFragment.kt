@@ -32,8 +32,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_grades.*
-import kotlinx.coroutines.runBlocking
-import kotlin.concurrent.thread
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class GradesFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -70,36 +70,34 @@ class GradesFragment : Fragment() {
             swipe.isRefreshing = true
         }
 
-        thread(start = true) {
-            runBlocking {
-                try {
-                    val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
-                    val username = sharedPreferences?.getString("username", "") ?: ""
-                    val password = sharedPreferences?.getString("password", "") ?: ""
-                    val grades = SIGAA(username, password).listGrades()
+        GlobalScope.launch {
+            try {
+                val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
+                val username = sharedPreferences?.getString("username", "") ?: ""
+                val password = sharedPreferences?.getString("password", "") ?: ""
+                val grades = SIGAA(username, password).listGrades()
 
-                    activity?.runOnUiThread {
-                        swipe.isRefreshing = false
-                    }
-
-                    if (sharedPreferences != null && grades.isNotEmpty()) {
-                        val json = GsonBuilder().create().toJson(grades) ?: "[]"
-                        with(sharedPreferences.edit()) {
-                            putString("grades", json)
-                            apply()
-                        }
-
-                        setGrades(grades)
-                    }
-                } catch (_: Throwable) {
-                    activity?.runOnUiThread {
-                        swipe.isRefreshing = false
-                        Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
-                    }
+                activity?.runOnUiThread {
+                    swipe.isRefreshing = false
                 }
 
-                Unit
+                if (sharedPreferences != null && grades.isNotEmpty()) {
+                    val json = GsonBuilder().create().toJson(grades) ?: "[]"
+                    with(sharedPreferences.edit()) {
+                        putString("grades", json)
+                        apply()
+                    }
+
+                    setGrades(grades)
+                }
+            } catch (_: Throwable) {
+                activity?.runOnUiThread {
+                    swipe.isRefreshing = false
+                    Toast.makeText(activity, "Ocorreu um erro durante a atualização", Toast.LENGTH_LONG).show()
+                }
             }
+
+            Unit
         }
     }
 

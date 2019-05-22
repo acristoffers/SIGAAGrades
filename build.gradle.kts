@@ -21,14 +21,16 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.3.11'
+    val kotlinVersion = "1.3.31"
+
     repositories {
         google()
         jcenter()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath("com.android.tools.build:gradle:3.4.1")
+        classpath(kotlin("gradle-plugin", kotlinVersion))
     }
 }
 
@@ -39,6 +41,8 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks {
+    withType<Delete> {
+        delete(rootProject.buildDir)
+    }
 }

@@ -52,7 +52,7 @@ class SIGAA(private val username: String, private val password: String) {
             courses.map {
                 async {
                     val sigaa = SIGAA(username, password)
-                    val courseId = it["Data"]!!["idTurma"]!!
+                    val courseId = it["id"]!!["Value"]!!
                     val courseGrades = sigaa.listGradesForCourse(courseId)
                     Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
                 }
@@ -66,7 +66,7 @@ class SIGAA(private val username: String, private val password: String) {
             courses.map {
                 async {
                     val sigaa = SIGAA(username, password)
-                    val courseId = it["Data"]!!["idTurma"]!!
+                    val courseId = it["id"]!!["Value"]!!
                     val course = it["CourseName"]!!["Value"]!!
                     val frequency = sigaa.listFrequencyForCourse(courseId)
                     frequency?.course = course
@@ -194,7 +194,7 @@ class SIGAA(private val username: String, private val password: String) {
 
     private suspend fun listGradesForCourse(course_id: String): List<Map<String, String>> {
         val courses = listCourses()
-        val course = courses.first { it["Data"]!!["idTurma"] == course_id }
+        val course = courses.first { it["id"]!!["Value"] == course_id }
         val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
                 ?: throw Exception("Server Error")
         val root = html2AST(html)
@@ -221,7 +221,7 @@ class SIGAA(private val username: String, private val password: String) {
         val root2 = html2AST(response)
         val table = find(root2, "table.tabelaRelatorio").first() ?: return listOf()
 
-        val tr = find(table, "tr.linhaPar").first()
+        val tr = find(table, "tbody tr").first()
         val vn = find(tr, "td").map { it.text().trim() }
         val v = vn.subList(2, vn.size - 5)
 
@@ -245,7 +245,7 @@ class SIGAA(private val username: String, private val password: String) {
 
     private suspend fun listFrequencyForCourse(course_id: String): Frequency? {
         val courses = listCourses()
-        val course = courses.first { it["Data"]!!["idTurma"] == course_id }
+        val course = courses.first { it["id"]!!["Value"] == course_id }
         val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
                 ?: throw Exception("Server Error")
         val root = html2AST(html)
@@ -292,14 +292,27 @@ class SIGAA(private val username: String, private val password: String) {
     private suspend fun listCourses(): List<HashMap<String, HashMap<String, String>>> {
         val html = html2AST(goHome())
         return find(html, "td.descricao").map {
-            val name = find(it, "form").first().attr("name")
+            val onclick = find(it, "a").first().attr("onclick")
+            val fName = find(it, "form").first().attr("name")
+
+            val r = "'($fName:[a-zA-Z0-9_]+)'".toRegex()
+            val m = r.find(onclick)
+            val name = m?.groupValues?.get(1)
+                    ?: throw Exception("Invalid onclick contents - SIGAA.kt:298")
+
+            val r2 = "'frontEndIdTurma':'([A-Z0-9]+)'".toRegex()
+            val m2 = r2.find(onclick)
+            val idTurma = m2?.groupValues?.get(1)
+                    ?: throw Exception("Invalid onclick contents - SIGAA.kt:302")
+
             hashMapOf(
                     "CourseName" to hashMapOf("Value" to unescapeHTML(find(it, "a").first().text())),
+                    "id" to hashMapOf("Value" to idTurma),
                     "Data" to hashMapOf(
-                            "idTurma" to find(it, "input[name='idTurma']").first().`val`(),
+                            "frontEndIdTurma" to idTurma,
                             "javax.faces.ViewState" to find(it, "input[name='javax.faces.ViewState']").first().`val`(),
                             name to name,
-                            "$name:turmaVirtual" to "$name:turmaVirtual"
+                            fName to fName
                     )
             )
         }
