@@ -254,7 +254,7 @@ class SIGAA(private val username: String, private val password: String) {
         val url = "/sigaa/portais/discente/discente.jsf"
         val html = session.post(url, course.data) ?: throw Exception("Server Error")
 
-        // Navigate to grades page (Same as clicking on "Ver Notas" on the course page)
+        // Navigate to frequency page (Same as clicking on "Frequência" on the course page)
         val data = extractFrequencyPageDataFromCoursesPage(html)
         val url2 = "/sigaa/ava/index.jsf"
         val response = session.post(url2, data) ?: throw Exception("Server Error")
