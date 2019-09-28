@@ -54,7 +54,7 @@ class _FrequencyState extends State<FrequencyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notas')),
+      appBar: AppBar(title: Text('Frequência')),
       drawer: Drawer(
         child: DrawerPage(),
       ),
@@ -78,7 +78,7 @@ class _FrequencyState extends State<FrequencyPage> {
                     child: ListTile(
                       title: Text(course.name),
                       subtitle: Text(
-                        'Faltas: ${course.frequency.absences} (${course.frequency.absences/course.frequency.totalClasses}% do total, ${course.frequency.absences/course.frequency.givenClasses}% das ministradas)',
+                        'Faltas: ${course.frequency.absences} (${course.frequency.absences / course.frequency.totalClasses}% do total, ${course.frequency.absences / course.frequency.givenClasses}% das ministradas)',
                       ),
                     ),
                   );
