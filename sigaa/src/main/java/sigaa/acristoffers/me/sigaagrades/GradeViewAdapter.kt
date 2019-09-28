@@ -30,7 +30,7 @@ import android.widget.TableRow
 import android.widget.TextView
 
 class GradeViewAdapter : RecyclerView.Adapter<GradeViewAdapter.GradeViewHolder>() {
-    var grades: List<SIGAA.Grade> = listOf()
+    var grades: List<Grade> = listOf()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): GradeViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.grade, viewGroup, false)
@@ -41,9 +41,9 @@ class GradeViewAdapter : RecyclerView.Adapter<GradeViewAdapter.GradeViewHolder>(
 
     override fun onBindViewHolder(holder: GradeViewHolder, pos: Int) {
         holder.apply {
-            name.text = grades[pos].testName
-            total.text = grades[pos].worth
-            score.text = grades[pos].score
+            name.text = grades[pos].activityName
+            total.text = grades[pos].totalValue
+            score.text = grades[pos].scoreValue
             header.visibility = if (pos == 0) View.VISIBLE else View.GONE
         }
     }

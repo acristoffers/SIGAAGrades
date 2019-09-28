@@ -29,8 +29,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import java.util.*
 
-class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleViewAdapter.TodayViewHolder>() {
-    var schedules: List<SIGAA.Schedule> = listOf()
+class DayScheduleViewAdapter(private val day: Int) : RecyclerView.Adapter<DayScheduleViewAdapter.TodayViewHolder>() {
+    var schedules: List<Schedule> = listOf()
     var today = false
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): TodayViewHolder {
@@ -44,7 +44,7 @@ class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleVie
 
     override fun onBindViewHolder(holder: TodayViewHolder, pos: Int) {
         val todaySchedules = filteredSchedules()
-                .sortedWith(compareBy(SIGAA.Schedule::shift, { tryOrDefault(0) { it.start.split(":").first().toInt() } }))
+                .sortedWith(compareBy(Schedule::shift, { tryOrDefault(0) { it.start.split(":").first().toInt() } }))
 
         holder.apply {
             course.text = todaySchedules[pos].course
@@ -55,10 +55,10 @@ class DayScheduleViewAdapter(val day: Int) : RecyclerView.Adapter<DayScheduleVie
         }
     }
 
-    private fun filteredSchedules(): List<SIGAA.Schedule> {
+    private fun filteredSchedules(): List<Schedule> {
         return if (today) {
             val now = Calendar.getInstance()
-            val l = { it: SIGAA.Schedule, i: Int -> tryOrDefault(0) { it.end.split(":")[i].toInt() } }
+            val l = { it: Schedule, i: Int -> tryOrDefault(0) { it.end.split(":")[i].toInt() } }
             schedules.filter {
                 val cal = Calendar.getInstance()
                 cal.set(Calendar.AM_PM, 0)

@@ -24,113 +24,127 @@ package sigaa.acristoffers.me.sigaagrades
 
 import android.os.Build
 import android.text.Html
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.util.*
 
+// Public data classes will be accessible by users of the API
+
+data class Course(
+        val name: String,
+        val grades: List<Grade>?,
+        val frequency: Frequency?
+)
+
+data class Grade(
+        val activityName: String,
+        val scoreValue: String,
+        val totalValue: String
+)
+
+data class Schedule(
+        val course: String,
+        val local: String,
+        val day: Int,
+        val shift: Int,
+        val start: String,
+        val end: String
+)
+
+data class Frequency(
+        val frequency: Int,
+        val givenClasses: Int,
+        val totalClasses: Int
+)
+
+// Private data classes have their public counterpart plus information needed for fetching data.
+
+private data class CoursePrivate(
+        val course: Course,
+        val id: String,
+        val data: HashMap<String, String>
+)
+
 class SIGAA(private val username: String, private val password: String) {
     private var session = Session("https://sig.cefetmg.br")
-    private var jsessionid: String = ""
-    private var inst: String = ""
+    private lateinit var jsessionid: String
+    private lateinit var inst: String
 
-    private suspend fun setup() {
-        session = Session("https://sig.cefetmg.br")
-        val response = session.get("/sigaa/verTelaLogin.do") ?: throw Exception("Server Error")
-        val regex = "/sigaa/logar\\.do;jsessionid=([0-9A-Z]+)\\.inst([0-9]+)\\?dispatch=logOn".toRegex()
-        val match = regex.find(response)
-        jsessionid = match?.groupValues?.get(1) ?: ""
-        inst = match?.groupValues?.get(2) ?: ""
-    }
-
-    suspend fun listGrades(): List<Course> {
-        val courses = listCourses()
-        return coroutineScope {
-            courses.map {
-                async {
-                    val sigaa = SIGAA(username, password)
-                    val courseId = it["id"]!!["Value"]!!
-                    val courseGrades = sigaa.listGradesForCourse(courseId)
-                    Course.fromMap(it["CourseName"]!!["Value"]!!, courseGrades)
-                }
-            }
-        }.map { it.await() }
-    }
-
-    suspend fun listFrequency(): List<Frequency> {
-        val courses = listCourses()
-        return coroutineScope {
-            courses.map {
-                async {
-                    val sigaa = SIGAA(username, password)
-                    val courseId = it["id"]!!["Value"]!!
-                    val course = it["CourseName"]!!["Value"]!!
-                    val frequency = sigaa.listFrequencyForCourse(courseId)
-                    frequency?.course = course
-                    frequency
-                }
-            }.mapNotNull { it.await() }
+    init {
+        runBlocking {
+            login()
         }
     }
 
-    suspend fun listSchedules(): List<Schedule> {
-        val html = html2AST(goHome())
-        return find(html, "td.descricao").map { description ->
-            val tr = description.parent()
-            val course = find(tr, "td.descricao").last()?.text() ?: ""
-            val local = find(tr, "td.info").first()?.text() ?: ""
-            find(tr, "td.info").last()?.text()?.split(" ")?.map { info ->
-                val d = "([0-9]+)[A-Z]".toRegex().find(info)?.groupValues?.get(1) ?: ""
-                val m = ".*M([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
-                val t = ".*T([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
-                val n = ".*N([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
-                d.map { dayChar ->
-                    try {
-                        val day = dayChar.toString()
+    /**
+     * Resets the session and tries to login
+     *
+     * It's necessary to reset the session because the server is unreliable and will return error
+     * when it should return a positive result. Retrying with a new session seems to be enough to
+     * get the desired response. Better to retry than to crash...
+     *
+     */
+    private suspend fun login() {
+        session = Session("https://sig.cefetmg.br")
 
-                        val ms = stringToRanges(m).map {
-                            mapOf(
-                                    "course" to course,
-                                    "local" to local,
-                                    "day" to day,
-                                    "shift" to "1",
-                                    "start" to it[0].toString(),
-                                    "end" to it[1].toString()
-                            )
-                        }
+        val response = session.get("/sigaa/verTelaLogin.do") ?: throw Exception("Server Error")
+        val regex = "/sigaa/logar\\.do;jsessionid=([0-9A-Z]+)\\.inst([0-9]+)\\?dispatch=logOn".toRegex()
+        val match = regex.find(response)
 
-                        val ts = stringToRanges(t).map {
-                            mapOf(
-                                    "course" to course,
-                                    "local" to local,
-                                    "day" to day,
-                                    "shift" to "2",
-                                    "start" to it[0].toString(),
-                                    "end" to it[1].toString()
-                            )
-                        }
+        jsessionid = match?.groupValues?.get(1) ?: ""
+        inst = match?.groupValues?.get(2) ?: ""
 
-                        val ns = stringToRanges(n).map {
-                            mapOf(
-                                    "course" to course,
-                                    "local" to local,
-                                    "day" to day,
-                                    "shift" to "3",
-                                    "start" to it[0].toString(),
-                                    "end" to it[1].toString()
-                            )
-                        }
+        val data = hashMapOf(
+                "width" to "800",
+                "height" to "600",
+                "urlRedirect" to "",
+                "subsistemaRedirect" to "",
+                "acao" to "",
+                "acessibilidade" to "",
+                "user.login" to username,
+                "user.senha" to password
+        )
 
-                        ms + ts + ns
-                    } catch (_: Throwable) {
-                        listOf<Map<String, String>>()
-                    }
-                }.flatten()
-            }?.flatten() ?: listOf()
-        }.flatten().map { Schedule.fromMap(it) }
+        session.post("/sigaa/logar.do;jsessionid=$jsessionid.inst$inst?dispatch=logOn", data)
+    }
+
+    /**
+     * List courses. Only returns the public accessible data class.
+     */
+    suspend fun courses(): List<Course> {
+        return coursesPrivate().map { it.course }
+    }
+
+    /**
+     * List courses with added grades
+     */
+    suspend fun grades(): List<Course> = coroutineScope {
+        coursesPrivate().map { course ->
+            async(Dispatchers.IO) { SIGAA(username, password).gradesPrivate(course).course }
+        }
+    }.map { it.await() }
+
+    /**
+     * List courses with added frequency
+     */
+    suspend fun frequency(): List<Course> = coroutineScope {
+        coursesPrivate().map { course ->
+            async(Dispatchers.IO) { SIGAA(username, password).frequencyPrivate(course).course }
+        }
+    }.map { it.await() }
+
+    /**
+     * List courses' schedules
+     */
+    suspend fun schedules(): List<Schedule> {
+        val html = goHome()
+        return extractScheduleInformation(html)
     }
 
     suspend fun startAndEndOfSemester(): List<Calendar> {
@@ -176,31 +190,120 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
-    private fun stringToRanges(str: String): List<List<Int>> {
-        val ns = str.map { it.toString().trim().toInt() }.sorted()
-        val rs = mutableListOf<List<Int>>()
+    // Intermediate, suspendable functions
 
-        for (i in ns) {
-            val x = rs.lastOrNull()?.get(1) ?: i
-            if ((i - 1) == x) {
-                rs[rs.size - 1] = listOf(rs.last()[0], i)
-            } else {
-                rs.add(listOf(i, i))
-            }
+    /**
+     * Try to get the homepage. Sometimes it returns a <script> instead of a HTML.
+     * In that case, just retry. If we get the HTML (!<script>) we continue.
+     */
+    private suspend fun goHome(): String {
+        // Needed to generate session information.
+        session.get("/sigaa/verPortalDiscente.do") ?: throw Exception("Server Error")
+
+        // Gets actual homepage
+        val url = "/sigaa/portais/discente/discente.jsf"
+        val html = session.get(url) ?: throw Exception("Server Error")
+
+        if (html.startsWith("<script>")) {
+            login()
+            return goHome()
         }
 
-        return rs
+        return html
     }
 
-    private suspend fun listGradesForCourse(course_id: String): List<Map<String, String>> {
-        val courses = listCourses()
-        val course = courses.first { it["id"]!!["Value"] == course_id }
-        val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
-                ?: throw Exception("Server Error")
+    /**
+     * Fetches the courses and parses, returning a list of processed CoursePrivate objects.
+     * This function is intended to be used inside the public suspendable functions to list the
+     * courses and proceed with processing. This function fetches the page, and
+     * extractCoursesFromHomePageHTML extracts the information from the HTML.
+     */
+    private suspend fun coursesPrivate(): List<CoursePrivate> {
+        val html = goHome()
+        return extractCoursesFromHomePageHTML(html)
+    }
+
+    /**
+     * Performs all navigation necessary to get the grades
+     */
+    private suspend fun gradesPrivate(_course: CoursePrivate): CoursePrivate {
+        val course = coursesPrivate().first { it.id == _course.id }
+
+        // Go to course page (Same as clicking on the course name in the homepage)
+        val url = "/sigaa/portais/discente/discente.jsf"
+        val html = session.post(url, course.data) ?: throw Exception("Server Error")
+
+        // Navigate to grades page (Same as clicking on "Ver Notas" on the course page)
+        val data = extractGradesPageDataFromCoursesPage(html)
+        val url2 = "/sigaa/ava/index.jsf"
+        val response = session.post(url2, data) ?: throw Exception("Server Error")
+
+        // Parses grades (Extracts information from table)
+        val grades = extractGradesFromGradesPage(response)
+        val newCourse = course.course.copy(grades = grades)
+        return course.copy(course = newCourse)
+    }
+
+    /**
+     * Performs all navigation necessary to get the frequency
+     */
+    private suspend fun frequencyPrivate(_course: CoursePrivate): CoursePrivate {
+        val course = coursesPrivate().first { it.id == _course.id }
+
+        // Go to course page (Same as clicking on the course name in the homepage)
+        val url = "/sigaa/portais/discente/discente.jsf"
+        val html = session.post(url, course.data) ?: throw Exception("Server Error")
+
+        // Navigate to grades page (Same as clicking on "Ver Notas" on the course page)
+        val data = extractFrequencyPageDataFromCoursesPage(html)
+        val url2 = "/sigaa/ava/index.jsf"
+        val response = session.post(url2, data) ?: throw Exception("Server Error")
+
+        // Parses frequency (Extracts information from table)
+        val frequency = extractFrequencyFromFrequencyPage(response)
+        val newCourse = course.course.copy(frequency = frequency)
+        return course.copy(course = newCourse)
+    }
+
+    // Intermediate, non-suspendable functions
+
+    /**
+     * Given the homepage HTML string, extract the information needed to continue scrapping the
+     * site.
+     */
+    private fun extractCoursesFromHomePageHTML(html: String): List<CoursePrivate> {
+        val ast = html2AST(html)
+        return find(ast, "td.descricao").map {
+            val onclick = find(it, "a").first().attr("onclick")
+            val fName = find(it, "form").first().attr("name")
+
+            val r = "'($fName:[a-zA-Z0-9_]+)'".toRegex()
+            val m = r.find(onclick)
+            val name = m?.groupValues?.get(1)
+                    ?: throw Exception("Invalid onclick contents - SIGAA.kt:298")
+
+            val r2 = "'frontEndIdTurma':'([A-Z0-9]+)'".toRegex()
+            val m2 = r2.find(onclick)
+            val exceptionMessage = "Invalid onclick contents - SIGAA.kt/extractCoursesFromHomePageHTML"
+            val idTurma = m2?.groupValues?.get(1) ?: throw Exception(exceptionMessage)
+
+            val data = hashMapOf(
+                    "frontEndIdTurma" to idTurma,
+                    "javax.faces.ViewState" to find(it, "input[name='javax.faces.ViewState']").first().`val`(),
+                    name to name,
+                    fName to fName
+            )
+
+            val course = Course(name = name, grades = null, frequency = null)
+            CoursePrivate(course = course, id = idTurma, data = data)
+        }
+    }
+
+    private fun extractGradesPageDataFromCoursesPage(html: String): HashMap<String, String> {
         val root = html2AST(html)
 
         val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
-        val data2 = hashMapOf("javax.faces.ViewState" to viewState)
+        val data = hashMapOf("javax.faces.ViewState" to viewState)
 
         try {
             val link = find(root, "div:contains(Ver Notas)").last().parent().attr("onclick")
@@ -208,18 +311,44 @@ class SIGAA(private val username: String, private val password: String) {
             val m = regex.find(link)?.groupValues?.get(1) ?: ""
             val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
             val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
-            data2["formMenu"] = "formMenu"
-            data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
-            data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
+
+            data["formMenu"] = "formMenu"
+            data["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
+            data["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
         } catch (_: Throwable) {
-            data2["formMenuDrop"] = "formMenuDrop"
-            data2["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas"
+            data["formMenuDrop"] = "formMenuDrop"
+            data["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas"
         }
 
-        val response = session.post("/sigaa/ava/index.jsf", data2)
-                ?: throw Exception("Server Error")
-        val root2 = html2AST(response)
-        val table = find(root2, "table.tabelaRelatorio").first() ?: return listOf()
+        return data
+    }
+
+    private fun extractFrequencyPageDataFromCoursesPage(html: String): HashMap<String, String> {
+        val root = html2AST(html)
+
+        val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
+        val data = hashMapOf("javax.faces.ViewState" to viewState)
+
+        try {
+            val link = find(root, "div:contains(Frequência)").last().parent().attr("onclick")
+            val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
+            val m = regex.find(link)?.groupValues?.get(1) ?: ""
+            val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
+            val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
+            data["formMenu"] = "formMenu"
+            data["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
+            data["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
+        } catch (_: Throwable) {
+            data["formMenuDrop"] = "formMenuDrop"
+            data["formMenuDrop:menuFrequencia:hidden"] = "formMenuDrop:menuFrequencia"
+        }
+
+        return data
+    }
+
+    private fun extractGradesFromGradesPage(html: String): List<Grade> {
+        val root = html2AST(html)
+        val table = find(root, "table.tabelaRelatorio").first() ?: return listOf()
 
         val tr = find(table, "tbody tr").first()
         val vn = find(tr, "td").map { it.text().trim() }
@@ -235,116 +364,98 @@ class SIGAA(private val username: String, private val password: String) {
         val n = ids.mapNotNull { find(tr2, "input#notaAval_$it").map { it2 -> it2.`val`() }.firstOrNull() }
 
         return a.zip(n).zip(v).map {
-            mapOf(
-                    "Avaliação" to unescapeHTML(it.first.first),
-                    "Nota Máxima" to unescapeHTML(it.first.second),
-                    "Nota" to unescapeHTML(it.second)
+            Grade(
+                    activityName = unescapeHTML(it.first.first),
+                    scoreValue = unescapeHTML(it.second),
+                    totalValue = unescapeHTML(it.first.second)
             )
         }
     }
 
-    private suspend fun listFrequencyForCourse(course_id: String): Frequency? {
-        val courses = listCourses()
-        val course = courses.first { it["id"]!!["Value"] == course_id }
-        val html = session.post("/sigaa/portais/discente/discente.jsf", course["Data"]!!)
-                ?: throw Exception("Server Error")
+    private fun extractFrequencyFromFrequencyPage(html: String): Frequency {
         val root = html2AST(html)
-
-        val viewState = find(root, "input[name='javax.faces.ViewState']").first().`val`()
-        val data2 = hashMapOf("javax.faces.ViewState" to viewState)
-
-        try {
-            val link = find(root, "div:contains(Frequência)").last().parent().attr("onclick")
-            val regex = "formMenu:j_id_jsp_([0-9_]+)".toRegex()
-            val m = regex.find(link)?.groupValues?.get(1) ?: ""
-            val regex2 = "PanelBar\\('formMenu:j_id_jsp_([0-9_]+)".toRegex()
-            val m2 = regex2.find(html)?.groupValues?.get(1) ?: ""
-            data2["formMenu"] = "formMenu"
-            data2["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2"
-            data2["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m"
-        } catch (_: Throwable) {
-            data2["formMenuDrop"] = "formMenuDrop"
-            data2["formMenuDrop:menuFrequencia:hidden"] = "formMenuDrop:menuFrequencia"
-        }
-
-        val response = session.post("/sigaa/ava/index.jsf", data2)
-                ?: throw Exception("Server Error")
-        val root2 = html2AST(response)
-        val div = find(root2, "#scroll-wrapper").first()
+        val div = find(root, "#scroll-wrapper").first()
         val text = div.text() ?: ""
 
         if (text.contains("A frequência ainda não foi lançada.")) {
-            return null
+            return Frequency(frequency = 0, givenClasses = 0, totalClasses = 0)
         }
 
         val match = "Frequência:[ ]+([0-9]+)".toRegex().find(text)
         val frequency = match?.groupValues?.get(1) ?: ""
 
-        val div2 = find(root2, "#barraDireita").first()
+        val div2 = find(root, "#barraDireita").first()
         val text2 = div2.text() ?: ""
         val match2 = "Aulas[ ]+\\(Ministradas/Total\\):[ ]+([0-9]+)[ ]+/[ ]+([0-9]+)".toRegex().find(text2)
         val givenClasses = match2?.groupValues?.get(1) ?: ""
         val totalClasses = match2?.groupValues?.get(2) ?: ""
 
-        return Frequency("", frequency.toInt(), givenClasses.toInt(), totalClasses.toInt())
-    }
-
-    private suspend fun listCourses(): List<HashMap<String, HashMap<String, String>>> {
-        val html = html2AST(goHome())
-        return find(html, "td.descricao").map {
-            val onclick = find(it, "a").first().attr("onclick")
-            val fName = find(it, "form").first().attr("name")
-
-            val r = "'($fName:[a-zA-Z0-9_]+)'".toRegex()
-            val m = r.find(onclick)
-            val name = m?.groupValues?.get(1)
-                    ?: throw Exception("Invalid onclick contents - SIGAA.kt:298")
-
-            val r2 = "'frontEndIdTurma':'([A-Z0-9]+)'".toRegex()
-            val m2 = r2.find(onclick)
-            val idTurma = m2?.groupValues?.get(1)
-                    ?: throw Exception("Invalid onclick contents - SIGAA.kt:302")
-
-            hashMapOf(
-                    "CourseName" to hashMapOf("Value" to unescapeHTML(find(it, "a").first().text())),
-                    "id" to hashMapOf("Value" to idTurma),
-                    "Data" to hashMapOf(
-                            "frontEndIdTurma" to idTurma,
-                            "javax.faces.ViewState" to find(it, "input[name='javax.faces.ViewState']").first().`val`(),
-                            name to name,
-                            fName to fName
-                    )
-            )
-        }
-    }
-
-    private suspend fun login() {
-        setup()
-
-        val data = hashMapOf(
-                "width" to "800",
-                "height" to "600",
-                "urlRedirect" to "",
-                "subsistemaRedirect" to "",
-                "acao" to "",
-                "acessibilidade" to "",
-                "user.login" to username,
-                "user.senha" to password
+        return Frequency(
+                frequency = frequency.toInt(),
+                givenClasses = givenClasses.toInt(),
+                totalClasses = totalClasses.toInt()
         )
-        session.post("/sigaa/logar.do;jsessionid=$jsessionid.inst$inst?dispatch=logOn", data)
     }
 
-    private suspend fun goHome(): String {
-        session.get("/sigaa/verPortalDiscente.do") ?: throw Exception("Server Error")
-        val url = "/sigaa/portais/discente/discente.jsf"
-        val html = session.get(url) ?: throw Exception("Server Error")
-        return if (html.startsWith("<script>")) {
-            login()
-            goHome()
-        } else {
-            html
-        }
+    private fun extractScheduleInformation(html: String): List<Schedule> {
+        val ast = html2AST(html)
+        return find(ast, "td.descricao").map { description ->
+            val tr = description.parent()
+            val course = find(tr, "td.descricao").last()?.text() ?: ""
+            val local = find(tr, "td.info").first()?.text() ?: ""
+            find(tr, "td.info").last()?.text()?.split(" ")?.map { info ->
+                val d = "([0-9]+)[A-Z]".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                val m = ".*M([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                val t = ".*T([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
+                val n = ".*N([0-9]+)[^A-Z]?".toRegex().find(info)?.groupValues?.get(1) ?: ""
+
+                d.map { dayChar ->
+                    try {
+                        val day = dayChar.toString()
+
+                        val ms = stringToRanges(m).map {
+                            mapOf(
+                                    "course" to course,
+                                    "local" to local,
+                                    "day" to day,
+                                    "shift" to "1",
+                                    "start" to it[0].toString(),
+                                    "end" to it[1].toString()
+                            )
+                        }
+
+                        val ts = stringToRanges(t).map {
+                            mapOf(
+                                    "course" to course,
+                                    "local" to local,
+                                    "day" to day,
+                                    "shift" to "2",
+                                    "start" to it[0].toString(),
+                                    "end" to it[1].toString()
+                            )
+                        }
+
+                        val ns = stringToRanges(n).map {
+                            mapOf(
+                                    "course" to course,
+                                    "local" to local,
+                                    "day" to day,
+                                    "shift" to "3",
+                                    "start" to it[0].toString(),
+                                    "end" to it[1].toString()
+                            )
+                        }
+
+                        ms + ts + ns
+                    } catch (_: Throwable) {
+                        listOf<Map<String, String>>()
+                    }
+                }.flatten()
+            }?.flatten() ?: listOf()
+        }.flatten().map { scheduleFromMap(it) }
     }
+
+    // Helper functions to work with HTML
 
     private fun html2AST(html: String): Document {
         return Jsoup.parse(html)
@@ -363,96 +474,81 @@ class SIGAA(private val username: String, private val password: String) {
         }
     }
 
-    data class Frequency(var course: String, val frequency: Int, val givenClasses: Int, val totalClasses: Int)
+    private fun stringToRanges(str: String): List<List<Int>> {
+        val ns = str.map { it.toString().trim().toInt() }.sorted()
+        val rs = mutableListOf<List<Int>>()
 
-    data class Course(val name: String, val grades: List<Grade>) {
-        companion object {
-            fun fromMap(course: String, grades: List<Map<String, String>>): Course {
-                val gradesList = grades.map { Grade.fromMap(it) }
-                return Course(course.trim(), gradesList)
+        for (i in ns) {
+            val x = rs.lastOrNull()?.get(1) ?: i
+            if ((i - 1) == x) {
+                rs[rs.size - 1] = listOf(rs.last()[0], i)
+            } else {
+                rs.add(listOf(i, i))
             }
         }
+
+        return rs
     }
 
-    data class Grade(val testName: String, val score: String, val worth: String) {
-        companion object {
-            fun fromMap(grade: Map<String, String>): Grade {
-                val testName = grade["Avaliação"]?.trim() ?: ""
-                val score = grade["Nota"]?.trim() ?: ""
-                val worth = grade["Nota Máxima"]?.trim() ?: ""
-                return Grade(testName, score, worth)
-            }
-        }
-    }
+    private fun scheduleFromMap(schedule: Map<String, String>): Schedule {
+        val course = schedule["course"]?.trim() ?: ""
+        val local = schedule["local"]?.trim() ?: ""
+        val day = schedule["day"]?.trim() ?: ""
+        val shift = schedule["shift"]?.trim() ?: ""
+        val start = schedule["start"]?.trim() ?: ""
+        val end = schedule["end"]?.trim() ?: ""
 
-    data class Schedule(val course: String,
-                        val local: String,
-                        val day: Int,
-                        val shift: Int,
-                        val start: String,
-                        val end: String) {
-        companion object {
-            fun fromMap(schedule: Map<String, String>): Schedule {
-                val course = schedule["course"]?.trim() ?: ""
-                val local = schedule["local"]?.trim() ?: ""
-                val day = schedule["day"]?.trim() ?: ""
-                val shift = schedule["shift"]?.trim() ?: ""
-                val start = schedule["start"]?.trim() ?: ""
-                val end = schedule["end"]?.trim() ?: ""
-
-                val startTimes = listOf(
-                        mapOf(
-                                "1" to "7:00",
-                                "2" to "7:50",
-                                "3" to "8:55",
-                                "4" to "9:45",
-                                "5" to "10:50",
-                                "6" to "11:40"
-                        ),
-                        mapOf(
-                                "1" to "13:50",
-                                "2" to "14:40",
-                                "3" to "15:50",
-                                "4" to "16:40",
-                                "5" to "17:40"
-                        ),
-                        mapOf(
-                                "1" to "19:00",
-                                "2" to "19:50",
-                                "3" to "20:50",
-                                "4" to "21:40"
-                        )
+        val startTimes = listOf(
+                mapOf(
+                        "1" to "7:00",
+                        "2" to "7:50",
+                        "3" to "8:55",
+                        "4" to "9:45",
+                        "5" to "10:50",
+                        "6" to "11:40"
+                ),
+                mapOf(
+                        "1" to "13:50",
+                        "2" to "14:40",
+                        "3" to "15:50",
+                        "4" to "16:40",
+                        "5" to "17:40"
+                ),
+                mapOf(
+                        "1" to "19:00",
+                        "2" to "19:50",
+                        "3" to "20:50",
+                        "4" to "21:40"
                 )
+        )
 
-                val endTimes = listOf(
-                        mapOf(
-                                "1" to "7:50",
-                                "2" to "8:40",
-                                "3" to "9:45",
-                                "4" to "10:35",
-                                "5" to "11:40",
-                                "6" to "12:30"
-                        ),
-                        mapOf(
-                                "1" to "14:40",
-                                "2" to "15:30",
-                                "3" to "16:40",
-                                "4" to "17:30",
-                                "5" to "18:30"
-                        ),
-                        mapOf(
-                                "1" to "19:50",
-                                "2" to "20:40",
-                                "3" to "21:40",
-                                "4" to "22:30"
-                        )
+        val endTimes = listOf(
+                mapOf(
+                        "1" to "7:50",
+                        "2" to "8:40",
+                        "3" to "9:45",
+                        "4" to "10:35",
+                        "5" to "11:40",
+                        "6" to "12:30"
+                ),
+                mapOf(
+                        "1" to "14:40",
+                        "2" to "15:30",
+                        "3" to "16:40",
+                        "4" to "17:30",
+                        "5" to "18:30"
+                ),
+                mapOf(
+                        "1" to "19:50",
+                        "2" to "20:40",
+                        "3" to "21:40",
+                        "4" to "22:30"
                 )
+        )
 
-                val startTime = startTimes[shift.toInt() - 1][start] ?: ""
-                val endTime = endTimes[shift.toInt() - 1][end] ?: ""
+        val startTime = startTimes[shift.toInt() - 1][start] ?: ""
+        val endTime = endTimes[shift.toInt() - 1][end] ?: ""
 
-                return Schedule(course, local, day.toInt(), shift.toInt(), startTime, endTime)
-            }
-        }
+        return Schedule(course, local, day.toInt(), shift.toInt(), startTime, endTime)
     }
 }

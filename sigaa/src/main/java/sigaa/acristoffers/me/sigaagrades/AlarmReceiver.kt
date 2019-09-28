@@ -32,7 +32,7 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null) {
             if (intent?.action == "android.intent.action.BOOT_COMPLETED") {
-                AlarmReceiver.setAlarm(context)
+                setAlarm(context)
             }
 
             AlarmService.enqueueWork(context)

@@ -114,7 +114,7 @@ class ScheduleFragment : Fragment() {
         val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
         val schedulesJson = loginPreferences?.getString("schedules", "[]") ?: "[]"
         val schedules = tryOrDefault(arrayOf()) {
-            GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
+            GsonBuilder().create().fromJson(schedulesJson, Array<Schedule>::class.java)
         }?.toList() ?: listOf()
 
         setSchedules(schedules)
@@ -135,7 +135,7 @@ class ScheduleFragment : Fragment() {
                     val loginPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
                     val username = loginPreferences?.getString("username", "") ?: ""
                     val password = loginPreferences?.getString("password", "") ?: ""
-                    val schedules = SIGAA(username, password).listSchedules()
+                    val schedules = SIGAA(username, password).schedules()
 
                     activity?.runOnUiThread {
                         swipe.isRefreshing = false
@@ -160,7 +160,7 @@ class ScheduleFragment : Fragment() {
         }
     }
 
-    private fun setSchedules(schedules: List<SIGAA.Schedule>) {
+    private fun setSchedules(schedules: List<Schedule>) {
         activity?.runOnUiThread {
             todayScheduleViewAdapter.schedules = schedules
             mondayScheduleViewAdapter.schedules = schedules
@@ -253,7 +253,7 @@ class ScheduleFragment : Fragment() {
                     val password = loginPreferences?.getString("password", "") ?: ""
                     val schedulesJson = loginPreferences?.getString("schedules", "[]") ?: "[]"
                     val schedules = tryOrDefault(arrayOf()) {
-                        GsonBuilder().create().fromJson(schedulesJson, Array<SIGAA.Schedule>::class.java)
+                        GsonBuilder().create().fromJson(schedulesJson, Array<Schedule>::class.java)
                     }?.toList() ?: listOf()
 
                     thread(start = true) {

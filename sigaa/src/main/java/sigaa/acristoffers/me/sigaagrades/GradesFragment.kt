@@ -50,7 +50,7 @@ class GradesFragment : Fragment() {
         val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
         val coursesJson = sharedPreferences?.getString("grades", "[]") ?: "[]"
         val courses = tryOrDefault(arrayOf()) {
-            GsonBuilder().create().fromJson(coursesJson, Array<SIGAA.Course>::class.java)
+            GsonBuilder().create().fromJson(coursesJson, Array<Course>::class.java)
         }?.toList() ?: listOf()
 
         setGrades(courses)
@@ -75,7 +75,7 @@ class GradesFragment : Fragment() {
                 val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
                 val username = sharedPreferences?.getString("username", "") ?: ""
                 val password = sharedPreferences?.getString("password", "") ?: ""
-                val grades = SIGAA(username, password).listGrades()
+                val grades = SIGAA(username, password).grades()
 
                 activity?.runOnUiThread {
                     swipe.isRefreshing = false
@@ -101,7 +101,7 @@ class GradesFragment : Fragment() {
         }
     }
 
-    private fun setGrades(grades: List<SIGAA.Course>) {
+    private fun setGrades(grades: List<Course>) {
         activity?.runOnUiThread {
             CourseViewAdapter.courses = grades.sortedBy { it.name }
             CourseViewAdapter.notifyDataSetChanged()

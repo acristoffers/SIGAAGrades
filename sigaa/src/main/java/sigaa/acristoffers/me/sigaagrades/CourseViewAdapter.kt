@@ -27,11 +27,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 
 object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHolder>() {
-    var courses: List<SIGAA.Course> = listOf()
+    var courses: List<Course> = listOf()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): CourseViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.card, viewGroup, false)
@@ -53,16 +52,16 @@ object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHold
             courseName.text = course.name
 
             val gradeAdapter = gradesList.adapter as GradeViewAdapter
-            gradeAdapter.grades = course.grades
+            gradeAdapter.grades = course.grades ?: listOf()
             gradeAdapter.notifyDataSetChanged()
 
-            if (course.grades.isEmpty()) {
+            if (course.grades?.isEmpty() == true) {
                 total.text = "0"
             } else {
                 total.text = course.grades
-                        .map { tryOrDefault(0f) { it.score.replace(",", ".").trim().toFloat() } }
-                        .reduce { a, b -> a + b }
-                        .toString()
+                        ?.map { tryOrDefault(0f) { it.scoreValue.replace(",", ".").trim().toFloat() } }
+                        ?.reduce { a, b -> a + b }
+                        ?.toString() ?: ""
             }
         }
     }
@@ -71,6 +70,6 @@ object CourseViewAdapter : RecyclerView.Adapter<CourseViewAdapter.CourseViewHold
         val courseName: TextView = itemView.findViewById(R.id.courseName)
         val gradesList: RecyclerView = itemView.findViewById(R.id.grades)
         val total: TextView = itemView.findViewById(R.id.total)
-        val totalRow: LinearLayout = itemView.findViewById(R.id.totalRow)
+//        val totalRow: LinearLayout = itemView.findViewById(R.id.totalRow)
     }
 }

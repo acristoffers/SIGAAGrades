@@ -27,28 +27,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlin.math.ceil
 
 object FrequencyViewAdapter : RecyclerView.Adapter<FrequencyViewAdapter.FrequencyViewHolder>() {
-    var frequencies: List<SIGAA.Frequency> = listOf()
+    var courses: List<Course> = listOf()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): FrequencyViewHolder {
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.frequency, viewGroup, false)
         return FrequencyViewHolder(view)
     }
 
-    override fun getItemCount(): Int = frequencies.size
+    override fun getItemCount(): Int = courses.size
 
     override fun onBindViewHolder(holder: FrequencyViewHolder, pos: Int) {
-        val f = frequencies[pos]
+        val course = courses[pos]
+        val f = course.frequency ?: Frequency(0, 0, 0)
         val absences = 100 * (f.givenClasses - f.frequency).toDouble()
 
         holder.apply {
-            courseName.text = f.course
+            courseName.text = course.name
             frequency.text = f.frequency.toString()
             given.text = f.givenClasses.toString()
             total.text = f.totalClasses.toString()
-            frequencyPC.text = "%.0f%%".format(Math.ceil(absences / f.givenClasses))
-            frequencyPCTotal.text = "%.0f%%".format(Math.ceil(absences / f.totalClasses))
+            frequencyPC.text = "%.0f%%".format(ceil(absences / f.givenClasses))
+            frequencyPCTotal.text = "%.0f%%".format(ceil(absences / f.totalClasses))
         }
     }
 

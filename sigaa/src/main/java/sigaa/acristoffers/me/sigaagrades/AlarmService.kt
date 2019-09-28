@@ -62,10 +62,10 @@ class AlarmService : JobIntentService() {
 
             val oldJson = preferences.getString("grades", "[]") ?: "[]"
             val oldGrades = tryOrDefault(arrayOf()) {
-                GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Course>::class.java)
+                GsonBuilder().create().fromJson(oldJson, Array<Course>::class.java)
             }?.toList() ?: listOf()
 
-            val grades = SIGAA(username, password).listGrades()
+            val grades = SIGAA(username, password).grades()
 
             val shouldNotify = grades.size == oldGrades.size && grades
                     .zipBy(oldGrades) { it.name }
@@ -97,10 +97,10 @@ class AlarmService : JobIntentService() {
 
             val oldJson = preferences.getString("schedules", "[]") ?: "[]"
             val oldSchedules = tryOrDefault(arrayOf()) {
-                GsonBuilder().create().fromJson(oldJson, Array<SIGAA.Schedule>::class.java)
+                GsonBuilder().create().fromJson(oldJson, Array<Schedule>::class.java)
             }?.toList() ?: listOf()
 
-            val schedules = SIGAA(username, password).listSchedules()
+            val schedules = SIGAA(username, password).schedules()
 
             val shouldNotify = if (schedules.size == oldSchedules.size) {
                 with(schedules.zipBy(oldSchedules) { it.toString() }) {
@@ -153,13 +153,17 @@ class AlarmService : JobIntentService() {
         notificationManager?.notify(0, notification)
     }
 
-    private fun shouldNotifyCourseUpdate(courseA: SIGAA.Course, courseB: SIGAA.Course): Boolean {
-        return courseB.grades.size > courseA.grades.size ||
-                courseA.grades.size == courseB.grades.size &&
-                courseA.grades
-                        .zipBy(courseB.grades) { it.testName }
-                        .comparePairWith { a, b -> a != b }
-                        .any { it }
+    private fun shouldNotifyCourseUpdate(courseA: Course, courseB: Course): Boolean {
+        return if (courseA.grades != null && courseB.grades != null) {
+            courseB.grades.size > courseA.grades.size ||
+                    courseA.grades.size == courseB.grades.size &&
+                    courseA.grades
+                            .zipBy(courseB.grades) { it.activityName }
+                            .comparePairWith { a, b -> a != b }
+                            .any { it }
+        } else {
+            false
+        }
     }
 
     companion object {

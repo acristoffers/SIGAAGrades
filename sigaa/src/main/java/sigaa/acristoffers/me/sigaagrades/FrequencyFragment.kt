@@ -31,6 +31,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_grades.*
+import kotlinx.android.synthetic.main.frequency.*
+import kotlinx.android.synthetic.main.frequency.view.*
 import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.thread
 
@@ -67,7 +69,7 @@ class FrequencyFragment : Fragment() {
                     val sharedPreferences = activity?.getSharedPreferences("sigaa.login", Context.MODE_PRIVATE)
                     val username = sharedPreferences?.getString("username", "") ?: ""
                     val password = sharedPreferences?.getString("password", "") ?: ""
-                    val frequencies = SIGAA(username, password).listFrequency()
+                    val frequencies = SIGAA(username, password).frequency()
 
                     activity?.runOnUiThread {
                         swipe.isRefreshing = false
@@ -88,11 +90,11 @@ class FrequencyFragment : Fragment() {
         }
     }
 
-    private fun setFrequency(frequencies: List<SIGAA.Frequency>) {
+    private fun setFrequency(courses: List<Course>) {
         activity?.runOnUiThread {
-            FrequencyViewAdapter.frequencies = frequencies.sortedBy { it.course }
+            FrequencyViewAdapter.courses = courses.sortedBy { it.name }
             FrequencyViewAdapter.notifyDataSetChanged()
-            emptyView.visibility = if (frequencies.isEmpty()) View.VISIBLE else View.GONE
+            emptyView.visibility = if (courses.isEmpty()) View.VISIBLE else View.GONE
         }
     }
 }

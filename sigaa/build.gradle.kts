@@ -81,9 +81,9 @@ dependencies {
     implementation(kotlin("stdlib-jdk8", KotlinCompilerVersion.VERSION))
     implementation("org.jsoup:jsoup:1.12.1")
     implementation("com.google.code.gson:gson:2.8.5")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.2")
     implementation("com.android.support:swiperefreshlayout:28.0.0")
-    implementation("com.android.support.constraint:constraint-layout:2.0.0-beta1")
+    implementation("com.android.support.constraint:constraint-layout:2.0.0-beta2")
     implementation("com.android.support:design:28.0.0")
     implementation("com.android.support:preference-v7:28.0.0")
 }
