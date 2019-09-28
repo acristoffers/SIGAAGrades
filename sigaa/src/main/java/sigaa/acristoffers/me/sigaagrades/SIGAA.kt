@@ -276,6 +276,7 @@ class SIGAA(private val username: String, private val password: String) {
         return find(ast, "td.descricao").map {
             val onclick = find(it, "a").first().attr("onclick")
             val fName = find(it, "form").first().attr("name")
+            val cname = find(it, "a").first().text().trim()
 
             val r = "'($fName:[a-zA-Z0-9_]+)'".toRegex()
             val m = r.find(onclick)
@@ -294,7 +295,7 @@ class SIGAA(private val username: String, private val password: String) {
                     fName to fName
             )
 
-            val course = Course(name = name, grades = null, frequency = null)
+            val course = Course(name = cname, grades = null, frequency = null)
             CoursePrivate(course = course, id = idTurma, data = data)
         }
     }
@@ -366,8 +367,8 @@ class SIGAA(private val username: String, private val password: String) {
         return a.zip(n).zip(v).map {
             Grade(
                     activityName = unescapeHTML(it.first.first),
-                    scoreValue = unescapeHTML(it.second),
-                    totalValue = unescapeHTML(it.first.second)
+                    scoreValue = unescapeHTML(it.second).replace(',', '.'),
+                    totalValue = unescapeHTML(it.first.second).replace(',', '.')
             )
         }
     }
@@ -381,8 +382,7 @@ class SIGAA(private val username: String, private val password: String) {
             return Frequency(frequency = 0, givenClasses = 0, totalClasses = 0)
         }
 
-        val match = "Frequência:[ ]+([0-9]+)".toRegex().find(text)
-        val frequency = match?.groupValues?.get(1) ?: ""
+        val frequency = find(root, ".botoes-show:contains(Total de Faltas:)").last().text().split(':').last().trim().toInt()
 
         val div2 = find(root, "#barraDireita").first()
         val text2 = div2.text() ?: ""
