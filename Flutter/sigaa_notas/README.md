@@ -16,21 +16,6 @@ Este problema é resolvido através de um Web Scraper, já que o SIGAA não forn
 ***Este aplicativo não foi desenvolvido em parceria com o CEFET.
 O CEFET não tem absolutamente nenhuma ligação com ele.***
 
-[Play Store](https://play.google.com/store/apps/details?id=sigaa.acristoffers.me.sigaagrades)
-
-# Versão
-
-Há duas versões nesse repositório. A Kotlin foi a primeira a ser criada e
-funciona apenas com Android. No entanto se mostrou dificil modificar e debugar
-essa versão.
-
-A versão Flutter é mais recente e também funciona para iOS (embora não esteja
-disponível na Apple Store). Ela se mostrou mais rápida que a versão Kotlin
-nativa, além de ser mais fácil de debugar e modificar. O APK final é maior, mas
-o código é consideravelmente menor. Essa versão não possui verificação em
-segundo plano/notificação, mas isso parecece nunca ter funcionado direito no
-Kotlin, mesmo estando devidamente configurado... &#129335;
-
 # LICENSE
 
 Copyright 2018 Álan Crístoffer
