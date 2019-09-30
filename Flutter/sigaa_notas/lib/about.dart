@@ -30,12 +30,12 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notas')),
+      appBar: AppBar(title: Text('Sobre')),
       drawer: Drawer(
         child: DrawerPage(),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, 100, 20, 0),
+        padding: EdgeInsets.all(20), // Try on small screens before changing :(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -51,7 +51,9 @@ class AboutPage extends StatelessWidget {
               ),
             ),
             Text('Versão $version'),
-            Padding(padding: EdgeInsets.all(5),),
+            Padding(
+              padding: EdgeInsets.all(5),
+            ),
             Text(
               'WebScrapper que baixa notas do SIGAA das matérias do semestre atual.\n\nNão é desenvolvido nem endossado pelo CEFET.\n\nNão faz upload de sua senha.\n\nNão funciona se houver mensagem na página inicial.\n\nCódigo fonte disponível em:',
               textAlign: TextAlign.center,
@@ -62,9 +64,7 @@ class AboutPage extends StatelessWidget {
               },
               child: Text(
                 'https://github.com/acristoffers/SIGAAGrades',
-                style: TextStyle(color: Theme
-                    .of(context)
-                    .accentColor),
+                style: TextStyle(color: Theme.of(context).accentColor),
               ),
             ),
           ],
