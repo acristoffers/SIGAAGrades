@@ -37,7 +37,7 @@ class App extends StatelessWidget {
               primaryColor: Colors.indigo,
               primaryColorDark: Colors.indigo,
               secondaryHeaderColor: Colors.white,
-              accentColor: Colors.orange,
+              accentColor: Colors.indigoAccent,
               brightness: brightness,
             ),
         themedWidgetBuilder: (context, theme) {

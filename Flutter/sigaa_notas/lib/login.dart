@@ -77,17 +77,18 @@ class _LoginState extends State<LoginPage> {
           children: <Widget>[
             TextField(
               controller: _usernameController,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Username',
+                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                labelText: 'CPF',
               ),
             ),
             TextField(
               controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Password',
+                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                labelText: 'Senha',
               ),
             ),
             RaisedButton(
@@ -122,8 +123,11 @@ class _LoginState extends State<LoginPage> {
                       });
                     },
               color: Theme.of(context).primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               textTheme: ButtonTextTheme.primary,
-              child: Text('Login', style: TextStyle(fontSize: 20)),
+              child: Text('Entrar', style: TextStyle(fontSize: 20)),
             ),
           ].map((e) {
             return Padding(padding: EdgeInsets.all(10), child: e);

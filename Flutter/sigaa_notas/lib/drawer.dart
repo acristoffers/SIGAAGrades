@@ -42,7 +42,7 @@ class DrawerPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Image.asset(
-                  'assets/images/icon_android.png',
+                  'assets/images/logoSuggestion.png',
                   width: 100,
                 ),
                 Text(
@@ -61,31 +61,73 @@ class DrawerPage extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: Text('Notas'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.assignment),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Notas'),
+            ],
+          ),
           onTap: () => _navigate(context, (_) => GradesPage()),
         ),
         ListTile(
-          title: Text('Horários'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.timelapse),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Horários'),
+            ],
+          ),
           onTap: () => _navigate(context, (_) => SchedulesPage()),
         ),
         ListTile(
-          title: Text('Frequência'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.airline_seat_recline_normal),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Frequência'),
+            ],
+          ),
           onTap: () => _navigate(context, (_) => FrequencyPage()),
         ),
         ListTile(
-          title: Text('Alterar Vínculo'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.assignment_ind),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Alterar Vínculo'),
+            ],
+          ),
           onTap: () => _navigate(context, (_) => LinkSelectionPage()),
         ),
         ListTile(
-          title: Text('Configurações'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.settings),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Configurações'),
+            ],
+          ),
           onTap: () => _navigate(context, (_) => SettingsPage()),
         ),
         ListTile(
-          title: Text('Sobre'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.assessment),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Sobre'),
+            ],
+          ),
           onTap: () => _navigate(context, (_) => AboutPage()),
         ),
         ListTile(
-          title: Text('Sair'),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.transit_enterexit),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Sair'),
+            ],
+          ),
           onTap: () async {
             final prefs = await SharedPreferences.getInstance();
             prefs.remove('username');

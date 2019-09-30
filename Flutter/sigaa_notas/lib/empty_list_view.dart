@@ -35,7 +35,7 @@ class EmptyListPage extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Text(
-            'Caso ao carregar não apareçam notas, certifique-se de que:',
+            'Caso, ao carregar, não apareçam notas, certifique-se de que:',
             textAlign: TextAlign.center,
           ),
           Text(
