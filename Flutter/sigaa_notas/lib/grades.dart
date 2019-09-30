@@ -82,8 +82,13 @@ class _GradesState extends State<GradesPage> {
                 itemBuilder: (BuildContext context, int index) {
                   var course = _courses[index];
                   return Card(
+                    margin: EdgeInsets.all(5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     child: ListTile(
-                      title: Text(course.name),
+                      contentPadding: EdgeInsets.fromLTRB(5, 15, 5, 0),
+                      title: Text(course.name, textAlign: TextAlign.center,),
                       subtitle: Column(
                         children: <Widget>[
                           DataTable(

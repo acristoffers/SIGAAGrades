@@ -24,6 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:sigaa_notas/drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+const version = '1.1.18'; //Change the version in future updates
+
 class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,10 +34,15 @@ class AboutPage extends StatelessWidget {
       drawer: Drawer(
         child: DrawerPage(),
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(20, 100, 20, 0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Image.asset(
+              'assets/images/logoSuggestion.png',
+              width: 200,
+            ),
             Padding(
               padding: const EdgeInsets.only(bottom: 40),
               child: Text(
@@ -43,8 +50,10 @@ class AboutPage extends StatelessWidget {
                 style: TextStyle(fontSize: 40),
               ),
             ),
+            Text('Versão $version'),
+            Padding(padding: EdgeInsets.all(5),),
             Text(
-              'WebScrapper que baixa notas do SIGAA das matérias do semestre atual.\nNão é desenvolvido nem endossado pelo CEFET.\nNão faz upload de sua senha.\n\nNão funciona se houver mensagem na página inicial.\n\nCódigo fonte disponível em:',
+              'WebScrapper que baixa notas do SIGAA das matérias do semestre atual.\n\nNão é desenvolvido nem endossado pelo CEFET.\n\nNão faz upload de sua senha.\n\nNão funciona se houver mensagem na página inicial.\n\nCódigo fonte disponível em:',
               textAlign: TextAlign.center,
             ),
             InkWell(
@@ -59,6 +68,12 @@ class AboutPage extends StatelessWidget {
           ],
         ),
       ),
+    floatingActionButton: FloatingActionButton(
+      child: Icon(Icons.code),
+      onPressed: () {
+        launch('https://github.com/acristoffers/SIGAAGrades');
+      },
+    ),
     );
   }
 }
