@@ -40,7 +40,7 @@ class AboutPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset(
-              'assets/images/logoSuggestion.png',
+              'assets/images/logo.png',
               width: 200,
             ),
             Padding(
@@ -62,18 +62,20 @@ class AboutPage extends StatelessWidget {
               },
               child: Text(
                 'https://github.com/acristoffers/SIGAAGrades',
-                style: TextStyle(color: Theme.of(context).accentColor),
+                style: TextStyle(color: Theme
+                    .of(context)
+                    .accentColor),
               ),
             ),
           ],
         ),
       ),
-    floatingActionButton: FloatingActionButton(
-      child: Icon(Icons.code),
-      onPressed: () {
-        launch('https://github.com/acristoffers/SIGAAGrades');
-      },
-    ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.code),
+        onPressed: () {
+          launch('https://github.com/acristoffers/SIGAAGrades');
+        },
+      ),
     );
   }
 }

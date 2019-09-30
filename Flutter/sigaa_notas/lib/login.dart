@@ -21,6 +21,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/grades.dart';
 import 'package:sigaa_notas/link_selection.dart';
@@ -79,7 +80,9 @@ class _LoginState extends State<LoginPage> {
               controller: _usernameController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
                 labelText: 'CPF',
               ),
             ),
@@ -87,38 +90,16 @@ class _LoginState extends State<LoginPage> {
               controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
                 labelText: 'Senha',
               ),
             ),
             RaisedButton(
               onPressed: _loginClicked
                   ? null
-                  : () {
-                      setState(() => _loginClicked = true);
-
-                      final sigaa = SIGAA();
-                      final username = _usernameController.text;
-                      final password = _passwordController.text;
-
-                      sigaa.login(username, password).then((ret) {
-                        if (ret) {
-                          SharedPreferences.getInstance().then((prefs) {
-                            prefs.setString('username', username);
-                            prefs.setString('password', password);
-                          });
-
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (c) => LinkSelectionPage()),
-                          );
-                        } else {
-                          setState(() => _loginClicked = false);
-                          showToast(context, "Credenciais Incorretas");
-                        }
-                      }).catchError((err) {
-                        setState(() => _loginClicked = false);
+                  : () async {
+                      _login().catchError((_) {
                         showToast(context, "Erro de conexão");
                       });
                     },
@@ -135,5 +116,29 @@ class _LoginState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _login() async {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    setState(() => _loginClicked = true);
+
+    final sigaa = SIGAA();
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    final loggedIn = await sigaa.login(username, password);
+    if (loggedIn) {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('username', username);
+      prefs.setString('password', password);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LinkSelectionPage()),
+      );
+    } else {
+      setState(() => _loginClicked = false);
+      showToast(context, "Credenciais Incorretas");
+    }
   }
 }

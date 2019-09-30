@@ -57,6 +57,7 @@ class _SchedulesState extends State<SchedulesPage> {
       }
 
       setState(() {
+        _schedules.clear();
         _schedules.addAll(schedules);
       });
     });
@@ -83,148 +84,82 @@ class _SchedulesState extends State<SchedulesPage> {
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {
-          await _refresh().catchError((_, e) {
-            print(e);
+          await _refresh().catchError((_) {
             showToast(context, "Erro de conexão");
           });
         },
         child: ListView(
           children: <Widget>[
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text('Hoje', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _todaySchedules()[index];
-                      return ListTile(
-                        title: Text(schedule.course, style: TextStyle(fontSize: 13),),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _todaySchedules().length),
-              ),
-            ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text('Segunda', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _sortedForDay(2)[index];
-                      return ListTile(
-                        title: Text(schedule.course, style: TextStyle(fontSize: 13),),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _schedules.where((s) => s.day == 2).length),
-              ),
-            ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text('Terça', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _sortedForDay(3)[index];
-                      return ListTile(
-                        title: Text(schedule.course, style: TextStyle(fontSize: 13),),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _schedules.where((s) => s.day == 3).length),
-              ),
-            ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text('Quarta', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _sortedForDay(4)[index];
-                      return ListTile(
-                        title: Text(schedule.course, style: TextStyle(fontSize: 13),),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _schedules.where((s) => s.day == 4).length),
-              ),
-            ),
-            Card(
-              margin: EdgeInsets.fromLTRB(5, 15, 5, 0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text('Quinta', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _sortedForDay(5)[index];
-                      return ListTile(
-                        title: Text(schedule.course, style: TextStyle(fontSize: 13),),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _schedules.where((s) => s.day == 5).length),
-              ),
-            ),
-            Card(
-              margin: EdgeInsets.fromLTRB(5, 15, 5, 0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text('Sexta', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _sortedForDay(6)[index];
-                      return ListTile(
-                        title: Text(schedule.course, style: TextStyle(fontSize: 13),),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _schedules.where((s) => s.day == 6).length),
-              ),
-            ),
-          ],
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
+                    title: Text(
+                      'Hoje',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    subtitle: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          final schedule = _todaySchedules()[index];
+                          return ListTile(
+                            title: Text(
+                              schedule.course,
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            subtitle: Text(
+                              'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
+                            ),
+                          );
+                        },
+                        itemCount: _todaySchedules().length),
+                  ),
+                )
+              ] +
+              [
+                [2, 'Segunda'],
+                [3, 'Terça'],
+                [4, 'Quarta'],
+                [5, 'Quinta'],
+                [6, 'Sexta'],
+              ].map(
+                (e) {
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
+                      title: Text(
+                        e[1],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      subtitle: ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            final schedule = _sortedForDay(e[0])[index];
+                            return ListTile(
+                              title: Text(
+                                schedule.course,
+                                style: TextStyle(fontSize: 13),
+                              ),
+                              subtitle: Text(
+                                'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
+                              ),
+                            );
+                          },
+                          itemCount:
+                              _schedules.where((s) => s.day == e[0]).length),
+                    ),
+                  );
+                },
+              ).toList(),
         ),
       ),
     );
@@ -236,18 +171,17 @@ class _SchedulesState extends State<SchedulesPage> {
 
     final schedules = <Schedule>[];
     for (final s in _schedules.where((s) => s.day == _wd)) {
-
-      try{
+      try {
         final xs = s.end.split(':');
         final sh = int.parse(xs.first);
         final sm = int.parse(xs.last);
         if (nh < sh || (nh == sh && nm <= sm)) {
           schedules.add(s);
         }
-      }catch(e){
-      debugPrint("ERROR: Schedules Bug");
+      } catch (e, s) {
+        debugPrint(e);
+        debugPrint(s.toString());
       }
-
     }
 
     return schedules;

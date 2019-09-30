@@ -94,6 +94,7 @@ class SIGAA {
     final url = '/sigaa/vinculos.jsf';
     final response = await httpGet(url);
     final document = parse(response.body);
+
     final s1 = 'table.tabela-selecao-vinculo a.withoutFormat';
     final s2 = 'table.tabela-selecao-vinculo a.withoutFormatInativo';
     final linksAtivos = document.querySelectorAll(s1);
@@ -176,7 +177,7 @@ class SIGAA {
       cdata["formMenu"] = "formMenu";
       cdata["formMenu:j_id_jsp_$m2"] = "formMenu:j_id_jsp_$m2";
       cdata["formMenu:j_id_jsp_$m"] = "formMenu:j_id_jsp_$m";
-    } catch (e) {
+    } catch (_) {
       cdata["formMenuDrop"] = "formMenuDrop";
       cdata["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas";
     }
