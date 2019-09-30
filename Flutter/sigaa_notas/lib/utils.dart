@@ -118,7 +118,8 @@ Future<List<Schedule>> getSchedules() async {
     final cid = c['id'];
     final course = c['name'];
 
-    final ms = await _db.query('schedules', where: 'course=?', whereArgs: [cid]);
+    final ms =
+        await _db.query('schedules', where: 'course=?', whereArgs: [cid]);
     final ss = ms.map((s) => Schedule(
           course: course,
           local: s['local'],
@@ -136,7 +137,6 @@ Future<List<Schedule>> getSchedules() async {
 }
 
 void showToast(BuildContext context, String message) {
-  print('Toast: $message');
   Toast.show(
     message,
     context,

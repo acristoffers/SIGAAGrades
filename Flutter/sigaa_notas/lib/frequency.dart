@@ -61,9 +61,7 @@ class _FrequencyState extends State<FrequencyPage> {
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {
-          await _refresh().catchError((e, s) {
-            print(e);
-            print(s);
+          await _refresh().catchError((_) {
             showToast(context, "Erro de conexão");
           });
         },

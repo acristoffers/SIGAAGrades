@@ -51,8 +51,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
         .then((_) => SchedulerBinding.instance.addPostFrameCallback((_) {
               _refreshIndicatorKey.currentState.show();
             }))
-        .catchError((err) {
-      print(err);
+        .catchError((_) {
       Toast.show(
         "Erro de conexão",
         context,

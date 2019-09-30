@@ -42,7 +42,7 @@ class DrawerPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Image.asset(
-                  'assets/images/logoSuggestion.png',
+                  'assets/images/logo.png',
                   width: 100,
                 ),
                 Text(
