@@ -84,7 +84,9 @@ class _SchedulesState extends State<SchedulesPage> {
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {
-          await _refresh().catchError((_) {
+          await _refresh().catchError((e, s) {
+            print(e);
+            print(s);
             showToast(context, "Erro de conexão");
           });
         },

@@ -28,7 +28,6 @@ import 'package:sigaa_notas/grades.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:toast/toast.dart';
 
 class LinkSelectionPage extends StatefulWidget {
   @override
@@ -51,14 +50,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
         .then((_) => SchedulerBinding.instance.addPostFrameCallback((_) {
               _refreshIndicatorKey.currentState.show();
             }))
-        .catchError((_) {
-      Toast.show(
-        "Erro de conexão",
-        context,
-        duration: Toast.LENGTH_LONG,
-        gravity: Toast.BOTTOM,
-      );
-    });
+        .catchError((_) => showToast(context, 'Erro de conexão'));
   }
 
   @override

@@ -137,6 +137,7 @@ class DrawerPage extends StatelessWidget {
             await db.delete('links', where: null);
             await db.delete('courses', where: null);
             await db.delete('grades', where: null);
+            await db.delete('schedules', where: null);
             _navigate(context, (_) => LoginPage());
           },
         ),

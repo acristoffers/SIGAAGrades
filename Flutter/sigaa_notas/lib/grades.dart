@@ -28,6 +28,7 @@ import 'package:sigaa_notas/drawer.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:sqflite/sqflite.dart';
 
 class GradesPage extends StatefulWidget {
@@ -88,7 +89,10 @@ class _GradesState extends State<GradesPage> {
                     ),
                     child: ListTile(
                       contentPadding: EdgeInsets.fromLTRB(5, 15, 5, 0),
-                      title: Text(course.name, textAlign: TextAlign.center,),
+                      title: Text(
+                        course.name,
+                        textAlign: TextAlign.center,
+                      ),
                       subtitle: Column(
                         children: <Widget>[
                           DataTable(
@@ -112,7 +116,10 @@ class _GradesState extends State<GradesPage> {
                           Padding(
                             padding: EdgeInsets.all(10),
                             child: Text(
-                              'Total: ${_sumOfGrades(course.grades)}',
+                              sprintf(
+                                'Total: %3.2f',
+                                [_sumOfGrades(course.grades)],
+                              ),
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           )

@@ -27,6 +27,7 @@ import 'package:sigaa_notas/drawer.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:sqflite/sqflite.dart';
 
 class FrequencyPage extends StatefulWidget {
@@ -76,7 +77,17 @@ class _FrequencyState extends State<FrequencyPage> {
                     child: ListTile(
                       title: Text(course.name),
                       subtitle: Text(
-                        'Faltas: ${course.frequency.absences} (${course.frequency.absences / course.frequency.totalClasses}% do total, ${course.frequency.absences / course.frequency.givenClasses}% das ministradas)',
+                        sprintf(
+                            'Faltas: %d (%3.2f%% do total, %3.2f%% das ministradas)',
+                            [
+                              course.frequency.absences,
+                              100 *
+                                  course.frequency.absences /
+                                  course.frequency.totalClasses,
+                              100 *
+                                  course.frequency.absences /
+                                  course.frequency.givenClasses,
+                            ]),
                       ),
                     ),
                   );

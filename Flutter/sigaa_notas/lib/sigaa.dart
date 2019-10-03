@@ -248,12 +248,15 @@ class SIGAA {
           final tr = td.parent;
           final course = tr.querySelectorAll('td.descricao').last.text.trim();
           final local = tr.querySelectorAll('td.info').first.text.trim();
-          return tr
-              .querySelectorAll('td.info')
-              .last
-              .text
-              .trim()
-              .split(" ")
+          final timeStr = tr.querySelectorAll('td.info').last.text.trim();
+
+          if (timeStr.contains('(')) {
+            return <Map<String, String>>[];
+          }
+
+          return timeStr
+              .split(' ')
+              .where((e) => e.isNotEmpty)
               .map((info) {
                 var r = RegExp('([0-9]+)[A-Z]');
                 final d = r.allMatches(info).first.group(1);
@@ -307,6 +310,7 @@ class SIGAA {
               .expand((e) => e) //flatten 2
               .toList();
         })
+        .where((e) => e.isNotEmpty)
         .expand((e) => e)
         .map((l) => _scheduleFromMap(l))
         .toList();
@@ -359,15 +363,6 @@ class SIGAA {
       return Frequency(absences: 0, givenClasses: 0, totalClasses: 0);
     }
 
-    final absences = document
-        .querySelectorAll('div')
-        .lastWhere((d) => d.text.contains('Total de Faltas:'))
-        .text
-        .split(':')
-        .last
-        .trim();
-    final frequency = int.parse(absences);
-
     final text2 = document.querySelectorAll('#barraDireita').first.text;
     final r = RegExp(
       r'Aulas[ ]+\(Ministradas/Total\):[ ]+([0-9]+)[ ]+/[ ]+([0-9]+)',
@@ -376,8 +371,34 @@ class SIGAA {
     final givenClasses = int.parse(m2.group(1));
     final totalClasses = int.parse(m2.group(2));
 
+    var absences = -1;
+
+    // New page style (only absences count)
+    try {
+      final absencesStr = document
+          .querySelectorAll('div')
+          .lastWhere((d) => d.text.contains('Total de Faltas:'))
+          .text
+          .split(':')
+          .last
+          .trim();
+      absences = int.parse(absencesStr);
+    } catch (_) {}
+
+    // Old page style (lots of information)
+    try {
+      final r = RegExp(r'Frequência:[ ]+([0-9]+)');
+      final m = r.allMatches(text);
+      final s = m.first.group(1);
+      absences = givenClasses - int.parse(s);
+    } catch (_) {}
+
+    if (absences < 0) {
+      return Frequency(absences: 0, totalClasses: 0, givenClasses: 0);
+    }
+
     return Frequency(
-      absences: frequency,
+      absences: absences,
       totalClasses: totalClasses,
       givenClasses: givenClasses,
     );
