@@ -21,6 +21,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:quiver/iterables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,7 @@ import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:sqflite/sqflite.dart';
+import 'widgets/table.dart' as table;
 
 class GradesPage extends StatefulWidget {
   @override
@@ -41,6 +43,7 @@ class _GradesState extends State<GradesPage> {
   final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   final _courses = <Course>[];
   Database _db;
+  bool showGrades= true;
 
   @override
   void initState() {
@@ -65,9 +68,15 @@ class _GradesState extends State<GradesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notas')),
+      appBar: AppBar(title: Text('Notas'),
+        actions: <Widget>[
+          IconButton(
+              icon: _getShowGradesIcon(),
+              onPressed: _switchShowGrades)
+        ],
+      ),
       drawer: Drawer(
-        child: DrawerPage(),
+        child: DrawerPage('logo'),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
@@ -77,59 +86,42 @@ class _GradesState extends State<GradesPage> {
         },
         child: _courses.length == 0
             ? ListView(
-                children: <Widget>[EmptyListPage()],
-              )
+          children: <Widget>[EmptyListPage()],
+        )
             : ListView.builder(
-                itemBuilder: (BuildContext context, int index) {
-                  var course = _courses[index];
-                  return Card(
-                    margin: EdgeInsets.all(5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.fromLTRB(5, 15, 5, 0),
-                      title: Text(
-                        course.name,
-                        textAlign: TextAlign.center,
-                      ),
-                      subtitle: Column(
-                        children: <Widget>[
-                          DataTable(
-                            columns: [
-                              DataColumn(label: Text('Atividade')),
-                              DataColumn(label: Text('Total')),
-                              DataColumn(label: Text('Nota')),
+          itemBuilder: (BuildContext context, int index) {
+            var course = _courses[index];
+            return table.Table(course.name, course,
+                Column(
+                  children: <Widget>[
+                    DataTable(
+                      columns: [
+                        DataColumn(label: Text('Atividade')),
+                        DataColumn(label: Text('Total')),
+                        DataColumn(label: Text('Nota')),
+                      ],
+                      rows: course.grades.map(
+                            (g) {
+                          return DataRow(
+                            cells: [
+                              DataCell(Text(g.activityName)),
+                              DataCell(Text(g.totalValue)),
+                              DataCell(_verifyShowGrades(g.scoreValue)),
                             ],
-                            rows: course.grades.map(
-                              (g) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text(g.activityName)),
-                                    DataCell(Text(g.totalValue)),
-                                    DataCell(Text(g.scoreValue)),
-                                  ],
-                                );
-                              },
-                            ).toList(),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Text(
-                              sprintf(
-                                'Total: %3.2f',
-                                [_sumOfGrades(course.grades)],
-                              ),
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          )
-                        ],
-                      ),
+                          );
+                        },
+                      ).toList(),
                     ),
-                  );
-                },
-                itemCount: _courses.length,
-              ),
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: _verifyShowTotal(course)
+                    )
+                  ],
+                )
+            );
+          },
+          itemCount: _courses.length,
+        ),
       ),
     );
   }
@@ -190,4 +182,46 @@ class _GradesState extends State<GradesPage> {
     }
     return x;
   }
+
+  Widget _getShowGradesIcon(){
+    if(this.showGrades){
+      return Icon( Icons.visibility);
+    }else{
+      return Icon( Icons.visibility_off);
+    }
+  }
+
+  void _switchShowGrades()async{
+    setState(() {
+      this.showGrades = !this.showGrades;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('showGrades', this.showGrades);
+  }
+
+  Widget _verifyShowGrades(String text){
+    if(this.showGrades){
+      return Text(text);
+    }
+    if(text.length > 0){
+      return Text("_____");
+    }
+    return Text(" ");
+  }
+
+  Widget _verifyShowTotal(var course){
+    if(this.showGrades){
+      return Text(
+        sprintf(
+          'Total: %3.2f',
+          [_sumOfGrades(course.grades)],
+        ),
+        style: TextStyle(fontWeight: FontWeight.bold),
+      );
+    }
+    return Text("Total: ______",
+        style: TextStyle(fontWeight: FontWeight.bold),
+        );
+  }
+
 }

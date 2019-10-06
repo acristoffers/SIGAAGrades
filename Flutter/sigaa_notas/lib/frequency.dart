@@ -57,7 +57,7 @@ class _FrequencyState extends State<FrequencyPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Frequência')),
       drawer: Drawer(
-        child: DrawerPage(),
+        child: DrawerPage('logo'),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
