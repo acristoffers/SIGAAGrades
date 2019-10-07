@@ -28,7 +28,6 @@ import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:sqflite/sqflite.dart';
 
 class FrequencyPage extends StatefulWidget {
   @override
@@ -39,13 +38,10 @@ class _FrequencyState extends State<FrequencyPage> {
   final _sigaa = SIGAA();
   final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   final _courses = <Course>[];
-  Database _db;
 
   @override
   void initState() {
     super.initState();
-
-    getDatabase().then((db) => _db = db);
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _refreshIndicatorKey.currentState.show();
@@ -57,7 +53,7 @@ class _FrequencyState extends State<FrequencyPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Frequência')),
       drawer: Drawer(
-        child: DrawerPage(),
+        child: DrawerPage('logo'),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
@@ -67,9 +63,7 @@ class _FrequencyState extends State<FrequencyPage> {
           });
         },
         child: _courses.length == 0
-            ? ListView(
-                children: <Widget>[EmptyListPage()],
-              )
+            ? ListView(children: <Widget>[EmptyListPage()])
             : ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
                   var course = _courses[index];

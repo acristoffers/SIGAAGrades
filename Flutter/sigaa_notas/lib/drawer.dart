@@ -21,6 +21,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/about.dart';
 import 'package:sigaa_notas/frequency.dart';
@@ -32,6 +33,10 @@ import 'package:sigaa_notas/settings.dart';
 import 'package:sigaa_notas/utils.dart';
 
 class DrawerPage extends StatelessWidget {
+  final String heroPhoto;
+
+  const DrawerPage(this.heroPhoto);
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -39,25 +44,30 @@ class DrawerPage extends StatelessWidget {
       children: <Widget>[
         DrawerHeader(
           child: Center(
-            child: Column(
-              children: <Widget>[
-                Image.asset(
-                  'assets/images/logo.png',
-                  width: 100,
-                ),
-                Text(
-                  'SIGAA:Notas',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            child: GestureDetector(
+              onTap: () => _navigate(context, (_) => AboutPage()),
+              child: Column(
+                children: <Widget>[
+                  Hero(
+                      tag: this.heroPhoto,
+                      child: Image.asset('assets/images/logo.png', width: 100)),
+                  Text(
+                    'SIGAA:Notas',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           decoration: BoxDecoration(
-            color: Colors.indigo,
+            gradient: LinearGradient(
+                begin: Alignment.center,
+                end: Alignment.topLeft,
+                colors: [Colors.indigo, Colors.indigoAccent]),
           ),
         ),
         ListTile(

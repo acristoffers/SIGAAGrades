@@ -62,13 +62,12 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
         child: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: () async {
-            await _refresh()
-                .catchError((_) => showToast(context, "Erro de conexão"));
+            await _refresh().catchError((_) {
+              showToast(context, "Erro de conexão");
+            });
           },
           child: _links.length == 0
-              ? ListView(
-                  children: <Widget>[EmptyListPage()],
-                )
+              ? ListView(children: <Widget>[EmptyListPage()])
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
                     var link = _links[index];
@@ -103,9 +102,8 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
     await _sigaa.login(username, password);
     final links = await _sigaa.listLinks();
 
-    _db.delete('links', where: null).then((_) {
-      links.forEach((l) => _db.insert('links', {'name': l.name, 'url': l.url}));
-    });
+    await _db.delete('links', where: null);
+    links.forEach((l) => _db.insert('links', {'name': l.name, 'url': l.url}));
 
     if (links.length > 1) {
       setState(() => _links = links);

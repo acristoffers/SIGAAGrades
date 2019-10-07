@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:sigaa_notas/drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const version = '1.1.20'; //Change the version in future updates
+const version = '1.1.20';
 
 class AboutPage extends StatelessWidget {
   @override
@@ -32,23 +32,19 @@ class AboutPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Sobre')),
       drawer: Drawer(
-        child: DrawerPage(),
+        child: DrawerPage('null'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20), // Try on small screens before changing :(
+        padding: EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-              'assets/images/logo.png',
-              width: 200,
-            ),
+            Hero(
+                tag: 'logo',
+                child: Image.asset('assets/images/logo.png', width: 200)),
             Padding(
               padding: const EdgeInsets.only(bottom: 40),
-              child: Text(
-                'SIGAA:Notas',
-                style: TextStyle(fontSize: 40),
-              ),
+              child: Text('SIGAA:Notas', style: TextStyle(fontSize: 40)),
             ),
             Text('Versão $version'),
             Padding(
@@ -67,14 +63,13 @@ class AboutPage extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).accentColor),
               ),
             ),
+            Padding(padding: EdgeInsets.all(30))
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.code),
-        onPressed: () {
-          launch('https://github.com/acristoffers/SIGAAGrades');
-        },
+        onPressed: () => launch('https://github.com/acristoffers/SIGAAGrades'),
       ),
     );
   }
