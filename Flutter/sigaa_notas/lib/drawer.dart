@@ -50,10 +50,7 @@ class DrawerPage extends StatelessWidget {
                 children: <Widget>[
                   Hero(
                       tag: this.heroPhoto,
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        width: 100,
-                      )),
+                      child: Image.asset('assets/images/logo.png', width: 100)),
                   Text(
                     'SIGAA:Notas',
                     style: TextStyle(
@@ -70,8 +67,7 @@ class DrawerPage extends StatelessWidget {
             gradient: LinearGradient(
                 begin: Alignment.center,
                 end: Alignment.topLeft,
-                colors: [Colors.indigo, Colors.indigoAccent]
-            ),
+                colors: [Colors.indigo, Colors.indigoAccent]),
           ),
         ),
         ListTile(

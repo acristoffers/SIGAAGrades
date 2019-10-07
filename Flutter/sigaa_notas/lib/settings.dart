@@ -33,7 +33,8 @@ class _SettingsState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Configurações'),
+      appBar: AppBar(
+        title: Text('Configurações'),
       ),
       drawer: Drawer(
         child: DrawerPage('logo'),

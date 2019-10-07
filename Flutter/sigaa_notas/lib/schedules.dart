@@ -29,9 +29,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/drawer.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
+import 'package:sigaa_notas/widgets/table.dart' as table;
 import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'widgets/table.dart' as table;
 
 class SchedulesPage extends StatefulWidget {
   @override
@@ -85,45 +85,43 @@ class _SchedulesState extends State<SchedulesPage> {
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {
-          await _refresh().catchError((e, s) {
-            debugPrint(e);
-            debugPrint(s);
+          await _refresh().catchError((_) {
             showToast(context, "Erro de conexão");
           });
         },
         child: ListView(
           children: <Widget>[
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-                title: Text(
-                  'Hoje',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
+                    title: Text(
+                      'Hoje',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    subtitle: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          final schedule = _todaySchedules()[index];
+                          return ListTile(
+                            title: Text(
+                              schedule.course,
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            subtitle: Text(
+                              'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
+                            ),
+                          );
+                        },
+                        itemCount: _todaySchedules().length),
+                  ),
                 ),
-                subtitle: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      final schedule = _todaySchedules()[index];
-                      return ListTile(
-                        title: Text(
-                          schedule.course,
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        subtitle: Text(
-                          'De ${schedule.start} até ${schedule.end}. Local: ${schedule.local}',
-                        ),
-                      );
-                    },
-                    itemCount: _todaySchedules().length),
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(10))
-          ] +
+                Padding(padding: EdgeInsets.all(10))
+              ] +
               [
                 [2, 'Segunda'],
                 [3, 'Terça'],
@@ -131,8 +129,9 @@ class _SchedulesState extends State<SchedulesPage> {
                 [5, 'Quinta'],
                 [6, 'Sexta'],
               ].map(
-                    (e) {
-                  return table.Table(e[1],
+                (e) {
+                  return table.Table(
+                      e[1],
                       null,
                       ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
@@ -150,8 +149,7 @@ class _SchedulesState extends State<SchedulesPage> {
                             );
                           },
                           itemCount:
-                          _schedules.where((s) => s.day == e[0]).length)
-                  );
+                              _schedules.where((s) => s.day == e[0]).length));
                 },
               ).toList(),
         ),
@@ -172,10 +170,7 @@ class _SchedulesState extends State<SchedulesPage> {
         if (nh < sh || (nh == sh && nm <= sm)) {
           schedules.add(s);
         }
-      } catch (e, s) {
-        debugPrint(e);
-        debugPrint(s.toString());
-      }
+      } catch (_) {}
     }
 
     return schedules;
@@ -200,12 +195,12 @@ class _SchedulesState extends State<SchedulesPage> {
             title: const Text('Selecione o calendário'),
             children: calendars
                 .map((c) => Padding(
-              padding: EdgeInsets.all(10),
-              child: SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, c),
-                child: Text(c.name),
-              ),
-            ))
+                      padding: EdgeInsets.all(10),
+                      child: SimpleDialogOption(
+                        onPressed: () => Navigator.pop(context, c),
+                        child: Text(c.name),
+                      ),
+                    ))
                 .toList(),
           );
         });

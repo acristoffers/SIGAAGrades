@@ -46,12 +46,7 @@ class EmptyListPage extends StatelessWidget {
             '2) Não há notificaçõe no site do SIGAA.',
             textAlign: TextAlign.center,
           )
-        ]
-            .map((e) => Padding(
-                  child: e,
-                  padding: EdgeInsets.all(10),
-                ))
-            .toList(),
+        ].map((e) => Padding(child: e, padding: EdgeInsets.all(10))).toList(),
       ),
     );
   }

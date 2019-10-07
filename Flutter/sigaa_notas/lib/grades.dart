@@ -29,9 +29,9 @@ import 'package:sigaa_notas/drawer.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
+import 'package:sigaa_notas/widgets/table.dart' as table;
 import 'package:sprintf/sprintf.dart';
 import 'package:sqflite/sqflite.dart';
-import 'widgets/table.dart' as table;
 
 class GradesPage extends StatefulWidget {
   @override
@@ -43,7 +43,7 @@ class _GradesState extends State<GradesPage> {
   final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   final _courses = <Course>[];
   Database _db;
-  bool showGrades= true;
+  bool showGrades = true;
 
   @override
   void initState() {
@@ -68,11 +68,10 @@ class _GradesState extends State<GradesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notas'),
+      appBar: AppBar(
+        title: Text('Notas'),
         actions: <Widget>[
-          IconButton(
-              icon: _getShowGradesIcon(),
-              onPressed: _switchShowGrades)
+          IconButton(icon: _getShowGradesIcon(), onPressed: _switchShowGrades)
         ],
       ),
       drawer: Drawer(
@@ -81,47 +80,46 @@ class _GradesState extends State<GradesPage> {
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {
-          await _refresh()
-              .catchError((_) => showToast(context, "Erro de conexão"));
+          await _refresh().catchError((_) {
+            showToast(context, "Erro de conexão");
+          });
         },
         child: _courses.length == 0
-            ? ListView(
-          children: <Widget>[EmptyListPage()],
-        )
+            ? ListView(children: <Widget>[EmptyListPage()])
             : ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            var course = _courses[index];
-            return table.Table(course.name, course,
-                Column(
-                  children: <Widget>[
-                    DataTable(
-                      columns: [
-                        DataColumn(label: Text('Atividade')),
-                        DataColumn(label: Text('Total')),
-                        DataColumn(label: Text('Nota')),
-                      ],
-                      rows: course.grades.map(
-                            (g) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Text(g.activityName)),
-                              DataCell(Text(g.totalValue)),
-                              DataCell(_verifyShowGrades(g.scoreValue)),
+                itemBuilder: (BuildContext context, int index) {
+                  var course = _courses[index];
+                  return table.Table(
+                      course.name,
+                      course,
+                      Column(
+                        children: <Widget>[
+                          DataTable(
+                            columns: [
+                              DataColumn(label: Text('Atividade')),
+                              DataColumn(label: Text('Total')),
+                              DataColumn(label: Text('Nota')),
                             ],
-                          );
-                        },
-                      ).toList(),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: _verifyShowTotal(course)
-                    )
-                  ],
-                )
-            );
-          },
-          itemCount: _courses.length,
-        ),
+                            rows: course.grades.map(
+                              (g) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(g.activityName)),
+                                    DataCell(Text(g.totalValue)),
+                                    DataCell(_verifyShowGrades(g.scoreValue)),
+                                  ],
+                                );
+                              },
+                            ).toList(),
+                          ),
+                          Padding(
+                              padding: EdgeInsets.all(10),
+                              child: _verifyShowTotal(course))
+                        ],
+                      ));
+                },
+                itemCount: _courses.length,
+              ),
       ),
     );
   }
@@ -172,56 +170,44 @@ class _GradesState extends State<GradesPage> {
     }
   }
 
-  double _sumOfGrades(List<Grade> grades) {
-    var x = 0.0;
-    for (final g in grades) {
-      final t = double.tryParse(g.scoreValue);
-      if (t != null) {
-        x += t;
-      }
-    }
-    return x;
-  }
+  double _sumOfGrades(List<Grade> grades) => grades
+      .map((g) => double.tryParse(g.scoreValue))
+      .where((e) => e != null)
+      .fold(0, (a, e) => a + e);
 
-  Widget _getShowGradesIcon(){
-    if(this.showGrades){
-      return Icon( Icons.visibility);
-    }else{
-      return Icon( Icons.visibility_off);
+  Widget _getShowGradesIcon() {
+    if (this.showGrades) {
+      return Icon(Icons.visibility);
+    } else {
+      return Icon(Icons.visibility_off);
     }
   }
 
-  void _switchShowGrades()async{
+  void _switchShowGrades() {
     setState(() {
       this.showGrades = !this.showGrades;
     });
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('showGrades', this.showGrades);
   }
 
-  Widget _verifyShowGrades(String text){
-    if(this.showGrades){
+  Widget _verifyShowGrades(String text) {
+    if (this.showGrades) {
       return Text(text);
-    }
-    if(text.length > 0){
+    } else if (text.length > 0) {
       return Text("_____");
     }
     return Text(" ");
   }
 
-  Widget _verifyShowTotal(var course){
-    if(this.showGrades){
+  Widget _verifyShowTotal(var course) {
+    if (this.showGrades) {
       return Text(
-        sprintf(
-          'Total: %3.2f',
-          [_sumOfGrades(course.grades)],
-        ),
+        sprintf('Total: %3.2f', [_sumOfGrades(course.grades)]),
         style: TextStyle(fontWeight: FontWeight.bold),
       );
     }
-    return Text("Total: ______",
-        style: TextStyle(fontWeight: FontWeight.bold),
-        );
+    return Text(
+      "Total: ______",
+      style: TextStyle(fontWeight: FontWeight.bold),
+    );
   }
-
 }
