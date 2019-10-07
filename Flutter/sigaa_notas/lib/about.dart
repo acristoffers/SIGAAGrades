@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:sigaa_notas/drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const version = '1.1.20';
+const version = '1.1.21';
 
 class AboutPage extends StatelessWidget {
   @override
