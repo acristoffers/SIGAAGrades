@@ -173,6 +173,12 @@ class _SchedulesState extends State<SchedulesPage> {
       } catch (_) {}
     }
 
+    schedules.sort((a, b) {
+      final sa = int.parse(a.start.split(':').first);
+      final sb = int.parse(b.start.split(':').first);
+      return sa.compareTo(sb);
+    });
+
     return schedules;
   }
 
