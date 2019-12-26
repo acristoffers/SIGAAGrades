@@ -23,7 +23,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/drawer.dart';
+import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
@@ -50,11 +50,8 @@ class _FrequencyState extends State<FrequencyPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text('Frequência')),
-      drawer: Drawer(
-        child: DrawerPage('logo'),
-      ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () async {

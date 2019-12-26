@@ -25,7 +25,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:quiver/iterables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/drawer.dart';
+import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
@@ -67,15 +67,12 @@ class _GradesState extends State<GradesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text('Notas'),
         actions: <Widget>[
           IconButton(icon: _getShowGradesIcon(), onPressed: _switchShowGrades)
         ],
-      ),
-      drawer: Drawer(
-        child: DrawerPage('logo'),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,

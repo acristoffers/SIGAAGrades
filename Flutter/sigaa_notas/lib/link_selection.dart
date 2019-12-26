@@ -50,35 +50,38 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
         .then((_) => SchedulerBinding.instance.addPostFrameCallback((_) {
               _refreshIndicatorKey.currentState.show();
             }))
-        .catchError((_) => showToast(context, 'Erro de conexão'));
+        .catchError((e) => showToast(context, 'Erro de conexão'));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Seleção de Vínculo')),
-      body: Padding(
-        padding: EdgeInsets.all(10),
-        child: RefreshIndicator(
-          key: _refreshIndicatorKey,
-          onRefresh: () async {
-            await _refresh().catchError((_) {
-              showToast(context, "Erro de conexão");
-            });
-          },
-          child: _links.length == 0
-              ? ListView(children: <Widget>[EmptyListPage()])
-              : ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    var link = _links[index];
-                    return ListTile(
-                      title: Text(link.name),
-                      subtitle: Text(link.immatriculation),
-                      onTap: () async => await _selectLink(link),
-                    );
-                  },
-                  itemCount: _links.length,
-                ),
+      body: Center(
+        child: Container(
+          padding: EdgeInsets.all(10),
+          constraints: BoxConstraints.tightForFinite(width: 600),
+          child: RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: () async {
+              await _refresh().catchError((_) {
+                showToast(context, "Erro de conexão");
+              });
+            },
+            child: _links.length == 0
+                ? ListView(children: <Widget>[EmptyListPage()])
+                : ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      var link = _links[index];
+                      return ListTile(
+                        title: Text(link.name),
+                        subtitle: Text(link.immatriculation),
+                        onTap: () async => await _selectLink(link),
+                      );
+                    },
+                    itemCount: _links.length,
+                  ),
+          ),
         ),
       ),
     );

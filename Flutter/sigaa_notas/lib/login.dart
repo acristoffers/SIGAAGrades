@@ -23,7 +23,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/grades.dart';
 import 'package:sigaa_notas/link_selection.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
@@ -37,27 +36,6 @@ class _LoginState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   var _loginClicked = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    SharedPreferences.getInstance().then((prefs) {
-      if (prefs.containsKey('username') && prefs.containsKey('password')) {
-        if (prefs.containsKey('link')) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (c) => GradesPage()),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (c) => LinkSelectionPage()),
-          );
-        }
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -76,30 +54,36 @@ class _LoginState extends State<LoginPage> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextField(
-              controller: _usernameController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+            SizedBox(
+              width: 600,
+              child: TextField(
+                controller: _usernameController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  labelText: 'CPF',
                 ),
-                labelText: 'CPF',
               ),
             ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                labelText: 'Senha',
+            SizedBox(
+              width: 600,
+              child: TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  labelText: 'Senha',
+                ),
               ),
             ),
             RaisedButton(
               onPressed: _loginClicked
                   ? null
                   : () async {
-                      _login().catchError((_) {
+                      _login().catchError(() {
                         showToast(context, "Erro de conexão");
                       });
                     },

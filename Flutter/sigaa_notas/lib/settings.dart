@@ -21,7 +21,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:sigaa_notas/drawer.dart';
+import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:sigaa_notas/main.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -32,12 +32,9 @@ class SettingsPage extends StatefulWidget {
 class _SettingsState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text('Configurações'),
-      ),
-      drawer: Drawer(
-        child: DrawerPage('logo'),
       ),
       body: ListView(
         padding: EdgeInsets.zero,

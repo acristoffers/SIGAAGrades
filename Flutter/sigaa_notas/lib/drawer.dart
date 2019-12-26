@@ -33,9 +33,9 @@ import 'package:sigaa_notas/settings.dart';
 import 'package:sigaa_notas/utils.dart';
 
 class DrawerPage extends StatelessWidget {
-  final String heroPhoto;
+  final String heroTag;
 
-  const DrawerPage(this.heroPhoto);
+  const DrawerPage(this.heroTag);
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +49,9 @@ class DrawerPage extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   Hero(
-                      tag: this.heroPhoto,
-                      child: Image.asset('assets/images/logo.png', width: 100)),
+                    tag: heroTag,
+                    child: Image.asset('assets/images/logo.png', width: 100),
+                  ),
                   Text(
                     'SIGAA:Notas',
                     style: TextStyle(
@@ -156,8 +157,6 @@ class DrawerPage extends StatelessWidget {
   }
 }
 
-void _navigate(BuildContext context, WidgetBuilder builder) =>
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: builder),
-    );
+void _navigate(BuildContext context, WidgetBuilder builder) {
+  Navigator.pushReplacement(context, MaterialPageRoute(builder: builder));
+}

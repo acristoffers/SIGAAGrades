@@ -21,7 +21,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:sigaa_notas/drawer.dart';
+import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const version = '1.1.21';
@@ -29,19 +29,18 @@ const version = '1.1.21';
 class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      heroTag: '',
       appBar: AppBar(title: Text('Sobre')),
-      drawer: Drawer(
-        child: DrawerPage('null'),
-      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Hero(
-                tag: 'logo',
-                child: Image.asset('assets/images/logo.png', width: 200)),
+              tag: 'logo',
+              child: Image.asset('assets/images/logo.png', width: 200),
+            ),
             Padding(
               padding: const EdgeInsets.only(bottom: 40),
               child: Text('SIGAA:Notas', style: TextStyle(fontSize: 40)),

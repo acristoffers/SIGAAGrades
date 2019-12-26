@@ -26,7 +26,7 @@ import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/drawer.dart';
+import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sigaa_notas/utils.dart';
 import 'package:sigaa_notas/widgets/table.dart' as table;
@@ -66,7 +66,7 @@ class _SchedulesState extends State<SchedulesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text('Horários'),
         actions: <Widget>[
@@ -78,9 +78,6 @@ class _SchedulesState extends State<SchedulesPage> {
             }),
           ),
         ],
-      ),
-      drawer: Drawer(
-        child: DrawerPage('logo'),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
