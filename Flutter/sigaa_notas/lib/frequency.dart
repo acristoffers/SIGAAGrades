@@ -20,8 +20,9 @@
  * THE SOFTWARE.
  */
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
@@ -43,9 +44,7 @@ class _FrequencyState extends State<FrequencyPage> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _refreshIndicatorKey.currentState.show();
-    });
+    Timer.run(() => _refreshIndicatorKey.currentState.show());
   }
 
   @override
@@ -56,11 +55,19 @@ class _FrequencyState extends State<FrequencyPage> {
         key: _refreshIndicatorKey,
         onRefresh: () async {
           await _refresh().catchError((_) {
-            showToast(context, "Erro de conexão");
+            if (mounted) {
+              showToast("Erro de conexão");
+            }
           });
         },
         child: _courses.length == 0
-            ? ListView(children: <Widget>[EmptyListPage()])
+            ? SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: EmptyListPage(),
+                ),
+              )
             : ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
                   var course = _courses[index];
@@ -103,9 +110,11 @@ class _FrequencyState extends State<FrequencyPage> {
       c.frequency = await _sigaa.listFrequency(c);
     }));
 
-    setState(() {
-      _courses.clear();
-      _courses.addAll(courses);
-    });
+    if (mounted) {
+      setState(() {
+        _courses.clear();
+        _courses.addAll(courses);
+      });
+    }
   }
 }

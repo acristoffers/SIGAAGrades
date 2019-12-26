@@ -38,36 +38,40 @@ void main() => runApp(StatelessApp());
 class StatelessApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new DynamicTheme(
-        defaultBrightness: Brightness.light,
-        data: (brightness) => new ThemeData(
-              primarySwatch: Colors.indigo,
-              primaryColor: Colors.indigo,
-              primaryColorDark: Colors.indigo,
-              secondaryHeaderColor: Colors.white,
-              accentColor: Colors.indigoAccent,
-              brightness: brightness,
-              pageTransitionsTheme: PageTransitionsTheme(
-                builders: Map.fromIterable(
-                  TargetPlatform.values.toList(),
-                  key: (dynamic k) => k,
-                  value: (dynamic _) => const _NoopePageTransitionsBuilder(),
-                ),
-              ),
-            ),
-        themedWidgetBuilder: (context, theme) {
-          return new MaterialApp(
-            title: 'SIGAA:Notas',
-            theme: theme,
-            home: App(),
-            navigatorKey: App.navKey,
-          );
-        });
+    return DynamicTheme(
+      defaultBrightness: Brightness.light,
+      data: (brightness) => ThemeData(
+        primarySwatch: Colors.indigo,
+        primaryColor: Colors.indigo,
+        primaryColorDark: Colors.indigo,
+        secondaryHeaderColor: Colors.white,
+        accentColor: Colors.indigoAccent,
+        brightness: brightness,
+        pageTransitionsTheme: PageTransitionsTheme(
+          builders: Map.fromIterable(
+            TargetPlatform.values,
+            key: (dynamic k) => k,
+            value: (dynamic _) => const _NoopePageTransitionsBuilder(),
+          ),
+        ),
+      ),
+      themedWidgetBuilder: (context, theme) {
+        return MaterialApp(
+          title: 'SIGAA:Notas',
+          theme: theme,
+          home: App(),
+          navigatorKey: App.navKey,
+        );
+      },
+    );
   }
 }
 
 class App extends StatefulWidget {
-  static GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
+  static final navKey = GlobalKey<NavigatorState>(debugLabel: 'NavigatorKey');
+  static final appKey = GlobalKey(debugLabel: 'AppKey');
+
+  App() : super(key: appKey);
 
   @override
   _AppState createState() => _AppState();

@@ -19,9 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/empty_list_view.dart';
 import 'package:sigaa_notas/grades.dart';
@@ -47,10 +47,8 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
     getDatabase()
         .then((db) => _db = db)
         .then((_) => _db.delete('links', where: null))
-        .then((_) => SchedulerBinding.instance.addPostFrameCallback((_) {
-              _refreshIndicatorKey.currentState.show();
-            }))
-        .catchError((e) => showToast(context, 'Erro de conexão'));
+        .then((_) => Timer.run(_refreshIndicatorKey.currentState.show))
+        .catchError((_) => showToast('Erro de conexão'));
   }
 
   @override
@@ -65,11 +63,17 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
             key: _refreshIndicatorKey,
             onRefresh: () async {
               await _refresh().catchError((_) {
-                showToast(context, "Erro de conexão");
+                showToast("Erro de conexão");
               });
             },
             child: _links.length == 0
-                ? ListView(children: <Widget>[EmptyListPage()])
+                ? SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      child: EmptyListPage(),
+                    ),
+                  )
                 : ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
                       var link = _links[index];

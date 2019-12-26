@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/app_scaffold.dart';
 import 'package:sigaa_notas/sigaa.dart';
@@ -51,10 +51,10 @@ class _SchedulesState extends State<SchedulesPage> {
 
     getDatabase().then((db) => _db = db);
     getSchedules().then((schedules) {
+      if (!mounted) return;
+
       if (schedules.length == 0) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          _refreshIndicatorKey.currentState.show();
-        });
+        Timer.run(_refreshIndicatorKey.currentState.show);
       }
 
       setState(() {
@@ -74,7 +74,9 @@ class _SchedulesState extends State<SchedulesPage> {
             icon: const Icon(Icons.calendar_today),
             tooltip: 'Adicionar ao calendário',
             onPressed: () async => _addToCalendar().catchError((_) {
-              showToast(context, 'Erro ao adicionar ao calendário.');
+              if (mounted) {
+                showToast('Erro ao adicionar ao calendário.');
+              }
             }),
           ),
         ],
@@ -83,7 +85,9 @@ class _SchedulesState extends State<SchedulesPage> {
         key: _refreshIndicatorKey,
         onRefresh: () async {
           await _refresh().catchError((_) {
-            showToast(context, "Erro de conexão");
+            if (mounted) {
+              showToast("Erro de conexão");
+            }
           });
         },
         child: ListView(
@@ -220,10 +224,12 @@ class _SchedulesState extends State<SchedulesPage> {
 
     final schedules = await _sigaa.listSchedules();
 
-    setState(() {
-      _schedules.clear();
-      _schedules.addAll(schedules);
-    });
+    if (mounted) {
+      setState(() {
+        _schedules.clear();
+        _schedules.addAll(schedules);
+      });
+    }
 
     await _db.delete('schedules', where: null);
     for (final schedule in schedules) {
@@ -265,7 +271,7 @@ class _SchedulesState extends State<SchedulesPage> {
     final calendar = await _showDialog(calendars);
     if (calendar == null) return;
 
-    showToast(context, 'Buscando datas de início e fim do semestre...');
+    showToast('Buscando datas de início e fim do semestre...');
 
     // Get Start and End of Semester
     final prefs = await SharedPreferences.getInstance();

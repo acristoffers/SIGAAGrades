@@ -74,7 +74,8 @@ class _LoginState extends State<LoginPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
                   labelText: 'Senha',
                 ),
               ),
@@ -82,9 +83,12 @@ class _LoginState extends State<LoginPage> {
             RaisedButton(
               onPressed: _loginClicked
                   ? null
-                  : () async {
-                      _login().catchError(() {
-                        showToast(context, "Erro de conexão");
+                  : () {
+                      _login().catchError((_) {
+                        if (mounted) {
+                          setState(() => _loginClicked = false);
+                          showToast("Erro de conexão");
+                        }
                       });
                     },
               color: Theme.of(context).primaryColor,
@@ -122,7 +126,7 @@ class _LoginState extends State<LoginPage> {
       );
     } else {
       setState(() => _loginClicked = false);
-      showToast(context, "Credenciais Incorretas");
+      showToast("Credenciais Incorretas");
     }
   }
 }

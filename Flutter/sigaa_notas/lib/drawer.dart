@@ -27,7 +27,7 @@ import 'package:sigaa_notas/about.dart';
 import 'package:sigaa_notas/frequency.dart';
 import 'package:sigaa_notas/grades.dart';
 import 'package:sigaa_notas/link_selection.dart';
-import 'package:sigaa_notas/login.dart';
+import 'package:sigaa_notas/main.dart';
 import 'package:sigaa_notas/schedules.dart';
 import 'package:sigaa_notas/settings.dart';
 import 'package:sigaa_notas/utils.dart';
@@ -149,7 +149,7 @@ class DrawerPage extends StatelessWidget {
             await db.delete('courses', where: null);
             await db.delete('grades', where: null);
             await db.delete('schedules', where: null);
-            _navigate(context, (_) => LoginPage());
+            _navigate(context, (_) => App()); // Because of appKey: GlobalKey
           },
         ),
       ],

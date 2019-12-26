@@ -23,6 +23,8 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sigaa_notas/app_scaffold.dart';
+import 'package:sigaa_notas/main.dart';
 import 'package:sigaa_notas/sigaa.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:toast/toast.dart';
@@ -136,10 +138,10 @@ Future<List<Schedule>> getSchedules() async {
   return schedules;
 }
 
-void showToast(BuildContext context, String message) {
+void showToast(String message) {
   Toast.show(
     message,
-    context,
+    App.appKey.currentContext,
     duration: Toast.LENGTH_LONG,
     gravity: Toast.BOTTOM,
   );

@@ -52,6 +52,8 @@ class _GradesState extends State<GradesPage> {
     getDatabase().then((db) => _db = db);
 
     getCourses().then((courses) {
+      if (!mounted) return;
+
       if (courses.length == 0) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           _refreshIndicatorKey.currentState.show();
@@ -78,11 +80,19 @@ class _GradesState extends State<GradesPage> {
         key: _refreshIndicatorKey,
         onRefresh: () async {
           await _refresh().catchError((_) {
-            showToast(context, "Erro de conexão");
+            if (mounted) {
+              showToast("Erro de conexão");
+            }
           });
         },
         child: _courses.length == 0
-            ? ListView(children: <Widget>[EmptyListPage()])
+            ? SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: EmptyListPage(),
+                ),
+              )
             : ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
                   var course = _courses[index];
@@ -135,10 +145,12 @@ class _GradesState extends State<GradesPage> {
 
     zip([fs, courses]).forEach((e) => (e[1] as Course).grades = e[0]);
 
-    setState(() {
-      _courses.clear();
-      _courses.addAll(courses);
-    });
+    if (mounted) {
+      setState(() {
+        _courses.clear();
+        _courses.addAll(courses);
+      });
+    }
 
     final links = await _db.query('links', where: 'url=?', whereArgs: [link]);
     final linkID = links.first['id'];
