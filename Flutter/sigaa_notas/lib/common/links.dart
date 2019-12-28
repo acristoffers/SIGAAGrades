@@ -2,7 +2,7 @@
  * Copyright (c) 2019 Álan Crístoffer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -11,7 +11,7 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -20,17 +20,24 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sigaa_notas/common/sigaa.dart';
+import 'package:sigaa_notas/common/utils.dart';
 
-import 'package:flutter/cupertino.dart' as cup;
-import 'package:flutter/material.dart' as mat;
-import 'package:sigaa_notas/cupertino/app.dart' as main_cup;
-import 'package:sigaa_notas/material/app.dart' as main_mat;
+class LinksService {
+  static Future<List<Link>> refresh() async {
+    final prefs = await SharedPreferences.getInstance();
+    final db = await getDatabase();
+    final username = prefs.getString('username');
+    final password = prefs.getString('password');
+    final sigaa = SIGAA();
 
-void main() {
-  if (Platform.isMacOS || Platform.isIOS) {
-    cup.runApp(main_cup.Application());
-  } else {
-    mat.runApp(main_mat.Application());
+    await sigaa.login(username, password);
+    final links = await sigaa.listLinks();
+
+    await db.delete('links', where: null);
+    links.forEach((l) => db.insert('links', {'name': l.name, 'url': l.url}));
+
+    return links;
   }
 }

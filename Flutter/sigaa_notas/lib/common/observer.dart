@@ -20,17 +20,28 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
+class Observer<T> {
+  var _count = 0;
+  final _listeners = <int, void Function(T)>{};
 
-import 'package:flutter/cupertino.dart' as cup;
-import 'package:flutter/material.dart' as mat;
-import 'package:sigaa_notas/cupertino/app.dart' as main_cup;
-import 'package:sigaa_notas/material/app.dart' as main_mat;
+  Subscription<T> subscribe(void Function(T m) callback) {
+    final id = _count++;
+    _listeners[id] = callback;
+    return Subscription<T>(id, this);
+  }
 
-void main() {
-  if (Platform.isMacOS || Platform.isIOS) {
-    cup.runApp(main_cup.Application());
-  } else {
-    mat.runApp(main_mat.Application());
+  void emit(T message) => _listeners.forEach((_, f) => f(message));
+
+  void unsubscribe(int id) => _listeners.remove(id);
+}
+
+class Subscription<T> {
+  Subscription(this._id, this._observer);
+
+  int _id;
+  Observer<T> _observer;
+
+  void unsubscribe() {
+    _observer.unsubscribe(_id);
   }
 }

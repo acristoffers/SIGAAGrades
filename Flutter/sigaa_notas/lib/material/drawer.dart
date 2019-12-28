@@ -23,19 +23,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/about.dart';
-import 'package:sigaa_notas/frequency.dart';
-import 'package:sigaa_notas/grades.dart';
-import 'package:sigaa_notas/link_selection.dart';
-import 'package:sigaa_notas/main.dart';
-import 'package:sigaa_notas/schedules.dart';
-import 'package:sigaa_notas/settings.dart';
-import 'package:sigaa_notas/utils.dart';
+import 'package:sigaa_notas/common/utils.dart';
 
 class DrawerPage extends StatelessWidget {
+  final bool docked;
   final String heroTag;
 
-  const DrawerPage(this.heroTag);
+  const DrawerPage({this.docked = false, this.heroTag = 'logo'});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +39,7 @@ class DrawerPage extends StatelessWidget {
         DrawerHeader(
           child: Center(
             child: GestureDetector(
-              onTap: () => _navigate(context, (_) => AboutPage()),
+              onTap: () => Navigator.pushReplacementNamed(context, '/about'),
               child: Column(
                 children: <Widget>[
                   Hero(
@@ -68,7 +62,10 @@ class DrawerPage extends StatelessWidget {
             gradient: LinearGradient(
                 begin: Alignment.center,
                 end: Alignment.topLeft,
-                colors: [Colors.indigo, Colors.indigoAccent]),
+                colors: [
+                  Colors.indigo,
+                  docked ? Colors.indigo : Colors.indigoAccent
+                ]),
           ),
         ),
         ListTile(
@@ -79,7 +76,7 @@ class DrawerPage extends StatelessWidget {
               Text('Notas'),
             ],
           ),
-          onTap: () => _navigate(context, (_) => GradesPage()),
+          onTap: () => Navigator.pushReplacementNamed(context, '/grades'),
         ),
         ListTile(
           title: Row(
@@ -89,7 +86,7 @@ class DrawerPage extends StatelessWidget {
               Text('Horários'),
             ],
           ),
-          onTap: () => _navigate(context, (_) => SchedulesPage()),
+          onTap: () => Navigator.pushReplacementNamed(context, '/schedules'),
         ),
         ListTile(
           title: Row(
@@ -99,7 +96,7 @@ class DrawerPage extends StatelessWidget {
               Text('Frequência'),
             ],
           ),
-          onTap: () => _navigate(context, (_) => FrequencyPage()),
+          onTap: () => Navigator.pushReplacementNamed(context, '/frequency'),
         ),
         ListTile(
           title: Row(
@@ -109,7 +106,7 @@ class DrawerPage extends StatelessWidget {
               Text('Alterar Vínculo'),
             ],
           ),
-          onTap: () => _navigate(context, (_) => LinkSelectionPage()),
+          onTap: () => Navigator.pushReplacementNamed(context, '/links'),
         ),
         ListTile(
           title: Row(
@@ -119,7 +116,7 @@ class DrawerPage extends StatelessWidget {
               Text('Configurações'),
             ],
           ),
-          onTap: () => _navigate(context, (_) => SettingsPage()),
+          onTap: () => Navigator.pushReplacementNamed(context, '/settings'),
         ),
         ListTile(
           title: Row(
@@ -129,7 +126,7 @@ class DrawerPage extends StatelessWidget {
               Text('Sobre'),
             ],
           ),
-          onTap: () => _navigate(context, (_) => AboutPage()),
+          onTap: () => Navigator.pushReplacementNamed(context, '/about'),
         ),
         ListTile(
           title: Row(
@@ -149,14 +146,10 @@ class DrawerPage extends StatelessWidget {
             await db.delete('courses', where: null);
             await db.delete('grades', where: null);
             await db.delete('schedules', where: null);
-            _navigate(context, (_) => App()); // Because of appKey: GlobalKey
+            Navigator.pushReplacementNamed(context, '/login');
           },
         ),
       ],
     );
   }
-}
-
-void _navigate(BuildContext context, WidgetBuilder builder) {
-  Navigator.pushReplacement(context, MaterialPageRoute(builder: builder));
 }

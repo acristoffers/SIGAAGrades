@@ -20,20 +20,46 @@
  * THE SOFTWARE.
  */
 
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
-import 'package:sigaa_notas/app_scaffold.dart';
+import 'package:package_info/package_info.dart';
+import 'package:sigaa_notas/material/app.dart';
+import 'package:sigaa_notas/material/layout.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const version = '1.1.21';
+class AboutPage extends StatefulWidget {
+  @override
+  _AboutPageState createState() => _AboutPageState();
+}
 
-class AboutPage extends StatelessWidget {
+class _AboutPageState extends State<AboutPage> {
+  var version = '1.1.23';
+
+  @override
+  void initState() {
+    super.initState();
+
+    Application.layoutObserver.emit(
+      LayoutGlobalState(title: 'Sobre', singlePage: false, actions: <Widget>[]),
+    );
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      PackageInfo.fromPlatform().then((info) {
+        if (mounted) {
+          setState(() {
+            version = info.version;
+          });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      heroTag: '',
-      appBar: AppBar(title: Text('Sobre')),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -65,10 +91,6 @@ class AboutPage extends StatelessWidget {
             Padding(padding: EdgeInsets.all(30))
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.code),
-        onPressed: () => launch('https://github.com/acristoffers/SIGAAGrades'),
       ),
     );
   }

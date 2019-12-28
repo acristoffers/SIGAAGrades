@@ -20,9 +20,10 @@
  * THE SOFTWARE.
  */
 
+import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:sigaa_notas/app_scaffold.dart';
-import 'package:sigaa_notas/main.dart';
+import 'package:sigaa_notas/material/app.dart';
+import 'package:sigaa_notas/material/layout.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -31,22 +32,40 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsState extends State<SettingsPage> {
   @override
+  void initState() {
+    super.initState();
+
+    Application.layoutObserver.emit(LayoutGlobalState(
+      title: 'Configurações',
+      singlePage: false,
+      actions: [],
+    ));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      appBar: AppBar(
-        title: Text('Configurações'),
-      ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          SwitchListTile(
-            title: const Text('Tema Escuro'),
-            value: Theme.of(context).brightness == Brightness.dark,
-            onChanged: (_) => toggleDarkTheme(context),
-            activeColor: Theme.of(context).accentColor,
-          ),
-        ],
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(10),
+        constraints: BoxConstraints.tightForFinite(width: 600),
+        child: ListView(
+          children: <Widget>[
+            SwitchListTile(
+              title: const Text('Tema Escuro'),
+              value: Theme.of(context).brightness == Brightness.dark,
+              onChanged: (_) => toggleDarkTheme(context),
+              activeColor: Theme.of(context).accentColor,
+            )
+          ],
+        ),
       ),
     );
   }
+}
+
+void toggleDarkTheme(BuildContext context) {
+  DynamicTheme.of(context).setBrightness(
+      Theme.of(context).brightness == Brightness.dark
+          ? Brightness.light
+          : Brightness.dark);
 }

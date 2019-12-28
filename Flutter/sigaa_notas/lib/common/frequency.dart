@@ -20,17 +20,25 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sigaa_notas/common/sigaa.dart';
 
-import 'package:flutter/cupertino.dart' as cup;
-import 'package:flutter/material.dart' as mat;
-import 'package:sigaa_notas/cupertino/app.dart' as main_cup;
-import 'package:sigaa_notas/material/app.dart' as main_mat;
+class FrequencyService {
+  static Future<List<Course>> refresh() async {
+    final sigaa = SIGAA();
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('username');
+    final password = prefs.getString('password');
+    final link = prefs.getString('link');
 
-void main() {
-  if (Platform.isMacOS || Platform.isIOS) {
-    cup.runApp(main_cup.Application());
-  } else {
-    mat.runApp(main_mat.Application());
+    await sigaa.login(username, password);
+    await sigaa.httpGet(link);
+
+    final courses = await sigaa.listCourses();
+    await Future.wait(courses.map((c) async {
+      c.frequency = await sigaa.listFrequency(c);
+    }));
+
+    return courses;
   }
 }

@@ -26,7 +26,7 @@ import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:quiver/iterables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/utils.dart';
+import 'package:sigaa_notas/common/utils.dart';
 
 class SIGAA {
   final _baseUrl = 'https://sig.cefetmg.br';
@@ -551,7 +551,14 @@ class Link {
 }
 
 class Course {
-  Course({this.id, this.cid, this.name, this.data, this.grades});
+  Course({
+    this.id,
+    this.cid,
+    this.name,
+    this.data,
+    this.grades,
+    this.frequency,
+  });
 
   final int id;
   final String name;

@@ -20,14 +20,16 @@
  * THE SOFTWARE.
  */
 
-import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart' as oktoast;
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigaa_notas/app_scaffold.dart';
-import 'package:sigaa_notas/main.dart';
-import 'package:sigaa_notas/sigaa.dart';
+import 'package:sigaa_notas/common/sigaa.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:toast/toast.dart';
+
+class SimpleException implements Exception {
+  SimpleException(this.reason) : super();
+  var reason = '';
+}
 
 Future<Database> getDatabase() async {
   final path = await getDatabasesPath();
@@ -138,19 +140,14 @@ Future<List<Schedule>> getSchedules() async {
   return schedules;
 }
 
-void showToast(String message) {
-  Toast.show(
-    message,
-    App.appKey.currentContext,
-    duration: Toast.LENGTH_LONG,
-    gravity: Toast.BOTTOM,
-  );
-}
-
 T firstOrNull<T>(Iterable<T> xs) {
   try {
     return xs.first;
   } catch (_) {
     return null;
   }
+}
+
+void showToast(String message) {
+  oktoast.showToast(message);
 }

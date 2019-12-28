@@ -34,7 +34,7 @@ class Table extends StatelessWidget {
     return Card(
       margin: EdgeInsets.all(5),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
           contentPadding: EdgeInsets.fromLTRB(5, 15, 5, 0),
