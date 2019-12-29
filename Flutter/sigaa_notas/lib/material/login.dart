@@ -39,10 +39,10 @@ class _LoginState extends State<Login> {
 
   @override
   void dispose() {
+    super.dispose();
+
     _usernameController.dispose();
     _passwordController.dispose();
-
-    super.dispose();
   }
 
   @override

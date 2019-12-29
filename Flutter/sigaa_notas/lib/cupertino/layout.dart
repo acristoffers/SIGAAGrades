@@ -45,9 +45,7 @@ class LayoutState extends State<Layout> {
 
   @override
   Widget build(BuildContext context) {
-    return _currentWidget != null
-        ? singlePageLayout(_currentWidget)
-        : multiPageLayout();
+    return _currentWidget != null ? _currentWidget : _multiPageLayout();
   }
 
   void navigate(String route) {
@@ -82,9 +80,7 @@ class LayoutState extends State<Layout> {
     }
   }
 
-  Widget singlePageLayout(Widget child) => child;
-
-  Widget multiPageLayout() {
+  Widget _multiPageLayout() {
     return CupertinoTabScaffold(
       controller: _tabController,
       tabBar: CupertinoTabBar(

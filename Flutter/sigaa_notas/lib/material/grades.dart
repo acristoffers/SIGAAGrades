@@ -40,8 +40,7 @@ class Grades extends StatefulWidget {
 class _GradesState extends State<Grades> {
   final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   final _courses = <Course>[];
-  bool showGrades = true;
-  LayoutState layoutState;
+  bool _showGrades = true;
 
   @override
   void initState() {
@@ -101,33 +100,35 @@ class _GradesState extends State<Grades> {
                   itemBuilder: (BuildContext context, int index) {
                     var course = _courses[index];
                     return table.Table(
-                        course.name,
-                        course,
-                        Column(
-                          children: <Widget>[
-                            DataTable(
-                              columns: [
-                                DataColumn(label: Text('Atividade')),
-                                DataColumn(label: Text('Total')),
-                                DataColumn(label: Text('Nota')),
-                              ],
-                              rows: course.grades.map(
-                                (g) {
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(Text(g.activityName)),
-                                      DataCell(Text(g.totalValue)),
-                                      DataCell(_verifyShowGrades(g.scoreValue)),
-                                    ],
-                                  );
-                                },
-                              ).toList(),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.all(10),
-                                child: _verifyShowTotal(course))
-                          ],
-                        ));
+                      course.name,
+                      course,
+                      Column(
+                        children: <Widget>[
+                          DataTable(
+                            columns: [
+                              DataColumn(label: Text('Atividade')),
+                              DataColumn(label: Text('Total')),
+                              DataColumn(label: Text('Nota')),
+                            ],
+                            rows: course.grades.map(
+                              (g) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(g.activityName)),
+                                    DataCell(Text(g.totalValue)),
+                                    DataCell(_verifyShowGrades(g.scoreValue)),
+                                  ],
+                                );
+                              },
+                            ).toList(),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(10),
+                            child: _verifyShowTotal(course),
+                          )
+                        ],
+                      ),
+                    );
                   },
                   itemCount: _courses.length,
                 ),
@@ -142,11 +143,11 @@ class _GradesState extends State<Grades> {
       .fold(0, (a, e) => a + e);
 
   Widget _getShowGradesIcon() =>
-      Icon(showGrades ? Icons.visibility : Icons.visibility_off);
+      Icon(_showGrades ? Icons.visibility : Icons.visibility_off);
 
   void _switchShowGrades() {
     setState(() {
-      this.showGrades = !this.showGrades;
+      this._showGrades = !this._showGrades;
     });
 
     Application.layoutObserver.emit(
@@ -157,7 +158,7 @@ class _GradesState extends State<Grades> {
   }
 
   Widget _verifyShowGrades(String text) {
-    if (this.showGrades) {
+    if (this._showGrades) {
       return Text(text);
     } else if (text.length > 0) {
       return Text('____');
@@ -166,7 +167,7 @@ class _GradesState extends State<Grades> {
   }
 
   Widget _verifyShowTotal(var course) {
-    if (this.showGrades) {
+    if (this._showGrades) {
       return Text(
         sprintf('Total: %3.2f', [_sumOfGrades(course.grades)]),
         style: TextStyle(fontWeight: FontWeight.bold),

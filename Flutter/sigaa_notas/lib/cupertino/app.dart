@@ -37,28 +37,33 @@ class Application extends StatefulWidget {
   @override
   _ApplicationState createState() => _ApplicationState();
 
-  static CupertinoTheme lightTheme(Widget child) => CupertinoTheme(
-        child: child,
-        data: CupertinoThemeData(brightness: Brightness.light),
-      );
+  static CupertinoTheme lightTheme(Widget child) {
+    return CupertinoTheme(
+      child: child,
+      data: CupertinoThemeData(brightness: Brightness.light),
+    );
+  }
 
-  static CupertinoTheme darkTheme(Widget child) => CupertinoTheme(
-        child: child,
-        data: CupertinoThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: CupertinoColors.tertiarySystemBackground,
-          textTheme: CupertinoTextThemeData(
-            primaryColor: CupertinoColors.white,
-            textStyle: TextStyle(color: CupertinoColors.white),
-          ),
+  static CupertinoTheme darkTheme(Widget child) {
+    return CupertinoTheme(
+      child: child,
+      data: CupertinoThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: CupertinoColors.tertiarySystemBackground,
+        textTheme: CupertinoTextThemeData(
+          primaryColor: CupertinoColors.white,
+          textStyle: TextStyle(color: CupertinoColors.white),
         ),
-      );
+      ),
+    );
+  }
 
-  static CupertinoTheme theme(Widget child) =>
-      MediaQuery.of(LayoutState.current().context).platformBrightness ==
-              Brightness.dark
-          ? darkTheme(child)
-          : lightTheme(child);
+  static CupertinoTheme theme(Widget child) {
+    final query = MediaQuery.of(LayoutState.current().context);
+    return query.platformBrightness == Brightness.dark
+        ? darkTheme(child)
+        : lightTheme(child);
+  }
 }
 
 class _ApplicationState extends State<Application> {
@@ -95,7 +100,7 @@ class _ApplicationState extends State<Application> {
       _canUseQuickActions = loggedIn && linkSelected && mobile;
 
       if (Platform.isAndroid || Platform.isIOS) {
-        setupQuickActions();
+        _setupQuickActions();
       }
 
       if (!_didUseQuickActions && loggedIn) {
@@ -108,7 +113,7 @@ class _ApplicationState extends State<Application> {
     });
   }
 
-  void setupQuickActions() {
+  void _setupQuickActions() {
     _quickActions.initialize((String shortcutType) {
       if (!_canUseQuickActions) {
         return;

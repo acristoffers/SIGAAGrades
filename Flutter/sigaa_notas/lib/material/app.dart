@@ -45,7 +45,7 @@ class Application extends StatefulWidget {
 }
 
 class _ApplicationState extends State<Application> {
-  final navigatorKey = GlobalKey<NavigatorState>();
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class _ApplicationState extends State<Application> {
               '/frequency': (_) => Layout(FrequencyPage()),
               '/settings': (_) => Layout(SettingsPage()),
             },
-            navigatorKey: navigatorKey,
+            navigatorKey: _navigatorKey,
           ),
         );
       },
@@ -105,9 +105,9 @@ class _ApplicationState extends State<Application> {
 
       if (!_didUseQuickActions && loggedIn) {
         if (linkSelected) {
-          navigatorKey.currentState.pushReplacementNamed('/grades');
+          _navigatorKey.currentState.pushReplacementNamed('/grades');
         } else {
-          navigatorKey.currentState.pushReplacementNamed('/links');
+          _navigatorKey.currentState.pushReplacementNamed('/links');
         }
       }
     });
@@ -121,15 +121,15 @@ class _ApplicationState extends State<Application> {
 
       switch (shortcutType) {
         case 'action:grades':
-          navigatorKey.currentState.pushReplacementNamed('/grades');
+          _navigatorKey.currentState.pushReplacementNamed('/grades');
           _didUseQuickActions = true;
           break;
         case 'action:schedules':
-          navigatorKey.currentState.pushReplacementNamed('/schedules');
+          _navigatorKey.currentState.pushReplacementNamed('/schedules');
           _didUseQuickActions = true;
           break;
         case 'action:frequency':
-          navigatorKey.currentState.pushReplacementNamed('/frequency');
+          _navigatorKey.currentState.pushReplacementNamed('/frequency');
           _didUseQuickActions = true;
           break;
       }

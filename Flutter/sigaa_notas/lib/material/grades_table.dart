@@ -42,11 +42,11 @@ class Table extends StatelessWidget {
             this.title,
             textAlign: TextAlign.center,
           ),
-          subtitle: _verifyCardLength()),
+          subtitle: _bodyOrMessage()),
     );
   }
 
-  Widget _verifyCardLength() {
+  Widget _bodyOrMessage() {
     if (this.course == null) {
       return this.body;
     }

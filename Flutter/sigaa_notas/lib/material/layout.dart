@@ -36,23 +36,22 @@ class LayoutGlobalState {
 }
 
 class Layout extends StatefulWidget {
-  Layout(this.child) : super();
+  Layout(this._child) : super();
 
-  final Widget child;
+  final Widget _child;
 
   @override
-  LayoutState createState() => LayoutState(child);
+  _LayoutState createState() => _LayoutState(_child);
 }
 
-class LayoutState extends State<Layout> {
-  LayoutState(this.child) : super();
+class _LayoutState extends State<Layout> {
+  _LayoutState(this._child) : super();
 
-  final scaffoldKey = GlobalKey<ScaffoldState>(debugLabel: 'ScaffoldKey');
-  var singlePage = true;
-  var title = '';
-  var actions = List<Widget>();
-  Subscription subscription;
-  final Widget child;
+  var _singlePage = true;
+  var _title = '';
+  var _actions = List<Widget>();
+  Subscription _subscription;
+  final Widget _child;
 
   bool get isAboutPage => ModalRoute.of(context).settings.name == '/about';
 
@@ -60,13 +59,13 @@ class LayoutState extends State<Layout> {
   void initState() {
     super.initState();
 
-    subscription = Application.layoutObserver.subscribe((state) {
+    _subscription = Application.layoutObserver.subscribe((state) {
       Timer.run(() {
         if (mounted) {
           setState(() {
-            title = state.title;
-            singlePage = state.singlePage;
-            actions = state.actions;
+            _title = state.title;
+            _singlePage = state.singlePage;
+            _actions = state.actions;
           });
         }
       });
@@ -76,14 +75,14 @@ class LayoutState extends State<Layout> {
   @override
   void dispose() {
     super.dispose();
-    if (subscription != null) {
-      subscription.unsubscribe();
+    if (_subscription != null) {
+      _subscription.unsubscribe();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (singlePage) {
+    if (_singlePage) {
       return singlePageLayout();
     } else {
       if (MediaQuery.of(context).size.width < 900) {
@@ -96,31 +95,28 @@ class LayoutState extends State<Layout> {
 
   Widget singlePageLayout() {
     return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(title: Text(title), actions: actions),
-      body: child,
+      appBar: AppBar(title: Text(_title), actions: _actions),
+      body: _child,
     );
   }
 
   Widget multiPagePhoneLayout() {
     return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(title: Text(title), actions: actions),
+      appBar: AppBar(title: Text(_title), actions: _actions),
       drawer: Drawer(
         child: DrawerPage(
           heroTag: isAboutPage ? '' : 'logo',
         ),
       ),
-      body: child,
+      body: _child,
     );
   }
 
   Widget multiPageTabletLayout() {
     return Scaffold(
-      key: scaffoldKey,
       appBar: AppBar(
-        title: Text(title),
-        actions: actions,
+        title: Text(_title),
+        actions: _actions,
         elevation: 0,
       ),
       body: Row(
@@ -131,7 +127,7 @@ class LayoutState extends State<Layout> {
                 heroTag: isAboutPage ? '' : 'logo',
               ),
               elevation: 0),
-          Expanded(child: child),
+          Expanded(child: _child),
         ],
       ),
     );

@@ -34,7 +34,7 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  var version = '1.1.23';
+  var _version = '1.1.23';
 
   @override
   void initState() {
@@ -48,7 +48,7 @@ class _AboutPageState extends State<AboutPage> {
       PackageInfo.fromPlatform().then((info) {
         if (mounted) {
           setState(() {
-            version = info.version;
+            _version = info.version;
           });
         }
       });
@@ -71,7 +71,7 @@ class _AboutPageState extends State<AboutPage> {
               padding: const EdgeInsets.only(bottom: 40),
               child: Text('SIGAA:Notas', style: TextStyle(fontSize: 40)),
             ),
-            Text('Versão $version'),
+            Text('Versão $_version'),
             Padding(
               padding: EdgeInsets.all(5),
             ),

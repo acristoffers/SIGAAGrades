@@ -56,14 +56,13 @@ class _FrequencyState extends State<FrequencyPage> {
                 controller: _refreshController,
                 onRefresh: () async {
                   await FrequencyService.refresh().then((courses) {
+                    _refreshController.refreshCompleted();
                     if (mounted) {
                       setState(() {
                         _courses.clear();
                         _courses.addAll(courses);
                       });
                     }
-
-                    _refreshController.refreshCompleted();
                   }).catchError((_) => showToast("Erro de conexão"));
                 },
                 child: _courses.isEmpty

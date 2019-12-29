@@ -37,7 +37,7 @@ class Grades extends StatefulWidget {
 
 class _GradesState extends State<Grades> {
   final _courses = List<Course>();
-  final _refreshController = RefreshController(initialRefresh: false);
+  final _refreshController = RefreshController(initialRefresh: true);
   Subscription<bool> _updateSubscription;
   bool _showGrades = true;
 

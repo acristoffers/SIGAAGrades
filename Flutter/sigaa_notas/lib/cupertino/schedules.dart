@@ -20,6 +20,8 @@
  * THE SOFTWARE.
  */
 
+import 'dart:io' show Platform;
+
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -39,7 +41,6 @@ class _SchedulesState extends State<Schedules> {
   final _schedules = List<Schedule>();
   final _refreshController = RefreshController(initialRefresh: true);
   Subscription<bool> _updateSubscription;
-  bool showGrades = true;
 
   @override
   void initState() {
@@ -71,32 +72,35 @@ class _SchedulesState extends State<Schedules> {
       CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: const Text('Horários'),
-          trailing: CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Icon(CupertinoIcons.bookmark_solid),
-            onPressed: () {
-              return _addToCalendar().catchError((e) {
-                if (mounted) {
-                  switch (e.reason) {
-                    case 'no-permission':
-                      showToast('Sem permissão para acessar o calendário.');
-                      break;
-                    case 'calendar-fetch':
-                      showToast('Erro ao listar os calendários.');
-                      break;
-                    case 'no-calendar':
-                      showToast('Não há calendários no dispositivo.');
-                      break;
-                    case 'cancelled':
-                      showToast('Operação cancelada.');
-                      break;
-                    default:
-                      showToast('Erro ao adicionar ao calendário.');
-                  }
-                }
-              });
-            },
-          ),
+          trailing: Platform.isAndroid || Platform.isIOS
+              ? CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: Icon(CupertinoIcons.bookmark_solid),
+                  onPressed: () {
+                    return _addToCalendar().catchError((e) {
+                      if (mounted) {
+                        switch (e.reason) {
+                          case 'no-permission':
+                            showToast(
+                                'Sem permissão para acessar o calendário.');
+                            break;
+                          case 'calendar-fetch':
+                            showToast('Erro ao listar os calendários.');
+                            break;
+                          case 'no-calendar':
+                            showToast('Não há calendários no dispositivo.');
+                            break;
+                          case 'cancelled':
+                            showToast('Operação cancelada.');
+                            break;
+                          default:
+                            showToast('Erro ao adicionar ao calendário.');
+                        }
+                      }
+                    });
+                  },
+                )
+              : null,
         ),
         child: SafeArea(
           child: Center(

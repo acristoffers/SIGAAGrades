@@ -33,7 +33,7 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  var version = '1.1.23';
+  var _version = '1.1.23';
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _AboutPageState extends State<AboutPage> {
       PackageInfo.fromPlatform().then((info) {
         if (mounted) {
           setState(() {
-            version = info.version;
+            _version = info.version;
           });
         }
       });
@@ -76,7 +76,7 @@ class _AboutPageState extends State<AboutPage> {
                               .copyWith(fontSize: 40)),
                     ),
                     Text(
-                      'Versão $version',
+                      'Versão $_version',
                       style: CupertinoTheme.of(context).textTheme.textStyle,
                     ),
                     Padding(
