@@ -20,9 +20,8 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
 import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -31,9 +30,9 @@ import 'package:sigaa_notas/common/observer.dart';
 import 'package:sigaa_notas/material/about.dart';
 import 'package:sigaa_notas/material/frequency.dart';
 import 'package:sigaa_notas/material/grades.dart';
+import 'package:sigaa_notas/material/layout.dart';
 import 'package:sigaa_notas/material/links.dart';
 import 'package:sigaa_notas/material/login.dart';
-import 'package:sigaa_notas/material/layout.dart';
 import 'package:sigaa_notas/material/schedules.dart';
 import 'package:sigaa_notas/material/settings.dart';
 
@@ -99,7 +98,8 @@ class _ApplicationState extends State<Application> {
 
       _canUseQuickActions = loggedIn && linkSelected;
 
-      if (Platform.isAndroid || Platform.isIOS) {
+      final ps = [TargetPlatform.iOS, TargetPlatform.android];
+      if (ps.contains(defaultTargetPlatform)) {
         setupQuickActions();
       }
 

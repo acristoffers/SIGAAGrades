@@ -20,9 +20,8 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -95,11 +94,12 @@ class _ApplicationState extends State<Application> {
     SharedPreferences.getInstance().then((prefs) {
       final bool loggedIn = ['username', 'password'].every(prefs.containsKey);
       final bool linkSelected = prefs.containsKey('link');
-      final bool mobile = Platform.isAndroid || Platform.isIOS;
+      final ps = [TargetPlatform.iOS, TargetPlatform.android];
+      final bool mobile = ps.contains(defaultTargetPlatform);
 
       _canUseQuickActions = loggedIn && linkSelected && mobile;
 
-      if (Platform.isAndroid || Platform.isIOS) {
+      if (mobile) {
         _setupQuickActions();
       }
 

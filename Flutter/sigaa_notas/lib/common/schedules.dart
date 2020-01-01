@@ -20,9 +20,8 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
 import 'package:device_calendar/device_calendar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/common/sigaa.dart';
 import 'package:sigaa_notas/common/utils.dart';
@@ -185,9 +184,9 @@ class SchedulesService {
       await dcp.createOrUpdateEvent(event);
     }
 
-    if (Platform.isAndroid) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       await launch('content://com.android.calendar/time/');
-    } else if (Platform.isIOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       await launch('calshow://');
     }
   }

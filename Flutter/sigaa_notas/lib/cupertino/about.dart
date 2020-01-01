@@ -20,12 +20,11 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sigaa_notas/cupertino/app.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info/package_info.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -39,7 +38,8 @@ class _AboutPageState extends State<AboutPage> {
   void initState() {
     super.initState();
 
-    if (Platform.isIOS || Platform.isAndroid) {
+    final ps = [TargetPlatform.iOS, TargetPlatform.android];
+    if (ps.contains(defaultTargetPlatform)) {
       PackageInfo.fromPlatform().then((info) {
         if (mounted) {
           setState(() {

@@ -20,15 +20,15 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
 import 'package:flutter/cupertino.dart' as cup;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:sigaa_notas/cupertino/app.dart' as main_cup;
 import 'package:sigaa_notas/material/app.dart' as main_mat;
 
 void main() {
-  if (Platform.isMacOS || Platform.isIOS) {
+  final ps = [TargetPlatform.iOS, TargetPlatform.macOS];
+  if (ps.contains(defaultTargetPlatform)) {
     cup.runApp(main_cup.Application());
   } else {
     mat.runApp(main_mat.Application());

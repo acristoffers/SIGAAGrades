@@ -20,8 +20,7 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sigaa_notas/material/app.dart';
@@ -44,7 +43,8 @@ class _AboutPageState extends State<AboutPage> {
       LayoutGlobalState(title: 'Sobre', singlePage: false, actions: <Widget>[]),
     );
 
-    if (Platform.isIOS || Platform.isAndroid) {
+    final ps = [TargetPlatform.iOS, TargetPlatform.android];
+    if (ps.contains(defaultTargetPlatform)) {
       PackageInfo.fromPlatform().then((info) {
         if (mounted) {
           setState(() {

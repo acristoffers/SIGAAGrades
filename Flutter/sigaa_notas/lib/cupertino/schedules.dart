@@ -20,10 +20,9 @@
  * THE SOFTWARE.
  */
 
-import 'dart:io' show Platform;
-
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sigaa_notas/common/observer.dart';
 import 'package:sigaa_notas/common/schedules.dart';
@@ -68,11 +67,12 @@ class _SchedulesState extends State<Schedules> {
 
   @override
   Widget build(BuildContext context) {
+    final ps = [TargetPlatform.iOS, TargetPlatform.android];
     return Application.theme(
       CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: const Text('Horários'),
-          trailing: Platform.isAndroid || Platform.isIOS
+          trailing: ps.contains(defaultTargetPlatform)
               ? CupertinoButton(
                   padding: EdgeInsets.zero,
                   child: Icon(CupertinoIcons.bookmark_solid),
