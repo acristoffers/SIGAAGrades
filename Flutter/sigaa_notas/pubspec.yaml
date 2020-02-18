@@ -12,7 +12,7 @@ description: Automatiza a visualização de notas no site do SIGAA do CEFET/MG.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 
-version: 1.1.24+35
+version: 1.1.25+36
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
