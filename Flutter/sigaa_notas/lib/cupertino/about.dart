@@ -32,7 +32,7 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  var _version = '1.1.23';
+  var _version = '1.1.24';
 
   @override
   void initState() {
