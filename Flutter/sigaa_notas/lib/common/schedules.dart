@@ -171,7 +171,6 @@ class SchedulesService {
       final recurrenceRule = RecurrenceRule(
         RecurrenceFrequency.Weekly,
         endDate: endOfSemester,
-        setPositions: [], // bug in library
       );
 
       event.start = startTime;
