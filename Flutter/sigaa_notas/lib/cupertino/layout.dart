@@ -27,6 +27,7 @@ import 'package:sigaa_notas/cupertino/frequency.dart';
 import 'package:sigaa_notas/cupertino/links.dart';
 import 'package:sigaa_notas/cupertino/login.dart';
 import 'package:sigaa_notas/cupertino/schedules.dart';
+import 'package:sigaa_notas/cupertino/settings.dart';
 
 import 'grades.dart';
 
@@ -73,6 +74,12 @@ class LayoutState extends State<Layout> {
           _tabController.index = 2;
         });
         break;
+      case '/settings':
+        setState(() {
+          _currentWidget = null;
+          _tabController.index = 4;
+        });
+        break;
       default:
         setState(() {
           _currentWidget = Login();
@@ -89,6 +96,7 @@ class LayoutState extends State<Layout> {
           'Horários': CupertinoIcons.time,
           'Frequência': CupertinoIcons.check_mark_circled,
           'Vínculo': CupertinoIcons.collections,
+          'Configurações': CupertinoIcons.settings,
           'Sobre': CupertinoIcons.info
         }
             .entries
@@ -104,6 +112,7 @@ class LayoutState extends State<Layout> {
           () => Schedules(),
           () => FrequencyPage(),
           () => LinkSelectionPage(),
+          () => Settings(),
           () => AboutPage(),
         ];
 

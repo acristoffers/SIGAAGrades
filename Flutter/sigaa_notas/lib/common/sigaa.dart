@@ -37,6 +37,12 @@ class SIGAA {
   var _jsessionid = '';
   var _isLoggedIn = false;
 
+  SharedPreferences _prefs;
+
+  SIGAA() {
+    SharedPreferences.getInstance().then((prefs) => _prefs = prefs);
+  }
+
   Future<http.Response> httpGet(String url, {bool redirect = false}) async {
     final request = http.Request('GET', Uri.parse('$_baseUrl$url'));
     request.followRedirects = redirect;
@@ -458,7 +464,8 @@ class SIGAA {
         .firstWhere((th) => th.text.contains('Período Letivo:'))
         .parent;
     r = RegExp(
-        'De ([0-9]{2}/[0-9]{2}/[0-9]{4}) até ([0-9]{2}/[0-9]{2}/[0-9]{4})');
+      'De ([0-9]{2}/[0-9]{2}/[0-9]{4}) até ([0-9]{2}/[0-9]{2}/[0-9]{4})',
+    );
     final l = tr.children.last.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     final ms = r.allMatches(l);
     final startList = ms.first.group(1).split('/').map(int.parse).toList();
@@ -495,31 +502,8 @@ class SIGAA {
     final end = schedule["end"]?.trim() ?? "";
     final cid = schedule['cid']?.trim() ?? '';
 
-    final startTimes = [
-      {
-        "1": "7:00",
-        "2": "7:50",
-        "3": "8:55",
-        "4": "9:45",
-        "5": "10:50",
-        "6": "11:40"
-      },
-      {"1": "13:50", "2": "14:40", "3": "15:50", "4": "16:40", "5": "17:40"},
-      {"1": "19:00", "2": "19:50", "3": "20:50", "4": "21:40"}
-    ];
-
-    final endTimes = [
-      {
-        "1": "7:50",
-        "2": "8:40",
-        "3": "9:45",
-        "4": "10:35",
-        "5": "11:40",
-        "6": "12:30"
-      },
-      {"1": "14:40", "2": "15:30", "3": "16:40", "4": "17:30", "5": "18:30"},
-      {"1": "19:50", "2": "20:40", "3": "21:40", "4": "22:30"}
-    ];
+    final startTimes = _startTime();
+    final endTimes = _endTime();
 
     final startTime = startTimes[int.parse(shift) - 1][start] ?? "";
     final endTime = endTimes[int.parse(shift) - 1][end] ?? "";
@@ -532,6 +516,126 @@ class SIGAA {
         start: startTime,
         end: endTime,
         cid: cid);
+  }
+
+  List<Map<String, String>> _startTime() {
+    var type = 5;
+    if (_prefs.containsKey('scheduleType')) {
+      type = _prefs.getInt('scheduleType');
+    }
+
+    switch (type) {
+      case 2:
+        return [
+          {
+            "1": "7:00",
+            "2": "7:50",
+            "3": "8:50",
+            "4": "9:40",
+            "5": "10:40",
+            "6": "11:30",
+          },
+          {
+            "1": "13:00",
+            "2": "13:50",
+            "3": "14:50",
+            "4": "15:40",
+            "5": "16:40",
+            "6": "17:30",
+          },
+          {
+            "1": " 19:00",
+            "2": "19:50",
+            "3": "20:50",
+            "4": "21:40",
+          }
+        ];
+        break;
+      default:
+        return [
+          {
+            "1": "7:00",
+            "2": "7:50",
+            "3": "8:55",
+            "4": "9:45",
+            "5": "10:50",
+            "6": "11:40",
+          },
+          {
+            "1": "13:50",
+            "2": "14:40",
+            "3": "15:50",
+            "4": "16:40",
+            "5": "17:40",
+          },
+          {
+            "1": "19:00",
+            "2": "19:50",
+            "3": "20:50",
+            "4": "21:40",
+          }
+        ];
+    }
+  }
+
+  List<Map<String, String>> _endTime() {
+    var type = 5;
+    if (_prefs.containsKey('scheduleType')) {
+      type = _prefs.getInt('scheduleType');
+    }
+
+    switch (type) {
+      case 2:
+        return [
+          {
+            "1": "7:50",
+            "2": "8:40",
+            "3": "9:40",
+            "4": "10:30",
+            "5": "11:30",
+            "6": "12:20"
+          },
+          {
+            "1": "13:50",
+            "2": "14:40",
+            "3": "15:40",
+            "4": "16:30",
+            "5": "17:30",
+            "6": "18:20"
+          },
+          {
+            "1": "19:50",
+            "2": "20:40",
+            "3": "21:40",
+            "4": "22:30",
+          }
+        ];
+        break;
+      default:
+        return [
+          {
+            "1": "7:50",
+            "2": "8:40",
+            "3": "9:45",
+            "4": "10:35",
+            "5": "11:40",
+            "6": "12:30"
+          },
+          {
+            "1": "14:40",
+            "2": "15:30",
+            "3": "16:40",
+            "4": "17:30",
+            "5": "18:30",
+          },
+          {
+            "1": "19:50",
+            "2": "20:40",
+            "3": "21:40",
+            "4": "22:30",
+          }
+        ];
+    }
   }
 }
 

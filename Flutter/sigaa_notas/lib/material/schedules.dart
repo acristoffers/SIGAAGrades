@@ -133,9 +133,7 @@ class _SchedulesState extends State<SchedulesPage> {
 
   Widget _todayCard() {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
         title: Text(

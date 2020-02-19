@@ -22,6 +22,8 @@
 
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sigaa_notas/common/schedules.dart';
 import 'package:sigaa_notas/material/app.dart';
 import 'package:sigaa_notas/material/layout.dart';
 
@@ -31,6 +33,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
+  int _scheduleType = 5;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +44,14 @@ class _SettingsState extends State<SettingsPage> {
       singlePage: false,
       actions: [],
     ));
+
+    SharedPreferences.getInstance().then((prefs) {
+      if (prefs.containsKey('scheduleType')) {
+        setState(() {
+          _scheduleType = prefs.getInt('scheduleType');
+        });
+      }
+    });
   }
 
   @override
@@ -50,11 +62,35 @@ class _SettingsState extends State<SettingsPage> {
         constraints: BoxConstraints.tightForFinite(width: 600),
         child: ListView(
           children: <Widget>[
+            Text('Tema'),
             SwitchListTile(
               title: const Text('Tema Escuro'),
               value: Theme.of(context).brightness == Brightness.dark,
               onChanged: (_) => toggleDarkTheme(context),
               activeColor: Theme.of(context).accentColor,
+            ),
+            Text('Formato de Horários'),
+            RadioListTile(
+              title: Text('Campus II'),
+              value: 2,
+              groupValue: _scheduleType,
+              onChanged: (int v) async {
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setInt('scheduleType', v);
+                setState(() => _scheduleType = v);
+                await SchedulesService.refresh();
+              },
+            ),
+            RadioListTile(
+              title: Text('Campus V'),
+              value: 5,
+              groupValue: _scheduleType,
+              onChanged: (int v) async {
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setInt('scheduleType', v);
+                setState(() => _scheduleType = v);
+                await SchedulesService.refresh();
+              },
             )
           ],
         ),
