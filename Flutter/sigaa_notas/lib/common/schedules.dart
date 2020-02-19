@@ -70,25 +70,26 @@ class SchedulesService {
     final nm = DateTime.now().minute;
     final wd = DateTime.now().weekday + 1;
 
-    final schedules = <Schedule>[];
-    for (final s in schedules.where((s) => s.day == wd)) {
-      try {
-        final xs = s.end.split(':');
-        final sh = int.parse(xs.first);
-        final sm = int.parse(xs.last);
-        if (nh < sh || (nh == sh && nm <= sm)) {
-          schedules.add(s);
-        }
-      } catch (_) {}
-    }
-
-    schedules.sort((a, b) {
-      final sa = int.parse(a.start.split(':').first);
-      final sb = int.parse(b.start.split(':').first);
-      return sa.compareTo(sb);
-    });
-
-    return schedules;
+    return schedules
+        .where((s) => s.day == wd)
+        .map((s) {
+          try {
+            final xs = s.end.split(':');
+            final sh = int.parse(xs.first);
+            final sm = int.parse(xs.last);
+            if (nh < sh || (nh == sh && nm <= sm)) {
+              return s;
+            }
+          } catch (_) {}
+          return null;
+        })
+        .where((s) => s != null)
+        .toList()
+          ..sort((a, b) {
+            final sa = int.parse(a.start.split(':').first);
+            final sb = int.parse(b.start.split(':').first);
+            return sa.compareTo(sb);
+          });
   }
 
   static List<Schedule> sortedForDay(List<Schedule> schedules, int day) {
