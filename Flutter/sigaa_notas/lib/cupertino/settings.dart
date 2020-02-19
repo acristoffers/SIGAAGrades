@@ -66,7 +66,7 @@ class _SettingsState extends State<Settings> {
                         onSelected: (v) async {
                           final prefs = await SharedPreferences.getInstance();
                           prefs.setInt('scheduleType', v);
-                          await SchedulesService.refresh();
+                          SchedulesService.refresh().whenComplete(() => null);
                         },
                         currentSelection: prefs.data.getInt('scheduleType'),
                       ),

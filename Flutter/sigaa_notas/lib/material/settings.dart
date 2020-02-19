@@ -78,7 +78,7 @@ class _SettingsState extends State<SettingsPage> {
                 final prefs = await SharedPreferences.getInstance();
                 prefs.setInt('scheduleType', v);
                 setState(() => _scheduleType = v);
-                await SchedulesService.refresh();
+                SchedulesService.refresh().whenComplete(() => null);
               },
             ),
             RadioListTile(
@@ -89,7 +89,7 @@ class _SettingsState extends State<SettingsPage> {
                 final prefs = await SharedPreferences.getInstance();
                 prefs.setInt('scheduleType', v);
                 setState(() => _scheduleType = v);
-                await SchedulesService.refresh();
+                SchedulesService.refresh().whenComplete(() => null);
               },
             )
           ],
