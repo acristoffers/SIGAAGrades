@@ -478,7 +478,8 @@ class SIGAA {
   }
 
   List<List<int>> _stringToRanges(String str) {
-    final ns = str.split('').map((it) => int.parse(it.trim())).toList();
+    final ns = str.split('').map((it) => int.parse(it.trim())).toSet().toList()
+      ..sort();
     final rs = <List<int>>[];
 
     for (final i in ns) {
@@ -544,7 +545,7 @@ class SIGAA {
             "6": "17:30",
           },
           {
-            "1": " 19:00",
+            "1": "19:00",
             "2": "19:50",
             "3": "20:50",
             "4": "21:40",
