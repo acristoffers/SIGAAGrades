@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = SIGAA Notas
+PRODUCT_NAME = sigaa_notas
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = me.acristoffers.sigaa-notas
+PRODUCT_BUNDLE_IDENTIFIER = sigaa.acristoffers.me.sigaaNotas
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2019 Álan Crístoffer. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2020 sigaa.acristoffers.me. All rights reserved.
