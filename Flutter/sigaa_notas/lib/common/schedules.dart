@@ -86,8 +86,13 @@ class SchedulesService {
         .where((s) => s != null)
         .toList()
           ..sort((a, b) {
-            final sa = int.parse(a.start.split(':').first);
-            final sb = int.parse(b.start.split(':').first);
+            final sa = int.tryParse(a.start.split(':').first);
+            final sb = int.tryParse(b.start.split(':').first);
+
+            if (sa == null || sb == null) {
+              return 1;
+            }
+
             return sa.compareTo(sb);
           });
   }
@@ -95,8 +100,13 @@ class SchedulesService {
   static List<Schedule> sortedForDay(List<Schedule> schedules, int day) {
     final ss = schedules.where((s) => s.day == day).toList();
     ss.sort((a, b) {
-      final sa = int.parse(a.start.split(':').first);
-      final sb = int.parse(b.start.split(':').first);
+      final sa = int.tryParse(a.start.split(':').first);
+      final sb = int.tryParse(b.start.split(':').first);
+
+      if (sa == null || sb == null) {
+        return 1;
+      }
+
       return sa.compareTo(sb);
     });
     return ss;
