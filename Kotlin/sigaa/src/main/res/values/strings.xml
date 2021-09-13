@@ -54,4 +54,8 @@
         <item>30</item>
         <item>60</item>
     </string-array>
+    <string name="notification_grades_title">Grades</string>
+    <string name="notification_grades_text">New grades found.</string>
+    <string name="notification_schedules_title">Schedules</string>
+    <string name="notification_schedules_text">New schedules found.</string>
 </resources>
