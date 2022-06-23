@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key>
-  <string>$(DEVELOPMENT_LANGUAGE)</string>
+  <string>en</string>
   <key>CFBundleExecutable</key>
   <string>App</string>
   <key>CFBundleIdentifier</key>
@@ -21,6 +21,10 @@
   <key>CFBundleVersion</key>
   <string>1.0</string>
   <key>MinimumOSVersion</key>
-  <string>8.0</string>
+  <string>9.0</string>
+  <key>NSCalendarsUsageDescription</key>
+  <string>Access most functions for calendar viewing and editing.</string>
+  <key>NSContactsUsageDescription</key>
+  <string>Access contacts for event attendee editing.</string>
 </dict>
 </plist>

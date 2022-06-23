@@ -23,6 +23,7 @@
 import 'dart:async' show Timer;
 import 'dart:io';
 
+import 'package:timezone/timezone.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:sigaa_notas/common/schedules.dart';

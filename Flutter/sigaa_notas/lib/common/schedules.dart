@@ -25,7 +25,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/common/sigaa.dart';
 import 'package:sigaa_notas/common/utils.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SchedulesService {
   static Future<List<Schedule>> refresh() async {
@@ -85,16 +85,16 @@ class SchedulesService {
         })
         .where((s) => s != null)
         .toList()
-          ..sort((a, b) {
-            final sa = int.tryParse(a.start.split(':').first);
-            final sb = int.tryParse(b.start.split(':').first);
+      ..sort((a, b) {
+        final sa = int.tryParse(a.start.split(':').first);
+        final sb = int.tryParse(b.start.split(':').first);
 
-            if (sa == null || sb == null) {
-              return 1;
-            }
+        if (sa == null || sb == null) {
+          return 1;
+        }
 
-            return sa.compareTo(sb);
-          });
+        return sa.compareTo(sb);
+      });
   }
 
   static List<Schedule> sortedForDay(List<Schedule> schedules, int day) {
@@ -195,9 +195,9 @@ class SchedulesService {
     }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await launch('content://com.android.calendar/time/');
+      await launchUrlString('content://com.android.calendar/time/');
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      await launch('calshow://');
+      await launchUrlString('calshow://');
     }
   }
 }

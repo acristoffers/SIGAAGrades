@@ -1,4 +1,4 @@
-package sigaa.acristoffers.me.sigaa_notas
+package com.example.sigaa_notas
 
 import io.flutter.embedding.android.FlutterActivity
 
