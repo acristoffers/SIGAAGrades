@@ -38,7 +38,7 @@ class Grades extends StatefulWidget {
 }
 
 class _GradesState extends State<Grades> {
-  final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final _courses = <Course>[];
   bool _showGrades = true;
 
@@ -49,7 +49,7 @@ class _GradesState extends State<Grades> {
     getCourses().then((courses) {
       if (!mounted) return;
 
-      if (courses.length == 0) {
+      if (courses.isEmpty) {
         Timer.run(_refreshIndicatorKey.currentState.show);
       }
 
@@ -70,8 +70,8 @@ class _GradesState extends State<Grades> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
-        constraints: BoxConstraints.tightForFinite(width: 600),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints.tightForFinite(width: 600),
         child: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: () async {
@@ -88,10 +88,10 @@ class _GradesState extends State<Grades> {
               }
             });
           },
-          child: _courses.length == 0
+          child: _courses.isEmpty
               ? SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  child: Container(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height,
                     child: EmptyListPage(),
                   ),
@@ -105,7 +105,7 @@ class _GradesState extends State<Grades> {
                       Column(
                         children: <Widget>[
                           DataTable(
-                            columns: [
+                            columns: const [
                               DataColumn(label: Text('Atividade')),
                               DataColumn(label: Text('Total')),
                               DataColumn(label: Text('Nota')),
@@ -123,7 +123,7 @@ class _GradesState extends State<Grades> {
                             ).toList(),
                           ),
                           Padding(
-                            padding: EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(10),
                             child: _verifyShowTotal(course),
                           )
                         ],
@@ -147,7 +147,7 @@ class _GradesState extends State<Grades> {
 
   void _switchShowGrades() {
     setState(() {
-      this._showGrades = !this._showGrades;
+      _showGrades = !_showGrades;
     });
 
     Application.layoutObserver.emit(
@@ -158,22 +158,22 @@ class _GradesState extends State<Grades> {
   }
 
   Widget _verifyShowGrades(String text) {
-    if (this._showGrades) {
+    if (_showGrades) {
       return Text(text);
-    } else if (text.length > 0) {
-      return Text('____');
+    } else if (text.isNotEmpty) {
+      return const Text('____');
     }
-    return Text('');
+    return const Text('');
   }
 
   Widget _verifyShowTotal(var course) {
-    if (this._showGrades) {
+    if (_showGrades) {
       return Text(
         sprintf('Total: %3.2f', [_sumOfGrades(course.grades)]),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       );
     }
-    return Text(
+    return const Text(
       "Total: ______",
       style: TextStyle(fontWeight: FontWeight.bold),
     );

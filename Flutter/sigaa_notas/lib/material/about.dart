@@ -22,12 +22,14 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sigaa_notas/material/app.dart';
 import 'package:sigaa_notas/material/layout.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class AboutPage extends StatefulWidget {
+  const AboutPage({Key key}) : super(key: key);
+
   @override
   _AboutPageState createState() => _AboutPageState();
 }
@@ -58,7 +60,7 @@ class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -67,28 +69,29 @@ class _AboutPageState extends State<AboutPage> {
               tag: 'logo',
               child: Image.asset('assets/images/logo.png', width: 200),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 40),
               child: Text('SIGAA:Notas', style: TextStyle(fontSize: 40)),
             ),
             Text('Versão $_version'),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(5),
             ),
-            Text(
+            const Text(
               'WebScrapper que baixa notas do SIGAA das matérias do semestre atual.\n\nNão é desenvolvido nem endossado pelo CEFET.\n\nNão faz upload de sua senha.\n\nNão funciona se houver mensagem na página inicial.\n\nCódigo fonte disponível em:',
               textAlign: TextAlign.center,
             ),
             InkWell(
               onTap: () {
-                launch('https://github.com/acristoffers/SIGAAGrades');
+                launchUrlString('https://github.com/acristoffers/SIGAAGrades');
               },
               child: Text(
                 'https://github.com/acristoffers/SIGAAGrades',
-                style: TextStyle(color: Theme.of(context).accentColor),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
-            Padding(padding: EdgeInsets.all(30))
+            const Padding(padding: EdgeInsets.all(30))
           ],
         ),
       ),

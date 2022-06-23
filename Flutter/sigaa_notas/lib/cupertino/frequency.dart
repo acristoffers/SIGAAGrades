@@ -35,7 +35,7 @@ class FrequencyPage extends StatefulWidget {
 }
 
 class _FrequencyState extends State<FrequencyPage> {
-  final _courses = List<Course>();
+  final _courses = <Course>[];
   final _refreshController = RefreshController(initialRefresh: true);
 
   @override
@@ -45,26 +45,20 @@ class _FrequencyState extends State<FrequencyPage> {
     return Application.theme(
       CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
+          leading: CupertinoButton(
+            onPressed: _refresh,
+            child: const Text("Atualizar"),
+          ),
           middle: const Text('Frequência'),
         ),
         child: SafeArea(
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(10),
-              constraints: BoxConstraints.tightForFinite(width: 600),
+              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints.tightForFinite(width: 600),
               child: SmartRefresher(
                 controller: _refreshController,
-                onRefresh: () async {
-                  await FrequencyService.refresh().then((courses) {
-                    _refreshController.refreshCompleted();
-                    if (mounted) {
-                      setState(() {
-                        _courses.clear();
-                        _courses.addAll(courses);
-                      });
-                    }
-                  }).catchError((_) => showToast("Erro de conexão"));
-                },
+                onRefresh: _refresh,
                 child: _courses.isEmpty
                     ? EmptyListPage()
                     : ListView.separated(
@@ -76,20 +70,23 @@ class _FrequencyState extends State<FrequencyPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               text(course.name, 1.2),
-                              Padding(padding: EdgeInsets.only(top: 8.0)),
+                              const Padding(padding: EdgeInsets.only(top: 8.0)),
                               text(
-                                  sprintf(
-                                    'Faltas: %d (%3.2f%% do total, %3.2f%% das ministradas)',
-                                    [
-                                      course.frequency.absences,
-                                      100 *
-                                          course.frequency.absences /
-                                          course.frequency.totalClasses,
-                                      100 *
-                                          course.frequency.absences /
-                                          course.frequency.givenClasses,
-                                    ],
-                                  ),
+                                  (course.frequency.totalClasses == 0 ||
+                                          course.frequency.givenClasses == 0)
+                                      ? "Não lançadas"
+                                      : sprintf(
+                                          'Presença: %d (%3.2f%% do total, %3.2f%% das ministradas)',
+                                          [
+                                            course.frequency.presence,
+                                            100 *
+                                                course.frequency.presence /
+                                                course.frequency.totalClasses,
+                                            100 *
+                                                course.frequency.presence /
+                                                course.frequency.givenClasses,
+                                          ],
+                                        ),
                                   0.8)
                             ],
                           );
@@ -103,17 +100,29 @@ class _FrequencyState extends State<FrequencyPage> {
     );
   }
 
+  void _refresh() async {
+    await FrequencyService.refresh().then((courses) {
+      _refreshController.refreshCompleted();
+      if (mounted) {
+        setState(() {
+          _courses.clear();
+          _courses.addAll(courses);
+        });
+      }
+    }).catchError((_) => showToast("Erro de conexão"));
+  }
+
   Widget _separator({Widget child}) => Padding(
         padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
         child: Container(
           width: double.infinity,
-          child: child,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             border: Border(
               bottom:
                   BorderSide(width: 0.0, color: CupertinoColors.inactiveGray),
             ),
           ),
+          child: child,
         ),
       );
 }

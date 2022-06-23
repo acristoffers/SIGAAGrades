@@ -37,7 +37,7 @@ class Schedules extends StatefulWidget {
 }
 
 class _SchedulesState extends State<Schedules> {
-  final _schedules = List<Schedule>();
+  final _schedules = <Schedule>[];
   final _refreshController = RefreshController(initialRefresh: true);
   Subscription<bool> _updateSubscription;
 
@@ -75,7 +75,7 @@ class _SchedulesState extends State<Schedules> {
           trailing: ps.contains(defaultTargetPlatform)
               ? CupertinoButton(
                   padding: EdgeInsets.zero,
-                  child: Icon(CupertinoIcons.bookmark_solid),
+                  child: const Icon(CupertinoIcons.bookmark_solid),
                   onPressed: () {
                     return _addToCalendar().catchError((e) {
                       if (mounted) {
@@ -105,8 +105,8 @@ class _SchedulesState extends State<Schedules> {
         child: SafeArea(
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(10),
-              constraints: BoxConstraints.tightForFinite(width: 600),
+              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints.tightForFinite(width: 600),
               child: SmartRefresher(
                 controller: _refreshController,
                 onRefresh: _refresh,
@@ -142,7 +142,7 @@ class _SchedulesState extends State<Schedules> {
         _text('Hoje', 1.2),
         _separator(),
         ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
               final s = SchedulesService.todaySchedules(_schedules)[index];
@@ -168,7 +168,7 @@ class _SchedulesState extends State<Schedules> {
           padding: const EdgeInsets.only(left: 32.0, top: 8.0),
           child: ListView.separated(
               separatorBuilder: (_, i) => _separator(),
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (BuildContext context, int index) {
                 final s = sortedForDay[index];
@@ -191,13 +191,13 @@ class _SchedulesState extends State<Schedules> {
         padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
         child: Container(
           width: double.infinity,
-          child: child,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             border: Border(
               bottom:
                   BorderSide(width: 0.0, color: CupertinoColors.inactiveGray),
             ),
           ),
+          child: child,
         ),
       );
 
@@ -223,9 +223,9 @@ class _SchedulesState extends State<Schedules> {
     return await showCupertinoModalPopup(
       context: context,
       builder: (c) => CupertinoActionSheet(
-        title: Text('Selecione o calendário'),
+        title: const Text('Selecione o calendário'),
         cancelButton: CupertinoDialogAction(
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
           onPressed: () {
             Navigator.of(context, rootNavigator: true).pop(null);
           },

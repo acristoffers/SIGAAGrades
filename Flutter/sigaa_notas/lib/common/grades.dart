@@ -27,27 +27,27 @@ import 'package:sigaa_notas/common/utils.dart';
 
 class GradesService {
   static Future<List<Course>> refresh() async {
-    final _sigaa = SIGAA();
-    final _db = await getDatabase();
+    final sigaa = SIGAA();
+    final db = await getDatabase();
 
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username');
     final password = prefs.getString('password');
     final link = prefs.getString('link');
 
-    await _sigaa.login(username, password);
-    await _sigaa.httpGet(link);
+    await sigaa.login(username, password);
+    await sigaa.httpGet(link);
 
-    final courses = await _sigaa.listCourses();
-    final fs = await Future.wait(courses.map((c) => _sigaa.listGrades(c)));
+    final courses = await sigaa.listCourses();
+    final fs = await Future.wait(courses.map((c) => sigaa.listGrades(c)));
 
     zip([fs, courses]).forEach((e) => (e[1] as Course).grades = e[0]);
 
-    final links = await _db.query('links', where: 'url=?', whereArgs: [link]);
+    final links = await db.query('links', where: 'url=?', whereArgs: [link]);
     final linkID = links.first['id'];
 
-    await _db.delete('courses', where: null);
-    await _db.delete('grades', where: null);
+    await db.delete('courses', where: null);
+    await db.delete('grades', where: null);
     for (final course in courses) {
       final courseDict = {
         'name': course.name,
@@ -55,7 +55,7 @@ class GradesService {
         'link': linkID,
       };
 
-      final id = await _db.insert('courses', courseDict);
+      final id = await db.insert('courses', courseDict);
 
       for (final grade in course.grades) {
         final gradeDict = {
@@ -65,7 +65,7 @@ class GradesService {
           'course': id,
         };
 
-        await _db.insert('grades', gradeDict);
+        await db.insert('grades', gradeDict);
       }
     }
 

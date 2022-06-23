@@ -31,23 +31,23 @@ class EmptyListPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
+          const Text(
             'O SIGAA é lento, tenha calma.',
             textAlign: TextAlign.center,
           ),
-          Text(
+          const Text(
             'Caso, ao carregar, não apareçam notas, certifique-se de que:',
             textAlign: TextAlign.center,
           ),
-          Text(
+          const Text(
             '1) você está matriculado em disciplinas neste semestre;',
             textAlign: TextAlign.center,
           ),
-          Text(
+          const Text(
             '2) Não há notificaçõe no site do SIGAA.',
             textAlign: TextAlign.center,
           )
-        ].map((e) => Padding(child: e, padding: EdgeInsets.all(10))).toList(),
+        ].map((e) => Padding(padding: const EdgeInsets.all(10), child: e)).toList(),
       ),
     );
   }

@@ -72,7 +72,7 @@ class _LoginState extends State<Login> {
               child: TextField(
                 controller: _usernameController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
@@ -85,7 +85,7 @@ class _LoginState extends State<Login> {
               child: TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
@@ -125,10 +125,10 @@ class _LoginState extends State<Login> {
                 borderRadius: BorderRadius.circular(10),
               ),
               textTheme: ButtonTextTheme.primary,
-              child: Text('Entrar', style: TextStyle(fontSize: 20)),
+              child: const Text('Entrar', style: TextStyle(fontSize: 20)),
             )
           ].map((e) {
-            return Padding(padding: EdgeInsets.all(10), child: e);
+            return Padding(padding: const EdgeInsets.all(10), child: e);
           }).toList(),
         ),
       ),

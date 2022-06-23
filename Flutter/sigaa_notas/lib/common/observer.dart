@@ -38,8 +38,8 @@ class Observer<T> {
 class Subscription<T> {
   Subscription(this._id, this._observer);
 
-  int _id;
-  Observer<T> _observer;
+  final int _id;
+  final Observer<T> _observer;
 
   void unsubscribe() {
     _observer.unsubscribe(_id);

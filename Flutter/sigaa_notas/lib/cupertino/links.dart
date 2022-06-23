@@ -36,8 +36,8 @@ class LinkSelectionPage extends StatefulWidget {
 }
 
 class _LinkSelectionState extends State<LinkSelectionPage> {
-  var _links = List<Link>();
-  var _refreshController = RefreshController(initialRefresh: true);
+  final _links = <Link>[];
+  final _refreshController = RefreshController(initialRefresh: true);
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +65,8 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
         child: SafeArea(
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(10),
-              constraints: BoxConstraints.tightForFinite(width: 600),
+              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints.tightForFinite(width: 600),
               child: SmartRefresher(
                 controller: _refreshController,
                 onRefresh: _refresh,
@@ -75,7 +75,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
                     : ListView.separated(
                         separatorBuilder: (c, i) => Container(
                           width: double.infinity,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
                                   width: 0.0,

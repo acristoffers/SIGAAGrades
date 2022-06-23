@@ -32,7 +32,7 @@ import 'package:sigaa_notas/cupertino/settings.dart';
 import 'grades.dart';
 
 class Layout extends StatefulWidget {
-  Layout({key}) : super(key: key);
+  const Layout({key}) : super(key: key);
 
   @override
   LayoutState createState() => LayoutState();
@@ -46,7 +46,7 @@ class LayoutState extends State<Layout> {
 
   @override
   Widget build(BuildContext context) {
-    return _currentWidget != null ? _currentWidget : _multiPageLayout();
+    return _currentWidget ?? _multiPageLayout();
   }
 
   void navigate(String route) {
@@ -102,7 +102,7 @@ class LayoutState extends State<Layout> {
             .entries
             .map((e) => BottomNavigationBarItem(
                   icon: Icon(e.value),
-                  title: Text(e.key),
+                  label: e.key,
                 ))
             .toList(),
       ),
@@ -113,7 +113,7 @@ class LayoutState extends State<Layout> {
           () => FrequencyPage(),
           () => LinkSelectionPage(),
           () => Settings(),
-          () => AboutPage(),
+          () => const AboutPage(),
         ];
 
         return CupertinoTabView(builder: (_) => ws[index]());

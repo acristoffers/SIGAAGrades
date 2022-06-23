@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:dynamic_themes/dynamic_themes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -37,6 +37,8 @@ import 'package:sigaa_notas/material/schedules.dart';
 import 'package:sigaa_notas/material/settings.dart';
 
 class Application extends StatefulWidget {
+  const Application({Key key}) : super(key: key);
+
   @override
   _ApplicationState createState() => _ApplicationState();
 
@@ -46,23 +48,35 @@ class Application extends StatefulWidget {
 class _ApplicationState extends State<Application> {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
+  final themeCollection = ThemeCollection(themes: {
+    0: ThemeData(
+      primaryColor: Colors.indigo,
+      primaryColorDark: Colors.indigo,
+      secondaryHeaderColor: Colors.white,
+      brightness: Brightness.light,
+      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo)
+          .copyWith(secondary: Colors.indigoAccent),
+    ),
+    1: ThemeData(
+      primaryColor: Colors.indigo,
+      primaryColorDark: Colors.indigo,
+      secondaryHeaderColor: Colors.white,
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo)
+          .copyWith(secondary: Colors.indigoAccent),
+    ),
+  });
+
   @override
   Widget build(BuildContext context) {
     return DynamicTheme(
-      defaultBrightness: Brightness.light,
-      data: (brightness) => ThemeData(
-        primarySwatch: Colors.indigo,
-        primaryColor: Colors.indigo,
-        primaryColorDark: Colors.indigo,
-        secondaryHeaderColor: Colors.white,
-        accentColor: Colors.indigoAccent,
-        brightness: brightness,
-      ),
-      themedWidgetBuilder: (context, theme) {
+      defaultThemeId: 0,
+      themeCollection: themeCollection,
+      builder: (context, theme) {
         return OKToast(
           position: ToastPosition.bottom,
-          backgroundColor: Color.fromARGB(255, 32, 32, 32),
-          textPadding: EdgeInsets.all(8.0),
+          backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+          textPadding: const EdgeInsets.all(8.0),
           child: MaterialApp(
             title: 'SIGAA:Notas',
             theme: theme,
@@ -72,9 +86,9 @@ class _ApplicationState extends State<Application> {
               '/grades': (_) => Layout(Grades()),
               '/schedules': (_) => Layout(SchedulesPage()),
               '/links': (_) => Layout(LinkSelectionPage()),
-              '/about': (_) => Layout(AboutPage()),
+              '/about': (_) => const Layout(AboutPage()),
               '/frequency': (_) => Layout(FrequencyPage()),
-              '/settings': (_) => Layout(SettingsPage()),
+              '/settings': (_) => const Layout(SettingsPage()),
             },
             navigatorKey: _navigatorKey,
           ),
@@ -83,7 +97,7 @@ class _ApplicationState extends State<Application> {
     );
   }
 
-  final QuickActions quickActions = QuickActions();
+  final QuickActions quickActions = const QuickActions();
 
   var _didUseQuickActions = false;
   var _canUseQuickActions = false;

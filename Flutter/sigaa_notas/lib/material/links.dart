@@ -37,8 +37,8 @@ class LinkSelectionPage extends StatefulWidget {
 }
 
 class _LinkSelectionState extends State<LinkSelectionPage> {
-  List<Link> _links = [];
-  final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final List<Link> _links = [];
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -59,8 +59,8 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
-        constraints: BoxConstraints.tightForFinite(width: 600),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints.tightForFinite(width: 600),
         child: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: () async {
@@ -83,10 +83,10 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
               }
             });
           },
-          child: _links.length == 0
+          child: _links.isEmpty
               ? SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  child: Container(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height,
                     child: EmptyListPage(),
                   ),

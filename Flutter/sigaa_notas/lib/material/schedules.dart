@@ -38,7 +38,7 @@ class SchedulesPage extends StatefulWidget {
 }
 
 class _SchedulesState extends State<SchedulesPage> {
-  final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final _schedules = <Schedule>[];
 
   @override
@@ -86,7 +86,7 @@ class _SchedulesState extends State<SchedulesPage> {
     getSchedules().then((schedules) {
       if (!mounted) return;
 
-      if (schedules.length == 0) {
+      if (schedules.isEmpty) {
         Timer.run(_refreshIndicatorKey.currentState.show);
       }
 
@@ -101,8 +101,8 @@ class _SchedulesState extends State<SchedulesPage> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
-        constraints: BoxConstraints.tightForFinite(width: 600),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints.tightForFinite(width: 600),
         child: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: () async {
@@ -118,7 +118,7 @@ class _SchedulesState extends State<SchedulesPage> {
           child: ListView(
             children: <Widget>[
               _todayCard(),
-              Padding(padding: EdgeInsets.all(10)),
+              const Padding(padding: EdgeInsets.all(10)),
               _dayCard(2, 'Segunda'),
               _dayCard(3, 'Terça'),
               _dayCard(4, 'Quarta'),
@@ -135,21 +135,21 @@ class _SchedulesState extends State<SchedulesPage> {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
-        title: Text(
+        contentPadding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+        title: const Text(
           'Hoje',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 20),
         ),
         subtitle: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
               final s = SchedulesService.todaySchedules(_schedules)[index];
               return ListTile(
                 title: Text(
                   s.course,
-                  style: TextStyle(fontSize: 13),
+                  style: const TextStyle(fontSize: 13),
                 ),
                 subtitle: Text(
                   'De ${s.start} até ${s.end}. Local: ${s.local}',
@@ -166,14 +166,14 @@ class _SchedulesState extends State<SchedulesPage> {
       dayName,
       null,
       ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (BuildContext context, int index) {
             final s = SchedulesService.sortedForDay(_schedules, day)[index];
             return ListTile(
               title: Text(
                 s.course,
-                style: TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 13),
               ),
               subtitle: Text(
                 'De ${s.start} até ${s.end}. Local: ${s.local}',
@@ -193,7 +193,7 @@ class _SchedulesState extends State<SchedulesPage> {
             title: const Text('Selecione o calendário'),
             children: calendars
                 .map((c) => Padding(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       child: SimpleDialogOption(
                         onPressed: () => Navigator.pop(context, c),
                         child: Text(c.name),

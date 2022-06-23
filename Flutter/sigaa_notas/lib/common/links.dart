@@ -36,7 +36,9 @@ class LinksService {
     final links = await sigaa.listLinks();
 
     await db.delete('links', where: null);
-    links.forEach((l) => db.insert('links', {'name': l.name, 'url': l.url}));
+    for (var l in links) {
+      db.insert('links', {'name': l.name, 'url': l.url});
+    }
 
     return links;
   }

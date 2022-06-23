@@ -36,7 +36,7 @@ class LayoutGlobalState {
 }
 
 class Layout extends StatefulWidget {
-  Layout(this._child) : super();
+  const Layout(this._child) : super();
 
   final Widget _child;
 
@@ -49,7 +49,7 @@ class _LayoutState extends State<Layout> {
 
   var _singlePage = true;
   var _title = '';
-  var _actions = List<Widget>();
+  var _actions = <Widget>[];
   Subscription _subscription;
   final Widget _child;
 
@@ -122,11 +122,11 @@ class _LayoutState extends State<Layout> {
       body: Row(
         children: <Widget>[
           Drawer(
+              elevation: 0,
               child: DrawerPage(
                 docked: true,
                 heroTag: isAboutPage ? '' : 'logo',
-              ),
-              elevation: 0),
+              )),
           Expanded(child: _child),
         ],
       ),

@@ -51,7 +51,7 @@ class EmptyListPage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: CupertinoTheme.of(context).textTheme.textStyle,
           )
-        ].map((e) => Padding(child: e, padding: EdgeInsets.all(10))).toList(),
+        ].map((e) => Padding(padding: const EdgeInsets.all(10), child: e)).toList(),
       ),
     );
   }

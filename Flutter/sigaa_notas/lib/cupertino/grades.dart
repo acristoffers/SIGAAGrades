@@ -31,12 +31,14 @@ import 'package:sigaa_notas/cupertino/empty_list_view.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Grades extends StatefulWidget {
+  const Grades({Key key}) : super(key: key);
+
   @override
   _GradesState createState() => _GradesState();
 }
 
 class _GradesState extends State<Grades> {
-  final _courses = List<Course>();
+  final _courses = <Course>[];
   final _refreshController = RefreshController(initialRefresh: true);
   Subscription<bool> _updateSubscription;
   bool _showGrades = true;
@@ -73,15 +75,15 @@ class _GradesState extends State<Grades> {
           middle: const Text('Notas'),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
-            child: _getShowGradesIcon(),
             onPressed: _switchShowGrades,
+            child: _getShowGradesIcon(),
           ),
         ),
         child: SafeArea(
           child: Center(
             child: Container(
-              padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-              constraints: BoxConstraints.tightForFinite(width: 600),
+              padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+              constraints: const BoxConstraints.tightForFinite(width: 600),
               child: SmartRefresher(
                 controller: _refreshController,
                 onRefresh: _refresh,
@@ -107,14 +109,14 @@ class _GradesState extends State<Grades> {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         children: <Widget>[
-          Padding(padding: EdgeInsets.all(10)),
+          const Padding(padding: EdgeInsets.all(10)),
           text(course.name, 1.2),
           course.grades.isEmpty
               ? Column(
                   children: <Widget>[
-                    Padding(padding: EdgeInsets.all(10)),
+                    const Padding(padding: EdgeInsets.all(10)),
                     text('A matéria não possui notas cadastradas', 0.8),
-                    Padding(padding: EdgeInsets.all(10)),
+                    const Padding(padding: EdgeInsets.all(10)),
                   ],
                 )
               : Padding(
@@ -165,7 +167,7 @@ class _GradesState extends State<Grades> {
                                 )
                                 .toList(),
                       ),
-                      Padding(padding: EdgeInsets.all(8)),
+                      const Padding(padding: EdgeInsets.all(8)),
                       _verifyShowTotal(course)
                     ],
                   ),
@@ -195,12 +197,12 @@ class _GradesState extends State<Grades> {
 
   Widget _separator({Widget child}) => Container(
         width: double.infinity,
-        child: child,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             bottom: BorderSide(width: 0.0, color: CupertinoColors.inactiveGray),
           ),
         ),
+        child: child,
       );
 
   double _sumOfGrades(List<Grade> grades) => grades
@@ -213,7 +215,7 @@ class _GradesState extends State<Grades> {
 
   void _switchShowGrades() {
     setState(() {
-      this._showGrades = !this._showGrades;
+      _showGrades = !_showGrades;
     });
   }
 
@@ -221,28 +223,28 @@ class _GradesState extends State<Grades> {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
     final text = (t, f) => Text(t, style: textStyle.apply(fontSizeFactor: f));
 
-    if (this._showGrades) {
+    if (_showGrades) {
       return text(grade, 0.8);
-    } else if (grade.length > 0) {
+    } else if (grade.isNotEmpty) {
       return text('____', 0.8);
     }
 
-    return Text('');
+    return const Text('');
   }
 
   Widget _verifyShowTotal(var course) {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
     final text = (t, f) => Text(t, style: textStyle.apply(fontSizeFactor: f));
 
-    return this._showGrades
+    return _showGrades
         ? text(sprintf('Total: %3.2f', [_sumOfGrades(course.grades)]), 0.8)
         : text("Total: ______", 0.8);
   }
 }
 
 extension ExtendedIterable<E> on Iterable<E> {
-  Iterable<T> mapIndex<T>(T f(E e, int i)) {
+  Iterable<T> mapIndex<T>(T Function(E e, int i) f) {
     var i = 0;
-    return this.map((e) => f(e, i++));
+    return map((e) => f(e, i++));
   }
 }

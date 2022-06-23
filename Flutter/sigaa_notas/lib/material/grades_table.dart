@@ -27,19 +27,19 @@ class Table extends StatelessWidget {
   final Widget body;
   final String title;
 
-  Table(this.title, this.course, this.body);
+  const Table(this.title, this.course, this.body);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(5),
+      margin: const EdgeInsets.all(5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
-          contentPadding: EdgeInsets.fromLTRB(5, 15, 5, 0),
+          contentPadding: const EdgeInsets.fromLTRB(5, 15, 5, 0),
           title: Text(
-            this.title,
+            title,
             textAlign: TextAlign.center,
           ),
           subtitle: _bodyOrMessage()),
@@ -47,14 +47,14 @@ class Table extends StatelessWidget {
   }
 
   Widget _bodyOrMessage() {
-    if (this.course == null) {
-      return this.body;
+    if (course == null) {
+      return body;
     }
-    if (this.course.grades.length > 0) {
-      return this.body;
+    if (course.grades.length > 0) {
+      return body;
     } else {
       return Column(
-        children: <Widget>[
+        children: const <Widget>[
           Padding(padding: EdgeInsets.all(10)),
           Text('A matéria não possui notas cadastradas'),
           Padding(padding: EdgeInsets.all(10)),

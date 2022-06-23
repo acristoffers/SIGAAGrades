@@ -21,7 +21,6 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/common/utils.dart';
 
@@ -37,6 +36,15 @@ class DrawerPage extends StatelessWidget {
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.center,
+                end: Alignment.topLeft,
+                colors: [
+                  Colors.indigo,
+                  docked ? Colors.indigo : Colors.indigoAccent
+                ]),
+          ),
           child: Center(
             child: GestureDetector(
               onTap: () => Navigator.pushReplacementNamed(context, '/about'),
@@ -46,7 +54,7 @@ class DrawerPage extends StatelessWidget {
                     tag: heroTag,
                     child: Image.asset('assets/images/logo.png', width: 100),
                   ),
-                  Text(
+                  const Text(
                     'SIGAA:Notas',
                     style: TextStyle(
                       fontSize: 20,
@@ -58,19 +66,10 @@ class DrawerPage extends StatelessWidget {
               ),
             ),
           ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.center,
-                end: Alignment.topLeft,
-                colors: [
-                  Colors.indigo,
-                  docked ? Colors.indigo : Colors.indigoAccent
-                ]),
-          ),
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.assignment),
               Padding(padding: EdgeInsets.all(10)),
               Text('Notas'),
@@ -80,7 +79,7 @@ class DrawerPage extends StatelessWidget {
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.timelapse),
               Padding(padding: EdgeInsets.all(10)),
               Text('Horários'),
@@ -90,7 +89,7 @@ class DrawerPage extends StatelessWidget {
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.airline_seat_recline_normal),
               Padding(padding: EdgeInsets.all(10)),
               Text('Frequência'),
@@ -100,7 +99,7 @@ class DrawerPage extends StatelessWidget {
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.assignment_ind),
               Padding(padding: EdgeInsets.all(10)),
               Text('Alterar Vínculo'),
@@ -110,7 +109,7 @@ class DrawerPage extends StatelessWidget {
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.settings),
               Padding(padding: EdgeInsets.all(10)),
               Text('Configurações'),
@@ -120,7 +119,7 @@ class DrawerPage extends StatelessWidget {
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.assessment),
               Padding(padding: EdgeInsets.all(10)),
               Text('Sobre'),
@@ -130,7 +129,7 @@ class DrawerPage extends StatelessWidget {
         ),
         ListTile(
           title: Row(
-            children: <Widget>[
+            children: const <Widget>[
               Icon(Icons.transit_enterexit),
               Padding(padding: EdgeInsets.all(10)),
               Text('Sair'),

@@ -59,15 +59,15 @@ Future<Database> getDatabase() async {
 }
 
 Future<List<Course>> getCourses() async {
-  final _db = await getDatabase();
+  final db = await getDatabase();
 
   final prefs = await SharedPreferences.getInstance();
   final url = prefs.getString('link');
 
-  final links = await _db.query('links', where: 'url=?', whereArgs: [url]);
+  final links = await db.query('links', where: 'url=?', whereArgs: [url]);
   final linkID = links.first['id'];
 
-  final cs = await _db.query(
+  final cs = await db.query(
     'courses',
     where: 'link=?',
     whereArgs: [linkID],
@@ -76,7 +76,7 @@ Future<List<Course>> getCourses() async {
   final courses = <Course>[];
 
   for (final c in cs) {
-    final gs = await _db.query(
+    final gs = await db.query(
       'grades',
       where: 'course=?',
       whereArgs: [c['id']],
@@ -102,15 +102,15 @@ Future<List<Course>> getCourses() async {
 }
 
 Future<List<Schedule>> getSchedules() async {
-  final _db = await getDatabase();
+  final db = await getDatabase();
 
   final prefs = await SharedPreferences.getInstance();
   final url = prefs.getString('link');
 
-  final links = await _db.query('links', where: 'url=?', whereArgs: [url]);
+  final links = await db.query('links', where: 'url=?', whereArgs: [url]);
   final linkID = links.first['id'];
 
-  final cs = await _db.query(
+  final cs = await db.query(
     'courses',
     where: 'link=?',
     whereArgs: [linkID],
@@ -123,7 +123,7 @@ Future<List<Schedule>> getSchedules() async {
     final course = c['name'];
 
     final ms =
-        await _db.query('schedules', where: 'course=?', whereArgs: [cid]);
+        await db.query('schedules', where: 'course=?', whereArgs: [cid]);
     final ss = ms.map((s) => Schedule(
           course: course,
           local: s['local'],

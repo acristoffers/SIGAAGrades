@@ -22,11 +22,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sigaa_notas/cupertino/app.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class AboutPage extends StatefulWidget {
+  const AboutPage({Key key}) : super(key: key);
+
   @override
   _AboutPageState createState() => _AboutPageState();
 }
@@ -57,9 +59,9 @@ class _AboutPageState extends State<AboutPage> {
         child: SafeArea(
           child: Center(
             child: Container(
-              constraints: BoxConstraints.tightForFinite(width: 600),
+              constraints: const BoxConstraints.tightForFinite(width: 600),
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -79,7 +81,7 @@ class _AboutPageState extends State<AboutPage> {
                       'Versão $_version',
                       style: CupertinoTheme.of(context).textTheme.textStyle,
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(40),
                     ),
                     Text(
@@ -89,7 +91,8 @@ class _AboutPageState extends State<AboutPage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        launch('https://github.com/acristoffers/SIGAAGrades');
+                        launchUrlString(
+                            'https://github.com/acristoffers/SIGAAGrades');
                       },
                       child: Text(
                         'https://github.com/acristoffers/SIGAAGrades',
@@ -98,7 +101,7 @@ class _AboutPageState extends State<AboutPage> {
                             .actionTextStyle,
                       ),
                     ),
-                    Padding(padding: EdgeInsets.all(30))
+                    const Padding(padding: EdgeInsets.all(30))
                   ],
                 ),
               ),

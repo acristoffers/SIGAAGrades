@@ -49,8 +49,8 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Application.theme(
       CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: const Text('Login'),
+        navigationBar: const CupertinoNavigationBar(
+          middle: Text('Login'),
         ),
         child: SafeArea(
           child: Container(
@@ -65,7 +65,7 @@ class _LoginState extends State<Login> {
                     child: CupertinoTextField(
                       controller: _usernameController,
                       keyboardType: TextInputType.number,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
                                 width: 0.0,
@@ -79,7 +79,7 @@ class _LoginState extends State<Login> {
                     child: CupertinoTextField(
                       controller: _passwordController,
                       obscureText: true,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
                                 width: 0.0,
@@ -118,10 +118,10 @@ class _LoginState extends State<Login> {
                               }
                             });
                           },
-                    child: Text('Entrar', style: TextStyle(fontSize: 20)),
+                    child: const Text('Entrar', style: TextStyle(fontSize: 20)),
                   )
                 ].map((e) {
-                  return Padding(padding: EdgeInsets.all(10), child: e);
+                  return Padding(padding: const EdgeInsets.all(10), child: e);
                 }).toList(),
               ),
             ),

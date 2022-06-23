@@ -33,20 +33,21 @@ class Application extends StatefulWidget {
   static final layoutKey = GlobalKey(debugLabel: 'LayoutKey');
   static final updateObserver = Observer<bool>();
 
+  const Application({Key key}) : super(key: key);
+
   @override
   _ApplicationState createState() => _ApplicationState();
 
   static CupertinoTheme lightTheme(Widget child) {
     return CupertinoTheme(
+      data: const CupertinoThemeData(brightness: Brightness.light),
       child: child,
-      data: CupertinoThemeData(brightness: Brightness.light),
     );
   }
 
   static CupertinoTheme darkTheme(Widget child) {
     return CupertinoTheme(
-      child: child,
-      data: CupertinoThemeData(
+      data: const CupertinoThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: CupertinoColors.tertiarySystemBackground,
         textTheme: CupertinoTextThemeData(
@@ -54,6 +55,7 @@ class Application extends StatefulWidget {
           textStyle: TextStyle(color: CupertinoColors.white),
         ),
       ),
+      child: child,
     );
   }
 
@@ -66,19 +68,19 @@ class Application extends StatefulWidget {
 }
 
 class _ApplicationState extends State<Application> {
-  final _quickActions = QuickActions();
+  final _quickActions = const QuickActions();
   var _didUseQuickActions = false;
   var _canUseQuickActions = false;
 
   @override
   Widget build(BuildContext context) {
     return RefreshConfiguration(
-      headerBuilder: () => ClassicHeader(),
+      headerBuilder: () => const ClassicHeader(),
       enableScrollWhenRefreshCompleted: true,
       child: OKToast(
         position: ToastPosition.bottom,
-        backgroundColor: Color.fromARGB(255, 32, 32, 32),
-        textPadding: EdgeInsets.all(8.0),
+        backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+        textPadding: const EdgeInsets.all(8.0),
         child: CupertinoApp(
           title: 'SIGAA:Notas',
           home: Layout(key: Application.layoutKey),

@@ -41,14 +41,14 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Application.theme(
       CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: const Text('Configurações'),
+        navigationBar: const CupertinoNavigationBar(
+          middle: Text('Configurações'),
         ),
         child: SafeArea(
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(10),
-              constraints: BoxConstraints.tightForFinite(width: 600),
+              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints.tightForFinite(width: 600),
               child: FutureBuilder<SharedPreferences>(
                 future: SharedPreferences.getInstance(),
                 builder: (_, prefs) {

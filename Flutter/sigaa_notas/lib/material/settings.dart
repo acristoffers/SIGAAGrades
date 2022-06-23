@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:dynamic_themes/dynamic_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/common/schedules.dart';
@@ -28,6 +28,8 @@ import 'package:sigaa_notas/material/app.dart';
 import 'package:sigaa_notas/material/layout.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({Key key}) : super(key: key);
+
   @override
   _SettingsState createState() => _SettingsState();
 }
@@ -58,20 +60,20 @@ class _SettingsState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
-        constraints: BoxConstraints.tightForFinite(width: 600),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints.tightForFinite(width: 600),
         child: ListView(
           children: <Widget>[
-            Text('Tema'),
+            const Text('Tema'),
             SwitchListTile(
               title: const Text('Tema Escuro'),
               value: Theme.of(context).brightness == Brightness.dark,
               onChanged: (_) => toggleDarkTheme(context),
-              activeColor: Theme.of(context).accentColor,
+              activeColor: Theme.of(context).colorScheme.secondary,
             ),
-            Text('Formato de Horários'),
+            const Text('Formato de Horários'),
             RadioListTile(
-              title: Text('Campus II'),
+              title: const Text('Campus II'),
               value: 2,
               groupValue: _scheduleType,
               onChanged: (int v) async {
@@ -82,7 +84,7 @@ class _SettingsState extends State<SettingsPage> {
               },
             ),
             RadioListTile(
-              title: Text('Campus V'),
+              title: const Text('Campus V'),
               value: 5,
               groupValue: _scheduleType,
               onChanged: (int v) async {
@@ -100,8 +102,6 @@ class _SettingsState extends State<SettingsPage> {
 }
 
 void toggleDarkTheme(BuildContext context) {
-  DynamicTheme.of(context).setBrightness(
-      Theme.of(context).brightness == Brightness.dark
-          ? Brightness.light
-          : Brightness.dark);
+  DynamicTheme.of(context)
+      .setTheme(Theme.of(context).brightness == Brightness.dark ? 0 : 1);
 }

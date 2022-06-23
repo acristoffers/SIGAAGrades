@@ -30,6 +30,7 @@ import 'package:sigaa_notas/common/utils.dart';
 
 class SIGAA {
   final _baseUrl = 'https://sig.cefetmg.br';
+  final _timeout = const Duration(seconds: 10);
 
   var _username = '';
   var _password = '';
@@ -47,7 +48,7 @@ class SIGAA {
     final request = http.Request('GET', Uri.parse('$_baseUrl$url'));
     request.followRedirects = redirect;
     request.headers[HttpHeaders.cookieHeader] = 'JSESSIONID=$_jsessionid';
-    final streamedResponse = await request.send();
+    final streamedResponse = await request.send().timeout(_timeout);
     return await http.Response.fromStream(streamedResponse);
   }
 
@@ -55,12 +56,12 @@ class SIGAA {
     final request = http.Request('POST', Uri.parse('$_baseUrl$url'));
     request.headers[HttpHeaders.cookieHeader] = 'JSESSIONID=$_jsessionid';
     request.bodyFields = body;
-    final streamedResponse = await request.send();
+    final streamedResponse = await request.send().timeout(_timeout);
     return await http.Response.fromStream(streamedResponse);
   }
 
   getJSessionID() async {
-    final url = '/sigaa/verTelaLogin.do';
+    const url = '/sigaa/verTelaLogin.do';
     final response = await httpGet(url);
     final cookies = response.headers['set-cookie'] ?? '';
     cookies.split(';').forEach((x) {
@@ -77,7 +78,7 @@ class SIGAA {
 
     await getJSessionID();
 
-    final url = '/sigaa/logar\.do;jsessionid=$_jsessionid\?dispatch=logOn';
+    final url = '/sigaa/logar.do;jsessionid=$_jsessionid?dispatch=logOn';
 
     final data = {
       'width': '800',
@@ -97,12 +98,12 @@ class SIGAA {
   }
 
   Future<List<Link>> listLinks() async {
-    final url = '/sigaa/vinculos.jsf';
+    const url = '/sigaa/vinculos.jsf';
     final response = await httpGet(url);
     final document = parse(response.body);
 
-    final s1 = 'table.tabela-selecao-vinculo a.withoutFormat';
-    final s2 = 'table.tabela-selecao-vinculo a.withoutFormatInativo';
+    const s1 = 'table.tabela-selecao-vinculo a.withoutFormat';
+    const s2 = 'table.tabela-selecao-vinculo a.withoutFormatInativo';
     final linksAtivos = document.querySelectorAll(s1);
     final linksInativos = document.querySelectorAll(s2);
     final links = partition(linksAtivos + linksInativos, 3);
@@ -118,7 +119,7 @@ class SIGAA {
   }
 
   Future<List<Course>> listCourses() async {
-    final url = '/sigaa/verPortalDiscente.do';
+    const url = '/sigaa/verPortalDiscente.do';
     final homeResponse = await httpGet(url, redirect: true);
     final document = parse(homeResponse.body);
 
@@ -157,7 +158,7 @@ class SIGAA {
 
     final courses = await sigaa.listCourses();
     final data = courses.firstWhere((c) => c.cid == course.cid).data;
-    final courseUrl = '/sigaa/portais/discente/discente.jsf';
+    const courseUrl = '/sigaa/portais/discente/discente.jsf';
 
     final coursePage = await sigaa.httpPost(courseUrl, data);
 
@@ -188,7 +189,7 @@ class SIGAA {
       cdata["formMenuDrop:menuVerNotas:hidden"] = "formMenuDrop:menuVerNotas";
     }
 
-    final gradesUrl = '/sigaa/ava/index.jsf';
+    const gradesUrl = '/sigaa/ava/index.jsf';
     final response = await sigaa.httpPost(gradesUrl, cdata);
 
     if (!response.body.contains('tabelaRelatorio')) {
@@ -196,13 +197,29 @@ class SIGAA {
     }
 
     final document2 = parse(response.body);
-    final table = document2.querySelectorAll('table.tabelaRelatorio').first;
+    final tables = document2.querySelectorAll('table.tabelaRelatorio');
+    if (tables.isEmpty) {
+      return [];
+    }
+    final table = tables.first;
 
     final tr = table.querySelectorAll('tbody tr').first;
     final vn = tr.querySelectorAll('td').map((td) => td.text.trim()).toList();
     final v = vn.sublist(2, vn.length - 5);
 
-    final tr2 = table.querySelectorAll('tr#trAval').first;
+    final tr2s = table.querySelectorAll('tr#trAval');
+    if (tr2s.isEmpty) {
+      final grades = v
+          .map((e) => Grade(
+              id: 0,
+              activityName: "?",
+              scoreValue: e.replaceAll(",", "."),
+              totalValue: "?"))
+          .toList();
+      return grades;
+    }
+
+    final tr2 = tr2s.first;
     final ids = tr2
         .querySelectorAll('th[id]')
         .map((th) => th.attributes['id'])
@@ -239,7 +256,7 @@ class SIGAA {
   }
 
   Future<List<Schedule>> listSchedules() async {
-    final url = '/sigaa/verPortalDiscente.do';
+    const url = '/sigaa/verPortalDiscente.do';
     final homeResponse = await httpGet(url, redirect: true);
     final document = parse(homeResponse.body);
 
@@ -332,7 +349,7 @@ class SIGAA {
 
     final courses = await sigaa.listCourses();
     final data = courses.firstWhere((c) => c.cid == course.cid).data;
-    final courseUrl = '/sigaa/portais/discente/discente.jsf';
+    const courseUrl = '/sigaa/portais/discente/discente.jsf';
     final coursePage = await sigaa.httpPost(courseUrl, data);
 
     var document = parse(coursePage.body);
@@ -366,45 +383,27 @@ class SIGAA {
     final text = document.querySelectorAll('#scroll-wrapper').first.text;
 
     if (text.contains('A frequência ainda não foi lançada.')) {
-      return Frequency(absences: 0, givenClasses: 0, totalClasses: 0);
+      return Frequency(presence: 0, givenClasses: 0, totalClasses: 0);
     }
 
-    final text2 = document.querySelectorAll('#barraDireita').first.text;
-    final r = RegExp(
-      r'Aulas[ ]+\(Ministradas/Total\):[ ]+([0-9]+)[ ]+/[ ]+([0-9]+)',
-    );
-    final m2 = r.allMatches(text2).first;
-    final givenClasses = int.parse(m2.group(1));
-    final totalClasses = int.parse(m2.group(2));
-
-    var absences = -1;
-
-    // New page style (only absences count)
-    try {
-      final absencesStr = document
-          .querySelectorAll('div')
-          .lastWhere((d) => d.text.contains('Total de Faltas:'))
-          .text
-          .split(':')
-          .last
-          .trim();
-      absences = int.parse(absencesStr);
-    } catch (_) {}
-
-    // Old page style (lots of information)
-    try {
-      final r = RegExp(r'Frequência:[ ]+([0-9]+)');
-      final m = r.allMatches(text);
-      final s = m.first.group(1);
-      absences = givenClasses - int.parse(s);
-    } catch (_) {}
-
-    if (absences < 0) {
-      return Frequency(absences: 0, totalClasses: 0, givenClasses: 0);
+    final divInfo = document.querySelectorAll(".botoes-show");
+    if (divInfo.isEmpty) {
+      return Frequency(presence: 0, givenClasses: 0, totalClasses: 0);
     }
+
+    final infoText = divInfo.first.text;
+
+    final r1 = RegExp(r'Presenças Registradas: *([0-9]+)');
+    final r2 = RegExp(r'Número de Aulas com Registro de Frequência: *([0-9]+)');
+    final r3 =
+        RegExp(r'Número de Aulas definidas pela CH do Componente: *([0-9]+)');
+
+    final presence = int.parse(r1.allMatches(infoText).first.group(1));
+    final givenClasses = int.parse(r2.allMatches(infoText).first.group(1));
+    final totalClasses = int.parse(r3.allMatches(infoText).first.group(1));
 
     return Frequency(
-      absences: absences,
+      presence: presence,
       totalClasses: totalClasses,
       givenClasses: givenClasses,
     );
@@ -483,7 +482,7 @@ class SIGAA {
     final rs = <List<int>>[];
 
     for (final i in ns) {
-      final x = rs.length > 0 ? rs.last.elementAt(1) : i;
+      final x = rs.isNotEmpty ? rs.last.elementAt(1) : i;
       if ((i - 1) == x) {
         rs[rs.length - 1] = [rs.last[0], i];
       } else {
@@ -720,14 +719,14 @@ class Schedule {
 }
 
 class Frequency {
-  Frequency({this.absences, this.givenClasses, this.totalClasses});
+  Frequency({this.presence, this.givenClasses, this.totalClasses});
 
-  final int absences;
+  final int presence;
   final int givenClasses;
   final int totalClasses;
 
   @override
   String toString() {
-    return 'Frequency(frequency=$absences, givenClasses=$givenClasses, totalClasses=$totalClasses)';
+    return 'Frequency(frequency=$presence, givenClasses=$givenClasses, totalClasses=$totalClasses)';
   }
 }

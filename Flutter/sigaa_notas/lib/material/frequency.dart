@@ -37,7 +37,7 @@ class FrequencyPage extends StatefulWidget {
 }
 
 class _FrequencyState extends State<FrequencyPage> {
-  final _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final _courses = <Course>[];
 
   @override
@@ -59,8 +59,8 @@ class _FrequencyState extends State<FrequencyPage> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
-        constraints: BoxConstraints.tightForFinite(width: 600),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints.tightForFinite(width: 600),
         child: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: () async {
@@ -73,10 +73,10 @@ class _FrequencyState extends State<FrequencyPage> {
               }
             }).catchError((_) => showToast("Erro de conexão"));
           },
-          child: _courses.length == 0
+          child: _courses.isEmpty
               ? SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  child: Container(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height,
                     child: EmptyListPage(),
                   ),
@@ -85,24 +85,28 @@ class _FrequencyState extends State<FrequencyPage> {
                   itemBuilder: (BuildContext context, int index) {
                     final course = _courses[index];
                     return Card(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
                         title: Text(course.name),
                         subtitle: Text(
-                          sprintf(
-                              'Faltas: %d (%3.2f%% do total, %3.2f%% das ministradas)',
-                              [
-                                course.frequency.absences,
-                                100 *
-                                    course.frequency.absences /
-                                    course.frequency.totalClasses,
-                                100 *
-                                    course.frequency.absences /
-                                    course.frequency.givenClasses,
-                              ]),
+                          (course.frequency.totalClasses == 0 ||
+                                  course.frequency.givenClasses == 0)
+                              ? "Não lançadas"
+                              : sprintf(
+                                  'Presença: %d (%3.2f%% do total, %3.2f%% das ministradas)',
+                                  [
+                                    course.frequency.presence,
+                                    100 *
+                                        course.frequency.presence /
+                                        course.frequency.totalClasses,
+                                    100 *
+                                        course.frequency.presence /
+                                        course.frequency.givenClasses,
+                                  ],
+                                ),
                         ),
                       ),
                     );

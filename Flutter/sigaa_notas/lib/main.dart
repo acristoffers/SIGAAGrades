@@ -29,8 +29,8 @@ import 'package:sigaa_notas/material/app.dart' as main_mat;
 void main() {
   final ps = [TargetPlatform.iOS, TargetPlatform.macOS];
   if (ps.contains(defaultTargetPlatform)) {
-    cup.runApp(main_cup.Application());
+    cup.runApp(const main_cup.Application());
   } else {
-    mat.runApp(main_mat.Application());
+    mat.runApp(const main_mat.Application());
   }
 }
