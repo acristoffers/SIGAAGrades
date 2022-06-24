@@ -49,12 +49,8 @@ class _FrequencyState extends State<FrequencyPage> {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
     return Application.theme(
       CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          leading: CupertinoButton(
-            onPressed: _refresh,
-            child: const Text("Atualizar"),
-          ),
-          middle: const Text('Frequência'),
+        navigationBar: const CupertinoNavigationBar(
+          middle: Text('Frequência'),
         ),
         child: SafeArea(
           child: Center(
