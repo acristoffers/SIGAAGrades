@@ -32,6 +32,8 @@ import 'package:sigaa_notas/material/layout.dart';
 import 'package:sprintf/sprintf.dart';
 
 class FrequencyPage extends StatefulWidget {
+  const FrequencyPage({Key? key}) : super(key: key);
+
   @override
   _FrequencyState createState() => _FrequencyState();
 }
@@ -52,7 +54,7 @@ class _FrequencyState extends State<FrequencyPage> {
       ),
     );
 
-    Timer.run(() => _refreshIndicatorKey.currentState.show());
+    Timer.run(() => _refreshIndicatorKey.currentState!.show());
   }
 
   @override
@@ -71,14 +73,16 @@ class _FrequencyState extends State<FrequencyPage> {
                   _courses.addAll(courses);
                 });
               }
-            }).catchError((_) => showToast("Erro de conexão"));
+            }).catchError((_) {
+              showToast("Erro de conexão");
+            });
           },
           child: _courses.isEmpty
               ? SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height,
-                    child: EmptyListPage(),
+                    child: const EmptyListPage(),
                   ),
                 )
               : ListView.builder(
@@ -92,19 +96,19 @@ class _FrequencyState extends State<FrequencyPage> {
                       child: ListTile(
                         title: Text(course.name),
                         subtitle: Text(
-                          (course.frequency.totalClasses == 0 ||
-                                  course.frequency.givenClasses == 0)
+                          (course.frequency!.totalClasses == 0 ||
+                                  course.frequency!.givenClasses == 0)
                               ? "Não lançadas"
                               : sprintf(
                                   'Presença: %d (%3.2f%% do total, %3.2f%% das ministradas)',
                                   [
-                                    course.frequency.presence,
+                                    course.frequency!.presence,
                                     100 *
-                                        course.frequency.presence /
-                                        course.frequency.totalClasses,
+                                        course.frequency!.presence /
+                                        course.frequency!.totalClasses,
                                     100 *
-                                        course.frequency.presence /
-                                        course.frequency.givenClasses,
+                                        course.frequency!.presence /
+                                        course.frequency!.givenClasses,
                                   ],
                                 ),
                         ),

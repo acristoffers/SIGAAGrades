@@ -32,6 +32,8 @@ import 'package:sigaa_notas/cupertino/app.dart';
 import 'package:sigaa_notas/cupertino/empty_list_view.dart';
 
 class Schedules extends StatefulWidget {
+  const Schedules({Key? key}) : super(key: key);
+
   @override
   _SchedulesState createState() => _SchedulesState();
 }
@@ -39,7 +41,7 @@ class Schedules extends StatefulWidget {
 class _SchedulesState extends State<Schedules> {
   final _schedules = <Schedule>[];
   final _refreshController = RefreshController(initialRefresh: true);
-  Subscription<bool> _updateSubscription;
+  late Subscription<bool> _updateSubscription;
 
   @override
   void initState() {
@@ -55,7 +57,7 @@ class _SchedulesState extends State<Schedules> {
     });
 
     _updateSubscription = Application.updateObserver.subscribe((_) {
-      return _refreshController.requestRefresh();
+      _refreshController.requestRefresh();
     });
   }
 
@@ -77,7 +79,7 @@ class _SchedulesState extends State<Schedules> {
                   padding: EdgeInsets.zero,
                   child: const Icon(CupertinoIcons.bookmark_solid),
                   onPressed: () {
-                    return _addToCalendar().catchError((e) {
+                    _addToCalendar().catchError((e) {
                       if (mounted) {
                         switch (e.reason) {
                           case 'no-permission':
@@ -111,7 +113,7 @@ class _SchedulesState extends State<Schedules> {
                 controller: _refreshController,
                 onRefresh: _refresh,
                 child: _schedules.isEmpty
-                    ? EmptyListPage()
+                    ? const EmptyListPage()
                     : ListView(
                         children: <Widget>[
                           _todayEntry(),
@@ -145,7 +147,7 @@ class _SchedulesState extends State<Schedules> {
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
-              final s = SchedulesService.todaySchedules(_schedules)[index];
+              final s = SchedulesService.todaySchedules(_schedules)[index]!;
               return Column(
                 children: <Widget>[
                   _text(s.course, 1),
@@ -187,7 +189,7 @@ class _SchedulesState extends State<Schedules> {
     );
   }
 
-  Widget _separator({Widget child}) => Padding(
+  Widget _separator({Widget? child}) => Padding(
         padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
         child: Container(
           width: double.infinity,
@@ -219,7 +221,7 @@ class _SchedulesState extends State<Schedules> {
     });
   }
 
-  Future<Calendar> _showDialog(List<Calendar> calendars) async {
+  Future<Calendar?> _showDialog(List<Calendar> calendars) async {
     return await showCupertinoModalPopup(
       context: context,
       builder: (c) => CupertinoActionSheet(
@@ -232,7 +234,7 @@ class _SchedulesState extends State<Schedules> {
         ),
         actions: calendars
             .map((c) => CupertinoDialogAction(
-                  child: Text(c.name),
+                  child: Text(c.name!),
                   onPressed: () {
                     Navigator.of(context, rootNavigator: true).pop(c);
                   },
@@ -245,7 +247,7 @@ class _SchedulesState extends State<Schedules> {
   Future<void> _addToCalendar() async {
     final calendars = await SchedulesService.listCalendars();
 
-    if (calendars.isEmpty) {
+    if (calendars == null || calendars.isEmpty) {
       throw SimpleException('no-calendars');
     }
 

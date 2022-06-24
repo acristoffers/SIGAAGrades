@@ -23,7 +23,6 @@
 import 'dart:async' show Timer;
 import 'dart:io';
 
-import 'package:timezone/timezone.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:sigaa_notas/common/schedules.dart';
@@ -34,6 +33,8 @@ import 'package:sigaa_notas/material/grades_table.dart' as table;
 import 'package:sigaa_notas/material/layout.dart';
 
 class SchedulesPage extends StatefulWidget {
+  const SchedulesPage({Key? key}) : super(key: key);
+
   @override
   _SchedulesState createState() => _SchedulesState();
 }
@@ -56,7 +57,7 @@ class _SchedulesState extends State<SchedulesPage> {
                   icon: const Icon(Icons.calendar_today),
                   tooltip: 'Adicionar ao calendário',
                   onPressed: () {
-                    return _addToCalendar().catchError((e) {
+                    _addToCalendar().catchError((e) {
                       if (mounted) {
                         switch (e.reason) {
                           case 'no-permission':
@@ -88,7 +89,7 @@ class _SchedulesState extends State<SchedulesPage> {
       if (!mounted) return;
 
       if (schedules.isEmpty) {
-        Timer.run(_refreshIndicatorKey.currentState.show);
+        Timer.run(_refreshIndicatorKey.currentState!.show);
       }
 
       setState(() {
@@ -146,7 +147,7 @@ class _SchedulesState extends State<SchedulesPage> {
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
-              final s = SchedulesService.todaySchedules(_schedules)[index];
+              final s = SchedulesService.todaySchedules(_schedules)[index]!;
               return ListTile(
                 title: Text(
                   s.course,
@@ -185,7 +186,7 @@ class _SchedulesState extends State<SchedulesPage> {
     );
   }
 
-  Future<Calendar> _showDialog(List<Calendar> calendars) async {
+  Future<Calendar?> _showDialog(List<Calendar> calendars) async {
     return await showDialog<Calendar>(
         context: context,
         barrierDismissible: true,
@@ -197,7 +198,7 @@ class _SchedulesState extends State<SchedulesPage> {
                       padding: const EdgeInsets.all(10),
                       child: SimpleDialogOption(
                         onPressed: () => Navigator.pop(context, c),
-                        child: Text(c.name),
+                        child: Text(c.name!),
                       ),
                     ))
                 .toList(),
@@ -208,7 +209,7 @@ class _SchedulesState extends State<SchedulesPage> {
   Future<void> _addToCalendar() async {
     final calendars = await SchedulesService.listCalendars();
 
-    if (calendars.isEmpty) {
+    if (calendars == null || calendars.isEmpty) {
       throw SimpleException('no-calendars');
     }
 

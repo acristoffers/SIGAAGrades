@@ -12,10 +12,10 @@ description: Automatiza a visualização de notas no site do SIGAA do CEFET/MG.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 
-version: 1.1.28+39
+version: 1.2.0+40
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -38,16 +38,18 @@ dependencies:
   pull_to_refresh: ^2.0.0
   package_info_plus: ^1.4.2
   dapackages: ^1.1.1
-  timezone: ^0.8.0
 
 # dev_dependencies:
 #   flutter_test:
 #     sdk: flutter
+  collection: ^1.15.0-nullsafety.4
+  timezone: ^0.8.0
 
 flutter_icons:
   android: "ic_launcher"
   ios: true
   image_path: "assets/images/logo.png"
+  remove_alpha_ios: true
 
 # The following section is specific to Flutter.
 flutter:

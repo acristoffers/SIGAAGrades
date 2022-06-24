@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 /*
  * Copyright (c) 2019 Álan Crístoffer
  *
@@ -28,7 +30,7 @@ class DrawerPage extends StatelessWidget {
   final bool docked;
   final String heroTag;
 
-  const DrawerPage({this.docked = false, this.heroTag = 'logo'});
+  const DrawerPage({Key? key, this.docked = false, this.heroTag = 'logo'});
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +147,7 @@ class DrawerPage extends StatelessWidget {
             await db.delete('courses', where: null);
             await db.delete('grades', where: null);
             await db.delete('schedules', where: null);
+            // ignore: use_build_context_synchronously
             Navigator.pushReplacementNamed(context, '/login');
           },
         ),

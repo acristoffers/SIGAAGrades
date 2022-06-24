@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.sigaa_notas">
+    package="sigaa.acristoffers.me.sigaagrades">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
 
     <application
-        android:label="sigaa_notas"
+        android:label="SIGAA:Notas"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

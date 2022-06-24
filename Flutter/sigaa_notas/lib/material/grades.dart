@@ -22,6 +22,7 @@
 
 import 'dart:async' show Timer;
 
+import 'package:collection/collection.dart' show IterableNullableExtension;
 import 'package:flutter/material.dart';
 import 'package:sigaa_notas/common/grades.dart';
 import 'package:sigaa_notas/common/sigaa.dart';
@@ -33,6 +34,8 @@ import 'package:sigaa_notas/material/layout.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Grades extends StatefulWidget {
+  const Grades({Key? key}) : super(key: key);
+
   @override
   _GradesState createState() => _GradesState();
 }
@@ -50,7 +53,7 @@ class _GradesState extends State<Grades> {
       if (!mounted) return;
 
       if (courses.isEmpty) {
-        Timer.run(_refreshIndicatorKey.currentState.show);
+        Timer.run(_refreshIndicatorKey.currentState!.show);
       }
 
       setState(() {
@@ -93,7 +96,7 @@ class _GradesState extends State<Grades> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height,
-                    child: EmptyListPage(),
+                    child: const EmptyListPage(),
                   ),
                 )
               : ListView.builder(
@@ -110,7 +113,7 @@ class _GradesState extends State<Grades> {
                               DataColumn(label: Text('Total')),
                               DataColumn(label: Text('Nota')),
                             ],
-                            rows: course.grades.map(
+                            rows: course.grades!.map(
                               (g) {
                                 return DataRow(
                                   cells: [
@@ -139,7 +142,7 @@ class _GradesState extends State<Grades> {
 
   double _sumOfGrades(List<Grade> grades) => grades
       .map((g) => double.tryParse(g.scoreValue))
-      .where((e) => e != null)
+      .whereNotNull()
       .fold(0, (a, e) => a + e);
 
   Widget _getShowGradesIcon() =>
@@ -157,10 +160,10 @@ class _GradesState extends State<Grades> {
     );
   }
 
-  Widget _verifyShowGrades(String text) {
+  Widget _verifyShowGrades(String? text) {
     if (_showGrades) {
-      return Text(text);
-    } else if (text.isNotEmpty) {
+      return Text(text!);
+    } else if (text!.isNotEmpty) {
       return const Text('____');
     }
     return const Text('');

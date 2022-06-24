@@ -37,7 +37,7 @@ import 'package:sigaa_notas/material/schedules.dart';
 import 'package:sigaa_notas/material/settings.dart';
 
 class Application extends StatefulWidget {
-  const Application({Key key}) : super(key: key);
+  const Application({Key? key}) : super(key: key);
 
   @override
   _ApplicationState createState() => _ApplicationState();
@@ -54,16 +54,20 @@ class _ApplicationState extends State<Application> {
       primaryColorDark: Colors.indigo,
       secondaryHeaderColor: Colors.white,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo)
-          .copyWith(secondary: Colors.indigoAccent),
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.indigo,
+        brightness: Brightness.light,
+      ).copyWith(secondary: Colors.indigoAccent),
     ),
     1: ThemeData(
       primaryColor: Colors.indigo,
       primaryColorDark: Colors.indigo,
       secondaryHeaderColor: Colors.white,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo)
-          .copyWith(secondary: Colors.indigoAccent),
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.indigo,
+        brightness: Brightness.dark,
+      ).copyWith(secondary: Colors.indigoAccent),
     ),
   });
 
@@ -82,12 +86,12 @@ class _ApplicationState extends State<Application> {
             theme: theme,
             initialRoute: '/login',
             routes: {
-              '/login': (_) => Layout(Login()),
-              '/grades': (_) => Layout(Grades()),
-              '/schedules': (_) => Layout(SchedulesPage()),
-              '/links': (_) => Layout(LinkSelectionPage()),
+              '/login': (_) => const Layout(Login()),
+              '/grades': (_) => const Layout(Grades()),
+              '/schedules': (_) => const Layout(SchedulesPage()),
+              '/links': (_) => const Layout(LinkSelectionPage()),
               '/about': (_) => const Layout(AboutPage()),
-              '/frequency': (_) => Layout(FrequencyPage()),
+              '/frequency': (_) => const Layout(FrequencyPage()),
               '/settings': (_) => const Layout(SettingsPage()),
             },
             navigatorKey: _navigatorKey,
@@ -119,9 +123,9 @@ class _ApplicationState extends State<Application> {
 
       if (!_didUseQuickActions && loggedIn) {
         if (linkSelected) {
-          _navigatorKey.currentState.pushReplacementNamed('/grades');
+          _navigatorKey.currentState!.pushReplacementNamed('/grades');
         } else {
-          _navigatorKey.currentState.pushReplacementNamed('/links');
+          _navigatorKey.currentState!.pushReplacementNamed('/links');
         }
       }
     });
@@ -135,15 +139,15 @@ class _ApplicationState extends State<Application> {
 
       switch (shortcutType) {
         case 'action:grades':
-          _navigatorKey.currentState.pushReplacementNamed('/grades');
+          _navigatorKey.currentState!.pushReplacementNamed('/grades');
           _didUseQuickActions = true;
           break;
         case 'action:schedules':
-          _navigatorKey.currentState.pushReplacementNamed('/schedules');
+          _navigatorKey.currentState!.pushReplacementNamed('/schedules');
           _didUseQuickActions = true;
           break;
         case 'action:frequency':
-          _navigatorKey.currentState.pushReplacementNamed('/frequency');
+          _navigatorKey.currentState!.pushReplacementNamed('/frequency');
           _didUseQuickActions = true;
           break;
       }

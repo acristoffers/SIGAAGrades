@@ -28,6 +28,8 @@ import 'package:sigaa_notas/cupertino/app.dart';
 import 'package:sigaa_notas/cupertino/layout.dart';
 
 class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
+
   @override
   _LoginState createState() => _LoginState();
 }
@@ -101,7 +103,7 @@ class _LoginState extends State<Login> {
 
                             LoginService.login(username, password)
                                 .then((_) =>
-                                    LayoutState.current().navigate('/links'))
+                                    LayoutState.current()!.navigate('/links'))
                                 .catchError((e) {
                               if (mounted) {
                                 if (e

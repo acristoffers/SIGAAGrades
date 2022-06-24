@@ -40,9 +40,10 @@ class Layout extends StatefulWidget {
 
 class LayoutState extends State<Layout> {
   final _tabController = CupertinoTabController(initialIndex: 0);
-  Widget _currentWidget = Login();
+  Widget? _currentWidget = const Login();
 
-  static LayoutState current() => Application.layoutKey.currentState;
+  static LayoutState? current() =>
+      Application.layoutKey.currentState as LayoutState?;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class LayoutState extends State<Layout> {
     switch (route) {
       case '/links':
         setState(() {
-          _currentWidget = LinkSelectionPage();
+          _currentWidget = const LinkSelectionPage();
         });
         break;
       case '/grades':
@@ -82,7 +83,7 @@ class LayoutState extends State<Layout> {
         break;
       default:
         setState(() {
-          _currentWidget = Login();
+          _currentWidget = const Login();
         });
     }
   }
@@ -108,11 +109,11 @@ class LayoutState extends State<Layout> {
       ),
       tabBuilder: (_, index) {
         final ws = [
-          () => Grades(),
-          () => Schedules(),
-          () => FrequencyPage(),
-          () => LinkSelectionPage(),
-          () => Settings(),
+          () => const Grades(),
+          () => const Schedules(),
+          () => const FrequencyPage(),
+          () => const LinkSelectionPage(),
+          () => const Settings(),
           () => const AboutPage(),
         ];
 

@@ -28,6 +28,8 @@ import 'package:sigaa_notas/material/app.dart';
 import 'package:sigaa_notas/material/layout.dart';
 
 class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
+
   @override
   _LoginState createState() => _LoginState();
 }
@@ -93,7 +95,7 @@ class _LoginState extends State<Login> {
                 ),
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               onPressed: _loginClicked
                   ? null
                   : () {
@@ -120,11 +122,6 @@ class _LoginState extends State<Login> {
                         }
                       });
                     },
-              color: Theme.of(context).primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              textTheme: ButtonTextTheme.primary,
               child: const Text('Entrar', style: TextStyle(fontSize: 20)),
             )
           ].map((e) {

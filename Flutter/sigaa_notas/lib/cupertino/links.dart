@@ -31,6 +31,8 @@ import 'package:sigaa_notas/cupertino/empty_list_view.dart';
 import 'package:sigaa_notas/cupertino/layout.dart';
 
 class LinkSelectionPage extends StatefulWidget {
+  const LinkSelectionPage({Key? key}) : super(key: key);
+
   @override
   _LinkSelectionState createState() => _LinkSelectionState();
 }
@@ -58,7 +60,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
               await db.delete('courses', where: null);
               await db.delete('grades', where: null);
               await db.delete('schedules', where: null);
-              LayoutState.current().navigate('/login');
+              LayoutState.current()!.navigate('/login');
             },
           ),
         ),
@@ -71,7 +73,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
                 controller: _refreshController,
                 onRefresh: _refresh,
                 child: _links.isEmpty
-                    ? EmptyListPage()
+                    ? const EmptyListPage()
                     : ListView.separated(
                         separatorBuilder: (c, i) => Container(
                           width: double.infinity,
@@ -123,7 +125,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('link', link.url);
     Application.updateObserver.emit(true);
-    LayoutState.current().navigate('/grades');
+    LayoutState.current()!.navigate('/grades');
   }
 
   Future<void> _refresh() async {
@@ -140,7 +142,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
       } else {
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('link', links.first.url);
-        LayoutState.current().navigate('/grades');
+        LayoutState.current()!.navigate('/grades');
       }
     }).catchError((_) {
       if (mounted) {

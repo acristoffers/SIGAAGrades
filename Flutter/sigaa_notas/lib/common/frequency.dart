@@ -27,9 +27,9 @@ class FrequencyService {
   static Future<List<Course>> refresh() async {
     final sigaa = SIGAA();
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-    final link = prefs.getString('link');
+    final username = prefs.getString('username')!;
+    final password = prefs.getString('password')!;
+    final link = prefs.getString('link')!;
 
     await sigaa.login(username, password);
     await sigaa.httpGet(link);

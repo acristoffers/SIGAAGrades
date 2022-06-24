@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, no_logic_in_create_state
+
 /*
  * Copyright (c) 2019 Álan Crístoffer
  *
@@ -30,9 +32,9 @@ import 'package:sigaa_notas/material/drawer.dart';
 class LayoutGlobalState {
   LayoutGlobalState({this.title, this.singlePage, this.actions});
 
-  var title = '';
-  var singlePage = false;
-  var actions = <Widget>[];
+  String? title = '';
+  bool? singlePage = false;
+  List<Widget>? actions = <Widget>[];
 }
 
 class Layout extends StatefulWidget {
@@ -47,13 +49,13 @@ class Layout extends StatefulWidget {
 class _LayoutState extends State<Layout> {
   _LayoutState(this._child) : super();
 
-  var _singlePage = true;
-  var _title = '';
-  var _actions = <Widget>[];
-  Subscription _subscription;
+  bool? _singlePage = true;
+  String? _title = '';
+  List<Widget>? _actions = <Widget>[];
+  Subscription? _subscription;
   final Widget _child;
 
-  bool get isAboutPage => ModalRoute.of(context).settings.name == '/about';
+  bool get isAboutPage => ModalRoute.of(context)!.settings.name == '/about';
 
   @override
   void initState() {
@@ -76,13 +78,13 @@ class _LayoutState extends State<Layout> {
   void dispose() {
     super.dispose();
     if (_subscription != null) {
-      _subscription.unsubscribe();
+      _subscription!.unsubscribe();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_singlePage) {
+    if (_singlePage!) {
       return singlePageLayout();
     } else {
       if (MediaQuery.of(context).size.width < 900) {
@@ -95,14 +97,14 @@ class _LayoutState extends State<Layout> {
 
   Widget singlePageLayout() {
     return Scaffold(
-      appBar: AppBar(title: Text(_title), actions: _actions),
+      appBar: AppBar(title: Text(_title!), actions: _actions),
       body: _child,
     );
   }
 
   Widget multiPagePhoneLayout() {
     return Scaffold(
-      appBar: AppBar(title: Text(_title), actions: _actions),
+      appBar: AppBar(title: Text(_title!), actions: _actions),
       drawer: Drawer(
         child: DrawerPage(
           heroTag: isAboutPage ? '' : 'logo',
@@ -115,7 +117,7 @@ class _LayoutState extends State<Layout> {
   Widget multiPageTabletLayout() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_title),
+        title: Text(_title!),
         actions: _actions,
         elevation: 0,
       ),

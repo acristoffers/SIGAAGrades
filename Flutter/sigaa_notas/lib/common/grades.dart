@@ -31,9 +31,9 @@ class GradesService {
     final db = await getDatabase();
 
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-    final link = prefs.getString('link');
+    final username = prefs.getString('username')!;
+    final password = prefs.getString('password')!;
+    final link = prefs.getString('link')!;
 
     await sigaa.login(username, password);
     await sigaa.httpGet(link);
@@ -41,7 +41,8 @@ class GradesService {
     final courses = await sigaa.listCourses();
     final fs = await Future.wait(courses.map((c) => sigaa.listGrades(c)));
 
-    zip([fs, courses]).forEach((e) => (e[1] as Course).grades = e[0]);
+    zip([fs, courses])
+        .forEach((e) => (e[1] as Course).grades = e[0] as List<Grade>?);
 
     final links = await db.query('links', where: 'url=?', whereArgs: [link]);
     final linkID = links.first['id'];
@@ -57,7 +58,7 @@ class GradesService {
 
       final id = await db.insert('courses', courseDict);
 
-      for (final grade in course.grades) {
+      for (final grade in course.grades!) {
         final gradeDict = {
           'activityName': grade.activityName,
           'scoreValue': grade.scoreValue,

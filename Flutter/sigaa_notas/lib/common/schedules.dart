@@ -20,11 +20,13 @@
  * THE SOFTWARE.
  */
 
+import 'package:collection/collection.dart' show IterableNullableExtension;
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sigaa_notas/common/sigaa.dart';
 import 'package:sigaa_notas/common/utils.dart';
+import 'package:timezone/timezone.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SchedulesService {
@@ -33,9 +35,9 @@ class SchedulesService {
     final db = await getDatabase();
 
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-    final link = prefs.getString('link');
+    final username = prefs.getString('username')!;
+    final password = prefs.getString('password')!;
+    final link = prefs.getString('link')!;
 
     await sigaa.login(username, password);
     await sigaa.httpGet(link);
@@ -65,7 +67,7 @@ class SchedulesService {
     return schedules;
   }
 
-  static List<Schedule> todaySchedules(List<Schedule> schedules) {
+  static List<Schedule?> todaySchedules(List<Schedule> schedules) {
     final nh = DateTime.now().hour;
     final nm = DateTime.now().minute;
     final wd = DateTime.now().weekday + 1;
@@ -83,7 +85,7 @@ class SchedulesService {
           } catch (_) {}
           return null;
         })
-        .where((s) => s != null)
+        .whereNotNull()
         .toList()
       ..sort((a, b) {
         final sa = int.tryParse(a.start.split(':').first);
@@ -112,13 +114,13 @@ class SchedulesService {
     return ss;
   }
 
-  static Future<List<Calendar>> listCalendars() async {
+  static Future<List<Calendar>?> listCalendars() async {
     final dcp = DeviceCalendarPlugin();
 
     var permission = await dcp.hasPermissions();
-    if (permission.isSuccess && !permission.data) {
+    if (permission.isSuccess && !permission.data!) {
       permission = await dcp.requestPermissions();
-      if (!permission.isSuccess || !permission.data) {
+      if (!permission.isSuccess || !permission.data!) {
         throw SimpleException('no-permission');
       }
     }
@@ -137,9 +139,9 @@ class SchedulesService {
   ) async {
     // Get Start and End of Semester
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-    final link = prefs.getString('link');
+    final username = prefs.getString('username')!;
+    final password = prefs.getString('password')!;
+    final link = prefs.getString('link')!;
 
     final sigaa = SIGAA();
     await sigaa.login(username, password);
@@ -184,8 +186,8 @@ class SchedulesService {
         endDate: endOfSemester,
       );
 
-      event.start = startTime;
-      event.end = endTime;
+      event.start = startTime as TZDateTime;
+      event.end = endTime as TZDateTime;
       event.location = schedule.local;
       event.title = schedule.course;
       event.recurrenceRule = recurrenceRule;

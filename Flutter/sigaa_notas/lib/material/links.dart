@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 /*
  * Copyright (c) 2019 Álan Crístoffer
  *
@@ -32,6 +34,8 @@ import 'package:sigaa_notas/material/empty_list_view.dart';
 import 'package:sigaa_notas/material/layout.dart';
 
 class LinkSelectionPage extends StatefulWidget {
+  const LinkSelectionPage({Key? key}) : super(key: key);
+
   @override
   _LinkSelectionState createState() => _LinkSelectionState();
 }
@@ -52,7 +56,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
       ),
     );
 
-    Timer.run(() => _refreshIndicatorKey.currentState.show());
+    Timer.run(() => _refreshIndicatorKey.currentState!.show());
   }
 
   @override
@@ -88,7 +92,7 @@ class _LinkSelectionState extends State<LinkSelectionPage> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height,
-                    child: EmptyListPage(),
+                    child: const EmptyListPage(),
                   ),
                 )
               : ListView.builder(

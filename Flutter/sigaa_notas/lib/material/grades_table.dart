@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 /*
  * Copyright (c) 2019 Álan Crístoffer
  *
@@ -21,11 +23,12 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:sigaa_notas/common/sigaa.dart';
 
 class Table extends StatelessWidget {
-  final course;
+  final Course? course;
   final Widget body;
-  final String title;
+  final String? title;
 
   const Table(this.title, this.course, this.body);
 
@@ -39,7 +42,7 @@ class Table extends StatelessWidget {
       child: ListTile(
           contentPadding: const EdgeInsets.fromLTRB(5, 15, 5, 0),
           title: Text(
-            title,
+            title!,
             textAlign: TextAlign.center,
           ),
           subtitle: _bodyOrMessage()),
@@ -49,8 +52,7 @@ class Table extends StatelessWidget {
   Widget _bodyOrMessage() {
     if (course == null) {
       return body;
-    }
-    if (course.grades.length > 0) {
+    } else if (course!.grades!.isNotEmpty) {
       return body;
     } else {
       return Column(

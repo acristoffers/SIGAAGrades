@@ -28,8 +28,8 @@ class LinksService {
   static Future<List<Link>> refresh() async {
     final prefs = await SharedPreferences.getInstance();
     final db = await getDatabase();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
+    final username = prefs.getString('username')!;
+    final password = prefs.getString('password')!;
     final sigaa = SIGAA();
 
     await sigaa.login(username, password);

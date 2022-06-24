@@ -23,6 +23,8 @@
 import 'package:flutter/material.dart';
 
 class EmptyListPage extends StatelessWidget {
+  const EmptyListPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -47,7 +49,9 @@ class EmptyListPage extends StatelessWidget {
             '2) Não há notificaçõe no site do SIGAA.',
             textAlign: TextAlign.center,
           )
-        ].map((e) => Padding(padding: const EdgeInsets.all(10), child: e)).toList(),
+        ]
+            .map((e) => Padding(padding: const EdgeInsets.all(10), child: e))
+            .toList(),
       ),
     );
   }

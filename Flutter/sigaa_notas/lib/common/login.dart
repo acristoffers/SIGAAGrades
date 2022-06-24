@@ -25,7 +25,7 @@ import 'package:sigaa_notas/common/sigaa.dart';
 import 'package:sigaa_notas/common/utils.dart';
 
 class LoginService {
-  static Future<void> login(username, password) async {
+  static Future<void> login(String username, String password) async {
     final loggedIn = await SIGAA().login(username, password);
     if (loggedIn) {
       final prefs = await SharedPreferences.getInstance();

@@ -28,14 +28,14 @@ import 'package:sigaa_notas/material/app.dart';
 import 'package:sigaa_notas/material/layout.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key key}) : super(key: key);
+  const SettingsPage({Key? key}) : super(key: key);
 
   @override
   _SettingsState createState() => _SettingsState();
 }
 
 class _SettingsState extends State<SettingsPage> {
-  int _scheduleType = 5;
+  int? _scheduleType = 5;
 
   @override
   void initState() {
@@ -76,9 +76,9 @@ class _SettingsState extends State<SettingsPage> {
               title: const Text('Campus II'),
               value: 2,
               groupValue: _scheduleType,
-              onChanged: (int v) async {
+              onChanged: (int? v) async {
                 final prefs = await SharedPreferences.getInstance();
-                prefs.setInt('scheduleType', v);
+                prefs.setInt('scheduleType', v!);
                 setState(() => _scheduleType = v);
                 SchedulesService.refresh().whenComplete(() => null);
               },
@@ -87,9 +87,9 @@ class _SettingsState extends State<SettingsPage> {
               title: const Text('Campus V'),
               value: 5,
               groupValue: _scheduleType,
-              onChanged: (int v) async {
+              onChanged: (int? v) async {
                 final prefs = await SharedPreferences.getInstance();
-                prefs.setInt('scheduleType', v);
+                prefs.setInt('scheduleType', v!);
                 setState(() => _scheduleType = v);
                 SchedulesService.refresh().whenComplete(() => null);
               },
@@ -102,6 +102,6 @@ class _SettingsState extends State<SettingsPage> {
 }
 
 void toggleDarkTheme(BuildContext context) {
-  DynamicTheme.of(context)
+  DynamicTheme.of(context)!
       .setTheme(Theme.of(context).brightness == Brightness.dark ? 0 : 1);
 }

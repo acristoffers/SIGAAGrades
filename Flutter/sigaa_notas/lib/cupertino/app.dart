@@ -33,7 +33,7 @@ class Application extends StatefulWidget {
   static final layoutKey = GlobalKey(debugLabel: 'LayoutKey');
   static final updateObserver = Observer<bool>();
 
-  const Application({Key key}) : super(key: key);
+  const Application({Key? key}) : super(key: key);
 
   @override
   _ApplicationState createState() => _ApplicationState();
@@ -60,7 +60,7 @@ class Application extends StatefulWidget {
   }
 
   static CupertinoTheme theme(Widget child) {
-    final query = MediaQuery.of(LayoutState.current().context);
+    final query = MediaQuery.of(LayoutState.current()!.context);
     return query.platformBrightness == Brightness.dark
         ? darkTheme(child)
         : lightTheme(child);
@@ -107,9 +107,9 @@ class _ApplicationState extends State<Application> {
 
       if (!_didUseQuickActions && loggedIn) {
         if (linkSelected) {
-          LayoutState.current().navigate('/grades');
+          LayoutState.current()!.navigate('/grades');
         } else {
-          LayoutState.current().navigate('/links');
+          LayoutState.current()!.navigate('/links');
         }
       }
     });
@@ -123,15 +123,15 @@ class _ApplicationState extends State<Application> {
 
       switch (shortcutType) {
         case 'action:grades':
-          LayoutState.current().navigate('/grades');
+          LayoutState.current()!.navigate('/grades');
           _didUseQuickActions = true;
           break;
         case 'action:schedules':
-          LayoutState.current().navigate('/schedules');
+          LayoutState.current()!.navigate('/schedules');
           _didUseQuickActions = true;
           break;
         case 'action:frequency':
-          LayoutState.current().navigate('/frequency');
+          LayoutState.current()!.navigate('/frequency');
           _didUseQuickActions = true;
           break;
       }

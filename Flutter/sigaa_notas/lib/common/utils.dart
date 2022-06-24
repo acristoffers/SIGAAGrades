@@ -83,15 +83,15 @@ Future<List<Course>> getCourses() async {
     );
 
     final grades = gs.map((g) => Grade(
-        id: g['id'],
-        activityName: g['activityName'],
-        scoreValue: g['scoreValue'],
-        totalValue: g['totalValue']));
+        id: g['id'] as int,
+        activityName: g['activityName'] as String,
+        scoreValue: g['scoreValue'] as String,
+        totalValue: g['totalValue'] as String));
 
     final course = Course(
-        id: c['id'],
-        cid: c['cid'],
-        name: c['name'],
+        id: c['id'] as int,
+        cid: c['cid'] as String,
+        name: c['name'] as String,
         data: {},
         grades: grades.toList());
 
@@ -122,16 +122,15 @@ Future<List<Schedule>> getSchedules() async {
     final cid = c['id'];
     final course = c['name'];
 
-    final ms =
-        await db.query('schedules', where: 'course=?', whereArgs: [cid]);
+    final ms = await db.query('schedules', where: 'course=?', whereArgs: [cid]);
     final ss = ms.map((s) => Schedule(
-          course: course,
-          local: s['local'],
-          day: s['day'],
-          shift: s['shift'],
-          start: s['start'],
-          end: s['end'],
-          cid: c['cid'],
+          course: course as String,
+          local: s['local'] as String,
+          day: s['day'] as int,
+          shift: s['shift'] as int,
+          start: s['start'] as String,
+          end: s['end'] as String,
+          cid: c['cid'] as String,
         ));
 
     schedules.addAll(ss);
@@ -140,7 +139,7 @@ Future<List<Schedule>> getSchedules() async {
   return schedules;
 }
 
-T firstOrNull<T>(Iterable<T> xs) {
+T? firstOrNull<T>(Iterable<T> xs) {
   try {
     return xs.first;
   } catch (_) {

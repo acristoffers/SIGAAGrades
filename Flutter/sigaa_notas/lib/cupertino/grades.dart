@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
+import 'package:collection/collection.dart' show IterableNullableExtension;
 import 'package:flutter/cupertino.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sigaa_notas/common/grades.dart';
@@ -31,7 +32,7 @@ import 'package:sigaa_notas/cupertino/empty_list_view.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Grades extends StatefulWidget {
-  const Grades({Key key}) : super(key: key);
+  const Grades({Key? key}) : super(key: key);
 
   @override
   _GradesState createState() => _GradesState();
@@ -40,7 +41,7 @@ class Grades extends StatefulWidget {
 class _GradesState extends State<Grades> {
   final _courses = <Course>[];
   final _refreshController = RefreshController(initialRefresh: true);
-  Subscription<bool> _updateSubscription;
+  late Subscription<bool> _updateSubscription;
   bool _showGrades = true;
 
   @override
@@ -57,7 +58,7 @@ class _GradesState extends State<Grades> {
     });
 
     _updateSubscription = Application.updateObserver.subscribe((_) {
-      return _refreshController.requestRefresh();
+      _refreshController.requestRefresh();
     });
   }
 
@@ -88,7 +89,7 @@ class _GradesState extends State<Grades> {
                 controller: _refreshController,
                 onRefresh: _refresh,
                 child: _courses.isEmpty
-                    ? EmptyListPage()
+                    ? const EmptyListPage()
                     : ListView.separated(
                         separatorBuilder: (c, i) => _separator(),
                         itemBuilder: (_, i) => _courseEntry(_courses[i]),
@@ -102,20 +103,24 @@ class _GradesState extends State<Grades> {
     );
   }
 
+  Widget text(textStyle, t, f) {
+    return Text(t, style: textStyle.apply(fontSizeFactor: f));
+  }
+
   Widget _courseEntry(Course course) {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    final text = (t, f) => Text(t, style: textStyle.apply(fontSizeFactor: f));
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         children: <Widget>[
           const Padding(padding: EdgeInsets.all(10)),
-          text(course.name, 1.2),
-          course.grades.isEmpty
+          text(textStyle, course.name, 1.2),
+          course.grades!.isEmpty
               ? Column(
                   children: <Widget>[
                     const Padding(padding: EdgeInsets.all(10)),
-                    text('A matéria não possui notas cadastradas', 0.8),
+                    text(textStyle, 'A matéria não possui notas cadastradas',
+                        0.8),
                     const Padding(padding: EdgeInsets.all(10)),
                   ],
                 )
@@ -132,14 +137,14 @@ class _GradesState extends State<Grades> {
                                     children: ['Atividade', 'Total', 'Nota']
                                         .mapIndex((e, i) => Expanded(
                                               flex: i == 0 ? 2 : 1,
-                                              child: text(e, 0.8),
+                                              child: text(textStyle, e, 0.8),
                                             ))
                                         .toList(),
                                   ),
                                 ),
                               )
                             ] +
-                            course.grades
+                            course.grades!
                                 .map(
                                   (grade) => _separator(
                                     child: Padding(
@@ -148,12 +153,13 @@ class _GradesState extends State<Grades> {
                                         children: [
                                           Expanded(
                                             flex: 2,
-                                            child:
-                                                text(grade.activityName, 0.8),
+                                            child: text(textStyle,
+                                                grade.activityName, 0.8),
                                           ),
                                           Expanded(
                                             flex: 1,
-                                            child: text(grade.totalValue, 0.8),
+                                            child: text(textStyle,
+                                                grade.totalValue, 0.8),
                                           ),
                                           Expanded(
                                             flex: 1,
@@ -195,7 +201,7 @@ class _GradesState extends State<Grades> {
     });
   }
 
-  Widget _separator({Widget child}) => Container(
+  Widget _separator({Widget? child}) => Container(
         width: double.infinity,
         decoration: const BoxDecoration(
           border: Border(
@@ -207,7 +213,7 @@ class _GradesState extends State<Grades> {
 
   double _sumOfGrades(List<Grade> grades) => grades
       .map((g) => double.tryParse(g.scoreValue))
-      .where((e) => e != null)
+      .whereNotNull()
       .fold(0, (a, e) => a + e);
 
   Widget _getShowGradesIcon() => Icon(
@@ -219,14 +225,13 @@ class _GradesState extends State<Grades> {
     });
   }
 
-  Widget _verifyShowGrades(String grade) {
+  Widget _verifyShowGrades(String? grade) {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    final text = (t, f) => Text(t, style: textStyle.apply(fontSizeFactor: f));
 
     if (_showGrades) {
-      return text(grade, 0.8);
-    } else if (grade.isNotEmpty) {
-      return text('____', 0.8);
+      return text(textStyle, grade, 0.8);
+    } else if (grade!.isNotEmpty) {
+      return text(textStyle, '____', 0.8);
     }
 
     return const Text('');
@@ -234,11 +239,11 @@ class _GradesState extends State<Grades> {
 
   Widget _verifyShowTotal(var course) {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    final text = (t, f) => Text(t, style: textStyle.apply(fontSizeFactor: f));
 
     return _showGrades
-        ? text(sprintf('Total: %3.2f', [_sumOfGrades(course.grades)]), 0.8)
-        : text("Total: ______", 0.8);
+        ? text(textStyle,
+            sprintf('Total: %3.2f', [_sumOfGrades(course.grades)]), 0.8)
+        : text(textStyle, "Total: ______", 0.8);
   }
 }
 

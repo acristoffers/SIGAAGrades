@@ -30,6 +30,8 @@ import 'package:sigaa_notas/cupertino/empty_list_view.dart';
 import 'package:sprintf/sprintf.dart';
 
 class FrequencyPage extends StatefulWidget {
+  const FrequencyPage({Key? key}) : super(key: key);
+
   @override
   _FrequencyState createState() => _FrequencyState();
 }
@@ -38,10 +40,13 @@ class _FrequencyState extends State<FrequencyPage> {
   final _courses = <Course>[];
   final _refreshController = RefreshController(initialRefresh: true);
 
+  Widget text(textStyle, t, f) {
+    return Text(t, style: textStyle.apply(fontSizeFactor: f));
+  }
+
   @override
   Widget build(BuildContext context) {
     final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    final text = (t, f) => Text(t, style: textStyle.apply(fontSizeFactor: f));
     return Application.theme(
       CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
@@ -60,7 +65,7 @@ class _FrequencyState extends State<FrequencyPage> {
                 controller: _refreshController,
                 onRefresh: _refresh,
                 child: _courses.isEmpty
-                    ? EmptyListPage()
+                    ? const EmptyListPage()
                     : ListView.separated(
                         separatorBuilder: (_, i) => _separator(),
                         itemCount: _courses.length,
@@ -69,22 +74,23 @@ class _FrequencyState extends State<FrequencyPage> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              text(course.name, 1.2),
+                              text(textStyle, course.name, 1.2),
                               const Padding(padding: EdgeInsets.only(top: 8.0)),
                               text(
-                                  (course.frequency.totalClasses == 0 ||
-                                          course.frequency.givenClasses == 0)
+                                  textStyle,
+                                  (course.frequency!.totalClasses == 0 ||
+                                          course.frequency!.givenClasses == 0)
                                       ? "Não lançadas"
                                       : sprintf(
                                           'Presença: %d (%3.2f%% do total, %3.2f%% das ministradas)',
                                           [
-                                            course.frequency.presence,
+                                            course.frequency!.presence,
                                             100 *
-                                                course.frequency.presence /
-                                                course.frequency.totalClasses,
+                                                course.frequency!.presence /
+                                                course.frequency!.totalClasses,
                                             100 *
-                                                course.frequency.presence /
-                                                course.frequency.givenClasses,
+                                                course.frequency!.presence /
+                                                course.frequency!.givenClasses,
                                           ],
                                         ),
                                   0.8)
@@ -109,10 +115,12 @@ class _FrequencyState extends State<FrequencyPage> {
           _courses.addAll(courses);
         });
       }
-    }).catchError((_) => showToast("Erro de conexão"));
+    }).catchError((_) {
+      showToast("Erro de conexão");
+    });
   }
 
-  Widget _separator({Widget child}) => Padding(
+  Widget _separator({Widget? child}) => Padding(
         padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
         child: Container(
           width: double.infinity,

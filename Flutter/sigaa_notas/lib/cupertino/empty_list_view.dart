@@ -23,6 +23,8 @@
 import 'package:flutter/cupertino.dart';
 
 class EmptyListPage extends StatelessWidget {
+  const EmptyListPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -51,7 +53,9 @@ class EmptyListPage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: CupertinoTheme.of(context).textTheme.textStyle,
           )
-        ].map((e) => Padding(padding: const EdgeInsets.all(10), child: e)).toList(),
+        ]
+            .map((e) => Padding(padding: const EdgeInsets.all(10), child: e))
+            .toList(),
       ),
     );
   }

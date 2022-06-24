@@ -27,6 +27,8 @@ import 'package:sigaa_notas/common/schedules.dart';
 import 'package:sigaa_notas/cupertino/app.dart';
 
 class Settings extends StatefulWidget {
+  const Settings({Key? key}) : super(key: key);
+
   @override
   _SettingsState createState() => _SettingsState();
 }
@@ -68,7 +70,7 @@ class _SettingsState extends State<Settings> {
                           prefs.setInt('scheduleType', v);
                           SchedulesService.refresh().whenComplete(() => null);
                         },
-                        currentSelection: prefs.data.getInt('scheduleType'),
+                        currentSelection: prefs.data!.getInt('scheduleType'),
                       ),
                     ],
                   );
