@@ -37,6 +37,8 @@ class SIGAA {
   var _jsessionid = '';
   var _isLoggedIn = false;
 
+  List<Course>? _courses;
+
   SharedPreferences? _prefs;
 
   SIGAA() {
@@ -118,11 +120,15 @@ class SIGAA {
   }
 
   Future<List<Course>> listCourses() async {
+    if (_courses != null) {
+      return _courses!;
+    }
+
     const url = '/sigaa/verPortalDiscente.do';
     final homeResponse = await httpGet(url, redirect: true);
     final document = parse(homeResponse.body);
 
-    return document.querySelectorAll('td.descricao').map((td) {
+    final courses = document.querySelectorAll('td.descricao').map((td) {
       final onclick = td.querySelectorAll('a').first.attributes['onclick']!;
       final cname = td.querySelectorAll('a').first.text.trim();
       final fName = td.querySelectorAll('form').first.attributes['name']!;
@@ -145,6 +151,8 @@ class SIGAA {
 
       return Course(id: 0, cid: idTurma, name: cname, data: data);
     }).toList();
+
+    return _courses = courses;
   }
 
   Future<List<Grade>> listGrades(Course course) async {
